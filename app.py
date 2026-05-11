@@ -1,2 +1,1 @@
-    wdfmhvadh
-    s,dhvc
+print("hello wor;ld!")
