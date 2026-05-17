@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+
+    *{
+      margin:5;
+      padding:0;
+      box-sizing:border-box;
+    }
+
+    body{
+      background:#2d2c2c;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+
+    .box{
+      width:600px;
+      height: 800px;
+      background:white;
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    }
+
+     .logo img{
+      width:30%;
+      height:auto;
+      object-fit:contain;
+      display: block;
+      margin: 10px auto;  
+      border-radius:100px;
+    }
+
+
+    h1{
+     text-align:center;
+      font-size:48px;
+      color:#1d2233;
+      margin-bottom:15px;
+    }
+
+    p{
+      text-align:center;
+      color:gray;
+      margin-bottom:30px;
+    }
+
+    .group{
+      margin-bottom:35px;
+    }
+
+    label{
+      display:block;
+      margin-bottom:15px;
+      font-weight:bold;
+      color:#374151;
+    }
+
+    .input{
+      position:relative;
+    }
+
+    .input i{
+      position:absolute;
+      left:15px;
+      top:15px;
+      color:gray;
+    }
+
+    .input input{
+      width:100%;
+      padding:14px 14px 14px 45px;
+      border:1px solid #d1d5db;
+      border-radius:10px;
+      outline:none;
+      font-size:15px;
+    }
+
+    button{
+      width:100%;
+      padding:18px;
+      border-radius:20px;
+      background:#3b5de7;
+      color:white;
+      font-size:20px;
+      margin-top:15px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="box">
+
+   <div class="logo">
+      <img src="logo.jpeg" alt="">
+    </div>
+
+    <h1>Admin Dashboard</h1>
+
+    <p>Manage library operations</p>
+
+    <div class="group">
+      <label>Email Address</label>
+
+      <div class="input">
+        <i class="fa-regular fa-envelope"></i>
+        <input type="email">
+      </div>
+    </div>
+
+    <div class="group">
+      <label>Password</label>
+
+      <div class="input">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password">
+      </div>
+    </div>
+
+    <button>Login as Admin</button>
+
+  </div>
+
+</body>
+</html>
