@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Portal Login</title>
+
+
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+
+  <style>
+    *{
+      margin: 5;;
+      padding:0;
+      box-sizing:border-box;
+      font-family: 'Times New Roman', Times, serif;
+    }
+
+    body{
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#2d2c2c;
+    }
+
+    .login{
+      width:600px;
+      height:800px;
+      background:white;
+      border-radius:25px;
+      padding:50px;
+    }
+
+    .logo img{
+    width:30%;
+    height:auto;
+    object-fit:contain; 
+    display: block;
+    margin: 10px auto;
+    border-radius: 100px;
+
+      }
+
+    h1{
+      text-align:center;
+      font-size:48px;
+      color:#1d2233;
+      margin-bottom:15px;
+    }
+
+    .h1{
+      text-align:center;
+      color:#5d6475;
+      font-size:28px;
+      margin-bottom:60px;
+    }
+
+    .input-group{
+      margin-bottom:35px;
+    }
+
+    .input-group label{
+      display:block;
+      margin-bottom:15px;
+      font-size:28px;
+      color:#444b5a;
+      font-weight:600;
+    }
+
+    .input-box{
+      position:relative;
+    }
+
+    .input-box i{
+      position:absolute;
+      left:18px;
+      top:50%;
+      transform:translateY(-50%);
+      color:#9ca3af;
+      font-size:24px;
+    }
+
+    .input-box input{
+      width:100%;
+      padding:18px 18px 18px 55px;
+      border:2px solid #d1d5db;
+      border-radius:15px;
+      font-size:22px;
+      outline:none;
+      transition:0.3s;
+    }
+
+    .input-box input:focus{
+      border-color:#3b5de7;
+      box-shadow:0 0 8px rgba(59,93,231,0.3);
+    }
+
+    .login-btn{
+      width:100%;
+      padding:18px;
+      border-radius:20px;
+      background:#3b5de7;
+      color:white;
+      font-size:20px;
+      margin-top:15px;
+      cursor: pointer;
+    }
+
+  
+
+
+  </style>
+</head>
+<body>
+
+  <div class="login">
+
+    <div class="logo">
+      <img src="logo.jpeg" alt="">
+    </div>
+
+    <h1>Student Portal</h1>
+    <p class="h1">Access your library resources</p>
+
+    <form>
+
+      <div class="input-group">
+        <label>Email Address</label>
+
+        <div class="input-box">
+          <i class="fa-regular fa-envelope"></i>
+          <input type="email" placeholder="">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>Password</label>
+
+        <div class="input-box">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" placeholder="">
+        </div>
+      </div>
+
+      <button class="login-btn">
+        Login as Student
+      </button>
+
+    </form>
+
+  </div>
+
+</body>
+</html>
