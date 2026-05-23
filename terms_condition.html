@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="terms_condition.css">
-    <style>
-        *{
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Terms and Conditions</title>
+
+<style>
+
+*{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: Arial, sans-serif;
 }
 
 body{
@@ -17,80 +20,123 @@ body{
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+form{
+    width: 650px;
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    border-width: 200px;
+    border-color: #e0e0e0;
+    border-style:
 }
 
 .terms{
     display: flex;
-    justify-content: center;
     align-items: flex-start;
-    gap: 10px;
-    
-}
-.terms-text {
-   line-height: 1;
+    gap: 12px;
 }
 
-button {
-    width: 600px;
+input[type="checkbox"]{
+    margin-top: 3px;
+}
+
+.terms-text{
+    line-height: 1.6;
+    color: #444;
+}
+
+.terms-text a{
+    text-decoration: none;
+    color: #24A0ED;
+    font-weight: bold;
+}
+
+button{
+    width: 100%;
     height: 55px;
-    margin-top: 20px;
+    margin-top: 25px;
     background-color: #24A0ED;
     color: white;
-    font-size: large;
-    border: 2px solid transparent;
+    font-size: 18px;
+    border: none;
     border-radius: 30px;
     cursor: pointer;
-    
+    transition: 0.3s;
 }
 
-button:hover {
+button:hover{
     background-color: #0d5d8e;
 }
 
 #login{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
-    font-size-adjust:0.5;
-    font-weight: normal;
+    text-align: center;
+    margin-top: 18px;
+    font-size: 15px;
     color: #7e7c7c;
 }
 
-    </style>
+#login a{
+    margin-left: 5px;
+    color: #24A0ED;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+</style>
 </head>
+
 <body>
-    <form action="" id="form">
-        <div class="terms">
-            <input type="checkbox" id="check">
 
-            <label for="check" class="terms-text">
-                I have read and understood the Library
-                <a href="#terms">Terms and Conditions</a>,
-                <a href="#privacy">Privacy Policy</a>.<br>
-                I agree to follow all the rules and regulations while using this library management system.
-            </label>
-        </div>
-    
+<form>
 
-    
-        <button type="button" onclick="signup()" id="button">Sign Up</button>
-       
-        <script>
-        function signup() {
-            let check = document.getElementById("check");
-            if (check.checked == false)  {
-                alert("Please accept the terms and conditions to proceed with the sign up process.");
-            } 
+    <div class="terms">
 
-            }
-        </script>
-       <h5 id="login">Already have an account?<a href="">login</a></h5>  
-    </form>
-    
-    
+        <input type="checkbox" id="check">
+
+        <label for="check" class="terms-text">
+            I have read the Library
+            <a href="#">Terms and Conditions</a>,
+            <a href="#">Privacy Policy</a>.<br>
+
+            I agree to follow all the rules and regulations while using this library management system.
+        </label>
+
+    </div>
+
+    <button type="button" onclick="signup()">
+        Sign Up
+    </button>
+
+    <h5 id="login">
+        Already have an account?
+        <a href="#">Login</a>
+    </h5>
+
+</form>
+
+<script>
+
+function signup(){
+
+    let check = document.getElementById("check");
+
+    if(check.checked == false){
+
+        alert("Please accept the terms and conditions.");
+
+    }
+    else{
+
+        alert("Signup successful!");
+
+    }
+}
+
+</script>
+
 </body>
-
 </html>
-
