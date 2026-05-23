@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="terms_condition.css">
+    <style>
+        *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.terms{
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px;
+    
+}
+.terms-text {
+   line-height: 1;
+}
+
+button {
+    width: 600px;
+    height: 55px;
+    margin-top: 20px;
+    background-color: #24A0ED;
+    color: white;
+    font-size: large;
+    border: 2px solid transparent;
+    border-radius: 30px;
+    cursor: pointer;
+    
+}
+
+button:hover {
+    background-color: #0d5d8e;
+}
+
+#login{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    font-size-adjust:0.5;
+    font-weight: normal;
+    color: #7e7c7c;
+}
+
+    </style>
+</head>
+<body>
+    <form action="" id="form">
+        <div class="terms">
+            <input type="checkbox" id="check">
+
+            <label for="check" class="terms-text">
+                I have read and understood the Library
+                <a href="#terms">Terms and Conditions</a>,
+                <a href="#privacy">Privacy Policy</a>.<br>
+                I agree to follow all the rules and regulations while using this library management system.
+            </label>
+        </div>
+    
+
+    
+        <button type="button" onclick="signup()" id="button">Sign Up</button>
+       
+        <script>
+        function signup() {
+            let check = document.getElementById("check");
+            if (check.checked == false)  {
+                alert("Please accept the terms and conditions to proceed with the sign up process.");
+            } 
+
+            }
+        </script>
+       <h5 id="login">Already have an account?<a href="">login</a></h5>  
+    </form>
+    
+    
+</body>
+
+</html>
+
