@@ -1,8 +1,11 @@
-{% extends "base.html"%}
-{% block content %}
-    <form action="/login" method="POST">
-        <input type="text" name="name" id="">
-        <input type="text" name="password" id="">
-        <input type="submit" value" click me" id="">
-    </form>
+{% extends "base.html" %}
+{% block title %}login page{% endblock%}
+{% block maincontent %}
+<form method="POST">
+    <input type="text" name="name" id="">
+    <input type="text" name="password" id="">
+    <input type="submit" value="click me" id="">
+    <a href="{{url_for('auth.register')}}">New account? Register here</a>
+
+</form>
 {%endblock%}

@@ -1,4 +1,17 @@
-{% extends "base.html"%}
-{% block content %}
-<h1> hello {{name}}</h1>
-{%endblock%}
+{% extends 'base.html'%}
+{% block title %} Home{% endblock%}
+{% block style %}
+<link rel="stylesheet" href="
+    ">{% endblock%}
+
+{% block maincontent %}
+
+{{product}}
+
+
+{% for pro in product%}
+<li>{{pro.name}} {{ pro.price}}</li>
+{%endfor%}
+
+
+{% endblock%}
