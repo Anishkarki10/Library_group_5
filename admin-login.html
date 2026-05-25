@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="style-1 1.css" />
+</head>
+<body class="admin-page">
+  <main class="login-card">
+    <div class="login-header">
+      <div class="icon-circle admin-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+        </svg>
+      </div>
+      <h1>Admin Dashboard</h1>
+      <p>Manage library operations</p>
+    </div>
+
+    <form id="adminLoginForm">
+      <div class="form-group">
+        <label for="adminEmail">Email Address</label>
+        <div class="input-wrapper">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 4h16v16H4z"></path>
+            <path d="m22 6-10 7L2 6"></path>
+          </svg>
+          <input type="email" id="adminEmail" placeholder="admin@library.com" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="adminPassword">Password</label>
+        <div class="input-wrapper">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <input type="password" id="adminPassword" placeholder="••••••••" required />
+        </div>
+      </div>
+
+      <div class="error-box" id="adminError">Invalid admin email or password</div>
+
+      <button type="submit" class="login-btn admin-btn">Login as Admin</button>
+
+      <div class="demo-box admin-demo">
+        <strong>Demo Credentials:</strong>
+        <p>Email: admin@library.com</p>
+        <p>Password: admin123</p>
+      </div>
+    </form>
+
+    <div class="switch-link">
+      Are you a student? <a href="student-login.html">Go to Student Login</a>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("adminLoginForm");
+    const errorBox = document.getElementById("adminError");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("adminEmail").value.trim();
+      const password = document.getElementById("adminPassword").value.trim();
+
+      if (email === "admin@library.com" && password === "admin123") {
+        errorBox.style.display = "none";
+        alert("Admin login successful");
+        // Replace this with your real admin dashboard page:
+        // window.location.href = "admin-dashboard.html";
+      } else {
+        errorBox.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
