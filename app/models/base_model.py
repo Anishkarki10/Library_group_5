@@ -34,6 +34,10 @@ class BaseModel(ABC):
 
     # ── Shared Methods (inherited by all child models) ──────
 
+    # @abstractmethod
+    # def save(self):
+    #     pass
+
     def find_by_id(self, record_id):
         """Find a single record by its ID."""
         db = Database()

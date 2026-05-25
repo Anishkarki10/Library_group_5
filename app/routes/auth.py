@@ -15,4 +15,9 @@ class AuthRoutes:
         self.bp.route("/", methods=["GET", "POST"])(
             self.controller.home
         )
+        self.bp.route("/dashboard", methods=["GET", "POST"])(
+            self.controller.dashboard
+        )
+
+        
         return self.bp

@@ -26,10 +26,6 @@ class AuthController(BaseController):
     """
 
     def __init__(self):
-        """
-        Create the User model object.
-        The controller USES the model — this is called Composition.
-        """
         self.user_model = User()
 
     # ── Home: Redirect to login ─────────────────────────────
@@ -42,20 +38,14 @@ class AuthController(BaseController):
     def login(self):
         if self.is_logged_in():
             return redirect(url_for("auth.dashboard"))
-
         if request.method == "POST":
             email, password = self.get_form_data("email", "password")
-            password = request.form.get("password", "")  # Don't strip password
-
+            password = request.form.get("password", "")
             if not email or not password:
                 flash("Email and password are required.", "danger")
                 return render_template("login.html")
-
-            # Use the User model to find the user
             user_data = self.user_model.find_by("email", email)
-
             if user_data:
-                # Build a User object from database data
                 user = User.from_db(user_data)
                 if user.check_password(password):
                     session["user_id"] = user_data["id"]
@@ -64,10 +54,9 @@ class AuthController(BaseController):
                     return self.flash_and_redirect(
                         "Login successful!", "success", "auth.dashboard"
                     )
-
             flash("Invalid email or password.", "danger")
-
         return render_template("login.html")
+     
 
     # ── Register ────────────────────────────────────────────
 
