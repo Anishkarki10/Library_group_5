@@ -1,139 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Dashboard</title>
-
-  <link rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-  <style>
-
-    *{
-      margin:5;
-      padding:0;
-      box-sizing:border-box;
-    }
-
-    body{
-      background:#2d2c2c;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-    }
-
-    .box{
-      width:600px;
-      height: 800px;
-      background:white;
-      padding:30px;
-      border-radius:20px;
-      box-shadow:0 5px 15px rgba(0,0,0,0.1);
-    }
-
-     .logo img{
-      width:30%;
-      height:auto;
-      object-fit:contain;
-      display: block;
-      margin: 10px auto;  
-      border-radius:100px;
-    }
-
-
-    h1{
-     text-align:center;
-      font-size:48px;
-      color:#1d2233;
-      margin-bottom:15px;
-    }
-
-    p{
-      text-align:center;
-      color:gray;
-      margin-bottom:30px;
-    }
-
-    .group{
-      margin-bottom:35px;
-    }
-
-    label{
-      display:block;
-      margin-bottom:15px;
-      font-weight:bold;
-      color:#374151;
-    }
-
-    .input{
-      position:relative;
-    }
-
-    .input i{
-      position:absolute;
-      left:15px;
-      top:15px;
-      color:gray;
-    }
-
-    .input input{
-      width:100%;
-      padding:14px 14px 14px 45px;
-      border:1px solid #d1d5db;
-      border-radius:10px;
-      outline:none;
-      font-size:15px;
-    }
-
-    button{
-      width:100%;
-      padding:18px;
-      border-radius:20px;
-      background:#3b5de7;
-      color:white;
-      font-size:20px;
-      margin-top:15px;
-      cursor: pointer;
-    }
-
-  </style>
+  <link rel="stylesheet" href="admin.css" />
 </head>
-
 <body>
-
-  <div class="box">
-
-   <div class="logo">
-      <img src="logo.jpeg" alt="">
+  <header class="topbar">
+    <div class="brand">
+      <svg class="brand-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+        <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"></path>
+      </svg>
+      <h1>Library Resource Management</h1>
     </div>
 
-    <h1>Admin Dashboard</h1>
+    <div class="user-area">
+      <a href="student-page.html" class="switch-btn">Student Portal</a>
+      <a href="admin-dashboard.html" class="switch-btn active-switch">Admin Dashboard</a>
 
-    <p>Manage library operations</p>
-
-    <div class="group">
-      <label>Email Address</label>
-
-      <div class="input">
-        <i class="fa-regular fa-envelope"></i>
-        <input type="email">
+      <div class="user-info">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 21a8 8 0 0 0-16 0"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Admin User</span>
       </div>
+
+      <a href="admin-login.html" class="logout-btn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <path d="M16 17l5-5-5-5"></path>
+          <path d="M21 12H9"></path>
+        </svg>
+        Logout
+      </a>
     </div>
+  </header>
 
-    <div class="group">
-      <label>Password</label>
+  <div class="layout">
+    <aside class="sidebar">
+      <button class="nav-btn active" data-page="overviewPage">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+        </svg>
+        Overview
+      </button>
 
-      <div class="input">
-        <i class="fa-solid fa-lock"></i>
-        <input type="password">
-      </div>
-    </div>
+      <button class="nav-btn" data-page="inventoryPage">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <path d="M3.3 7 12 12l8.7-5"></path>
+          <path d="M12 22V12"></path>
+        </svg>
+        Inventory
+      </button>
 
-    <button>Login as Admin</button>
+      <button class="nav-btn" data-page="circulationPage">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 6v6l4 2"></path>
+        </svg>
+        Circulation
+      </button>
+    </aside>
 
+    <main class="content">
+      <section id="overviewPage" class="page active-page">
+        <h2>Dashboard Overview</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div>
+              <p>Total Books</p>
+              <h3>1,247</h3>
+            </div>
+            <svg class="stat-icon blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"></path>
+            </svg>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <p>Checked Out</p>
+              <h3 class="orange-text">342</h3>
+            </div>
+            <svg class="stat-icon orange" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <p>Overdue</p>
+              <h3 class="red-text">23</h3>
+            </div>
+            <svg class="stat-icon red" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </div>
+
+          <div class="stat-card">
+            <div>
+              <p>Active Users</p>
+              <h3 class="green-text">567</h3>
+            </div>
+            <svg class="stat-icon green" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20 21a8 8 0 0 0-16 0"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Most Popular Books</h3>
+            <div class="bar-chart" id="popularBooksChart"></div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Circulation Trends</h3>
+            <div class="line-chart">
+              <svg id="circulationLineChart" viewBox="0 0 520 300" preserveAspectRatio="none"></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="inventoryPage" class="page">
+        <div class="section-header">
+          <h2>Inventory Management</h2>
+
+          <div class="action-buttons">
+            <button class="add-btn">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M12 5v14"></path>
+                <path d="M5 12h14"></path>
+              </svg>
+              Add New Book
+            </button>
+
+            <button class="export-btn" id="exportInventoryBtn">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <path d="M7 10l5 5 5-5"></path>
+                <path d="M12 15V3"></path>
+              </svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Total</th>
+                <th>Available</th>
+                <th>Location</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="circulationPage" class="page">
+        <h2>Circulation Tracking</h2>
+
+        <div class="tabs">
+          <button class="tab-btn active-tab" data-filter="all">Active Loans</button>
+          <button class="tab-btn" data-filter="overdue">Overdue</button>
+          <button class="tab-btn" data-filter="returned">Returned</button>
+        </div>
+
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Student Name</th>
+                <th>Book Title</th>
+                <th>Checkout Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="circulationTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
   </div>
 
+  <script src="admin.js"></script>
 </body>
 </html>
