@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="student-page">
+  <main class="login-card">
+    <div class="login-header">
+      <div class="icon-circle student-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"></path>
+        </svg>
+      </div>
+      <h1>Student Portal</h1>
+      <p>Access your library resources</p>
+    </div>
+
+    <form id="studentLoginForm">
+      <div class="form-group">
+        <label for="studentEmail">Email Address</label>
+        <div class="input-wrapper">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 4h16v16H4z"></path>
+            <path d="m22 6-10 7L2 6"></path>
+          </svg>
+          <input type="email" id="studentEmail" placeholder="student@library.com" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="studentPassword">Password</label>
+        <div class="input-wrapper">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <input type="password" id="studentPassword" placeholder="••••••••" required />
+        </div>
+      </div>
+
+      <div class="error-box" id="studentError">Invalid student email or password</div>
+
+      <button type="submit" class="login-btn student-btn">Login as Student</button>
+
+      <div class="demo-box student-demo">
+        <strong>Demo Credentials:</strong>
+        <p>Email: student@library.com</p>
+        <p>Password: student123</p>
+      </div>
+    </form>
+
+    <div class="switch-link">
+      Are you an admin? <a href="admin-login.html">Go to Admin Login</a>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("studentLoginForm");
+    const errorBox = document.getElementById("studentError");
+
+    form.addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById("studentEmail").value.trim();
+      const password = document.getElementById("studentPassword").value.trim();
+
+      if (email === "student@library.com" && password === "student123") {
+        errorBox.style.display = "none";
+        alert("Student login successful");
+        // Replace this with your real student dashboard page:
+        // window.location.href = "student-dashboard.html";
+      } else {
+        errorBox.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
