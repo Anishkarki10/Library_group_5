@@ -5,13 +5,7 @@
     ">{% endblock%}
 
 {% block maincontent %}
-
-{{product}}
-
-
-{% for pro in product%}
-<li>{{pro.name}} {{ pro.price}}</li>
-{%endfor%}
+<a href="{{url_for('auth.logout')}}">logout</a>
 
 
 {% endblock%}

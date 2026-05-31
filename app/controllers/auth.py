@@ -13,30 +13,29 @@ from flask import render_template, redirect, url_for, session, flash, request
 from app.controllers.base_controller import BaseController
 from app.models.user import User
 
-
 class AuthController(BaseController):
     """
     Handles authentication: login, register, logout, dashboard, profile.
-
     Inherits from BaseController:
       - get_form_data()
       - is_logged_in()
       - get_current_user_id()
       - flash_and_redirect()
     """
-
     def __init__(self):
         self.user_model = User()
 
     # ── Home: Redirect to login ─────────────────────────────
 
     def home(self):
-        return redirect(url_for("auth.login"))
+        return render_template('home.html')
 
     # ── Login ───────────────────────────────────────────────
 
     def login(self):
         if self.is_logged_in():
+            if session.get("role") != "admin":
+                return redirect(url_for("auth.home"))
             return redirect(url_for("auth.dashboard"))
         if request.method == "POST":
             email, password = self.get_form_data("email", "password")
@@ -51,6 +50,10 @@ class AuthController(BaseController):
                     session["user_id"] = user_data["id"]
                     session["user_name"] = user_data["name"]
                     session["role"] = user_data["role"]
+                    if user_data["role"] != "admin":
+                        return self.flash_and_redirect(
+                        "Login successful!", "success", "auth.home"
+                    )
                     return self.flash_and_redirect(
                         "Login successful!", "success", "auth.dashboard"
                     )
@@ -63,11 +66,9 @@ class AuthController(BaseController):
     def register(self):
         if self.is_logged_in():
             return redirect(url_for("auth.dashboard"))
-
         if request.method == "POST":
             name, email = self.get_form_data("name", "email")
             password = request.form.get("password", "")
-
             # Validation
             if not name or not email or not password:
                 flash("All fields are required.", "danger")
@@ -107,8 +108,9 @@ class AuthController(BaseController):
     # ── Dashboard ───────────────────────────────────────────
 
     def dashboard(self):
-        total_users = self.user_model.count_all()
-        return render_template("dashboard.html", total_users=total_users)
+        users=self.user_model.find_all()
+        print(users)
+        return render_template("dashboard.html",users=users)
 
     # ── Profile ─────────────────────────────────────────────
     def profile(self):
@@ -158,3 +160,27 @@ class AuthController(BaseController):
 
         user_data = self.user_model.find_by_id(user_id)
         return render_template("profile.html", user=user_data)
+
+    def editUsers(self, id):
+        user_data = self.user_model.find_by_id(id)
+        user_obj = User.from_db(user_data)
+        if request.method == "POST":
+            name, email = self.get_form_data("name", "email")
+            password = request.form.get("password", "")
+            user_obj.name = name
+            user_obj.email = email
+            update_password = False
+            if password:
+                user_obj.set_password(password)
+                update_password = True
+            user_obj.update(user_id=id, update_password=update_password)
+            return redirect(url_for("auth.dashboard"))
+
+        return render_template("editUser.html", user=user_data)
+    
+
+    def deleteUser(self, id):
+        if request.method == "POST":
+            self.user_model.delete_by_id(id)
+
+        return redirect(url_for("auth.dashboard"))

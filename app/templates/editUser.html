@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Edit User{% endblock %}
+
+{% block maincontent %}
+<form method="POST">
+    <input type="text" name="name" value="{{ user.name }}" placeholder="Name">
+    <input type="email" name="email" value="{{ user.email }}" placeholder="Email">
+    <input type="password" name="password" placeholder="Leave blank to keep current password">
+    <input type="submit" value="Update User">
+</form>
+{% endblock %}

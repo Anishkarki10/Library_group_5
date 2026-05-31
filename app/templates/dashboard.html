@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}dashboard page{% endblock%}
+{% block maincontent %}
+<table border="1">
+    <thead>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+    </thead>
+    <tbody>
+        {% for user in users%}
+        <tr>
+            <td>
+                {{user.name}}
+            </td>
+            <td>
+                {{user.email}}
+            </td>
+            <td>
+
+                <a href="{{ url_for('auth.editUsers', id=user.id) }}">Edit</a>
+                <a href="">delete</a>
+            </td>
+        </tr>
+        {% endfor%}
+    </tbody>
+</table>
+<a href="{{url_for('auth.logout')}}">logout</a>
+{%endblock%}
+
+<!-- 
+                <form action="{{ url_for('auth.deleteUser', id=user.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" onclick="return confirm('Are you sure?')">
+                        Delete
+                    </button>
+                </form> -->

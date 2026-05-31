@@ -6,9 +6,9 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = config.SECRET_KEY
     with app.app_context():
-        Database.create_tables()  # Static method — called on the class, not an object
-
+        Database.create_tables()
 
     auth_routes = AuthRoutes() 
     app.register_blueprint(auth_routes.register()) 
+    
     return app

@@ -2,10 +2,9 @@
 {% block title %}Register page{% endblock%}
 {% block maincontent %}
 <form   method="POST">
-    <input type="text" name="name" id="">
-    <input type="text" name="email" id="">
-    <input type="text" name="password" id="">
+    <input type="text" name="name" id="" placeholder="name`">
+    <input type="email" name="email" id="" placeholder="email`">
+    <input type="password" name="password" id="" placeholder="password">
     <input type="submit" value="click me" id="">
-    <!-- <a href="{{url_for('auth.login')}}">Already have an account? Login here</a> -->
 </form>
 {%endblock%}

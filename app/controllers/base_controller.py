@@ -3,8 +3,10 @@
   OOP Concept: INHERITANCE & ENCAPSULATION (Base Controller)
 =============================================================
   - This is the PARENT class for all controllers.
-  - It provides shared helper methods that every controller needs (like getting form data or checking login).
-  - Child classes (AuthController, UserController) INHERIT all these methods and can also add their own.
+  - It provides shared helper methods that every controller needs 
+  (like getting form data or checking login).
+  - Child classes (AuthController, UserController) 
+  INHERIT all these methods and can also add their own.
 =============================================================
 """
 
@@ -25,10 +27,8 @@ class BaseController:
     def get_form_data(self, *fields):
         """
         Safely get multiple form fields at once.
-
         Usage:
             name, email = self.get_form_data('name', 'email')
-
         Returns stripped strings (no extra spaces).
         """
         return tuple(request.form.get(field, "").strip() for field in fields)
