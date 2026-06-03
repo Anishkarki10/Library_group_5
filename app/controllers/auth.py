@@ -120,9 +120,13 @@ class AuthController(BaseController):
 
         if request.method == "POST":
             name, email = self.get_form_data("name", "email")
+            student_id = request.form.get("student_id", "")
+            phone = request.form.get("phone", "")
             password = request.form.get("password", "")
+            confirm_password = request.form.get("confirm_password", "")
+            agree_terms = request.form.get("agree_terms")
 
-            if not name or not email or not password:
+            if not name or not student_id or not email or not phone or not password or not confirm_password:
                 flash("All fields are required.", "danger")
                 return render_template("register.html")
 
@@ -130,11 +134,28 @@ class AuthController(BaseController):
                 flash("Name must be under 100 characters.", "danger")
                 return render_template("register.html")
 
+            if len(phone) < 10:
+                flash("Please enter a valid phone number.", "danger")
+                return render_template("register.html")
+
             if len(password) < 6:
                 flash("Password must be at least 6 characters.", "danger")
                 return render_template("register.html")
 
-            new_user = User(name=name, email=email, password=password, role="user")
+            if password != confirm_password:
+                flash("Passwords do not match.", "danger")
+                return render_template("register.html")
+
+            if agree_terms != "yes":
+                flash("You must agree to the terms and conditions.", "danger")
+                return render_template("register.html")
+
+            new_user = User(
+                name=name,
+                email=email,
+                password=password,
+                role="user"
+            )
 
             if new_user.email_exists():
                 flash("Email already exists.", "danger")
@@ -143,11 +164,12 @@ class AuthController(BaseController):
             new_user.save()
 
             return self.flash_and_redirect(
-                "Registration successful! Please login.", "success", "auth.login"
+                "Registration successful! Please login.",
+                "success",
+                "auth.login"
             )
 
         return render_template("register.html")
-
     # ── Logout ──────────────────────────────────────────────
 
     def logout(self):
