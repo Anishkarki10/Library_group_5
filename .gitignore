@@ -41,4 +41,11 @@ tmp/
 temp/
 
 # Node if any
-node_modules/
+node_modules/app/templates/README.md
+app/templates/admin.css
+app/templates/admin.js
+app/templates/change_password.html
+app/templates/forget.html
+app/templates/student.css
+app/templates/student.html
+app/templates/student.js
