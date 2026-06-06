@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Resource Management - Available Books</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased">
+
+    <div class="flex pt-16 min-h-screen">
+    
+
+        <main class="flex-1 md:ml-64 p-8 overflow-y-auto">
+            
+            
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden w-full">
+
+                <div class="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Available Books on Shelf</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Displaying current items marked as in-stock and ready for immediate borrowing.</p>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-100 text-green-700 px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-2 self-start sm:self-auto">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span id="availableCounter">3 Books Available</span>
+                    </div>
+                </div>
+
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input id="catalogSearch" type="text" placeholder="Search available books by title or author..." class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-blue-500 shadow-sm">
+                    </div>
+
+                    <div class="relative">
+                        <select id="genreFilter" class="appearance-none bg-white border border-slate-200 rounded-xl pl-4 pr-10 py-2 text-sm font-medium text-slate-700 focus:outline-none focus:border-blue-500 cursor-pointer w-full sm:w-48 shadow-sm">
+                            <option value="all">All Genres</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Programming">Programming</option>
+                            <option value="Database">Database</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400 text-xs">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6">
+                    <div id="catalogGrid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        
+                        <div class="book-card border border-slate-200 rounded-2xl p-5 flex gap-4 hover:shadow-md transition bg-white" data-genre="Programming">
+                            <div class="w-24 h-32 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm">
+                                <i class="fa-solid fa-book text-3xl opacity-90"></i>
+                            </div>
+                            <div class="flex flex-col justify-between flex-1">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 leading-tight text-base book-title">Clean Code</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5 book-author">Robert Martin</p>
+                                    <span class="inline-block bg-slate-100 text-slate-600 text-[10px] font-semibold px-2.5 py-0.5 rounded-md mt-2">Programming</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-4">
+                                    <span class="text-xs font-bold text-green-600 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Available
+                                    </span>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition shadow-sm">Reserve</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="book-card border border-slate-200 rounded-2xl p-5 flex gap-4 hover:shadow-md transition bg-white" data-genre="Computer Science">
+                            <div class="w-24 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm">
+                                <i class="fa-solid fa-book text-3xl opacity-90"></i>
+                            </div>
+                            <div class="flex flex-col justify-between flex-1">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 leading-tight text-base book-title">Introduction to Algorithms</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5 book-author">Thomas Cormen</p>
+                                    <span class="inline-block bg-slate-100 text-slate-600 text-[10px] font-semibold px-2.5 py-0.5 rounded-md mt-2">Computer Science</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-4">
+                                    <span class="text-xs font-bold text-green-600 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Available
+                                    </span>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition shadow-sm">Reserve</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="book-card border border-slate-200 rounded-2xl p-5 flex gap-4 hover:shadow-md transition bg-white" data-genre="Database">
+                            <div class="w-24 h-32 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-sm">
+                                <i class="fa-solid fa-book text-3xl opacity-90"></i>
+                            </div>
+                            <div class="flex flex-col justify-between flex-1">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 leading-tight text-base book-title">Database Systems</h4>
+                                    <p class="text-xs text-slate-500 mt-0.5 book-author">Ramez Elmasri</p>
+                                    <span class="inline-block bg-slate-100 text-slate-600 text-[10px] font-semibold px-2.5 py-0.5 rounded-md mt-2">Database</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-4">
+                                    <span class="text-xs font-bold text-green-600 flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Available
+                                    </span>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-1.5 rounded-lg transition shadow-sm">Reserve</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div id="emptyState" class="hidden text-center py-12">
+                        <div class="text-slate-300 text-5xl mb-3">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-700">No matching books found</h4>
+                        <p class="text-xs text-slate-400 mt-1">Try resetting your filter parameters or checking your spellings.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById("catalogSearch");
+        const genreFilter = document.getElementById("genreFilter");
+        const bookCards = document.querySelectorAll(".book-card");
+        const emptyState = document.getElementById("emptyState");
+        const availableCounter = document.getElementById("availableCounter");
+
+        function filterBooks() {
+            const searchQuery = searchInput.value.toLowerCase().trim();
+            const selectedGenre = genreFilter.value;
+            let visibleCount = 0;
+
+            bookCards.forEach(card => {
+                const title = card.querySelector(".book-title").textContent.toLowerCase();
+                const author = card.querySelector(".book-author").textContent.toLowerCase();
+                const genre = card.dataset.genre;
+
+                const matchesSearch = title.includes(searchQuery) || author.includes(searchQuery);
+                const matchesGenre = selectedGenre === "all" || genre === selectedGenre;
+
+                if (matchesSearch && matchesGenre) {
+                    card.style.display = "flex";
+                    visibleCount++;
+                } else {
+                    card.style.display = "none";
+                }
+            });
+
+            // Handle empty search results state layout displays
+            if (visibleCount === 0) {
+                emptyState.classList.remove("hidden");
+            } else {
+                emptyState.classList.add("hidden");
+            }
+
+            // Update Counter Text Dynamically
+            availableCounter.textContent = `${visibleCount} Book${visibleCount === 1 ? '' : 's'} Available`;
+        }
+
+        searchInput.addEventListener("input", filterBooks);
+        genreFilter.addEventListener("change", filterBooks);
+    </script>
+</body>
+</html>
