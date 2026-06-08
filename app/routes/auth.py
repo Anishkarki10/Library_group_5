@@ -41,5 +41,7 @@ class AuthRoutes:
         self.bp.route("/delete/<int:id>", methods=["GET", "POST"])(
             admin_required(self.controller.deleteUser)
         )
+        self.bp.route("/change-password", methods=["POST"])(
+         login_required(self.controller.change_password))
 
         return self.bp

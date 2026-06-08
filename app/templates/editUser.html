@@ -1,14 +1,9 @@
-{% extends "base.html" %}
-
-{% block title %}Edit User{% endblock %}
-
-{% block maincontent %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Library Login</title>
+  <title>Edit User</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -18,146 +13,180 @@
   />
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+<body class="min-h-screen bg-gray-50">
 
-  <div class="w-full max-w-5xl grid md:grid-cols-2 gap-8">
+  <!-- Top Navbar -->
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
 
-    <!-- Student Info Card -->
-    <div class="bg-white rounded-2xl shadow-xl p-8">
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-          <i class="fa-solid fa-book-open text-blue-600 text-3xl"></i>
-        </div>
-
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">
-          Student Portal
-        </h2>
-
-        <p class="text-gray-600">
-          Search books, reserve available books, and view your borrowing history.
-        </p>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+        <i class="fa-solid fa-user-pen text-indigo-600 text-xl"></i>
       </div>
 
-      <div class="space-y-4">
-        <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-          <i class="fa-solid fa-magnifying-glass text-blue-600"></i>
-          <span class="text-sm text-gray-700">Search library books</span>
-        </div>
-
-        <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-          <i class="fa-solid fa-clock text-blue-600"></i>
-          <span class="text-sm text-gray-700">Track borrowed books</span>
-        </div>
-
-        <div class="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-          <i class="fa-solid fa-bell text-blue-600"></i>
-          <span class="text-sm text-gray-700">Check overdue notices</span>
-        </div>
+      <div>
+        <h1 class="text-xl font-bold text-gray-900">
+          Edit Registered User
+        </h1>
+        <p class="text-sm text-gray-500">
+          Update user information
+        </p>
       </div>
     </div>
 
-    <!-- Login Form -->
-    <div class="bg-white rounded-2xl shadow-xl p-8">
-      <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 rounded-full mb-4">
-          <i class="fa-solid fa-right-to-bracket text-indigo-600 text-3xl"></i>
+    <div class="flex items-center gap-3">
+      <a
+        href="{{ url_for('auth.dashboard') }}"
+        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition"
+      >
+        Back
+      </a>
+
+      <a
+        href="{{ url_for('auth.logout') }}"
+        class="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition"
+      >
+        Logout
+      </a>
+    </div>
+
+  </header>
+
+  <main class="max-w-2xl mx-auto p-6">
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-2">
+          {% for category, message in messages %}
+            <div class="
+              px-4 py-3 rounded-lg text-sm border
+              {% if category == 'success' %}
+                bg-green-50 text-green-700 border-green-200
+              {% elif category == 'danger' %}
+                bg-red-50 text-red-700 border-red-200
+              {% elif category == 'warning' %}
+                bg-yellow-50 text-yellow-700 border-yellow-200
+              {% else %}
+                bg-blue-50 text-blue-700 border-blue-200
+              {% endif %}
+            ">
+              {{ message }}
+            </div>
+          {% endfor %}
         </div>
+      {% endif %}
+    {% endwith %}
 
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">
-          Login
+    <!-- Edit Card -->
+    <section class="bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
+
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">
+          Edit User
         </h2>
-
-        <p class="text-gray-600">
-          Students and admins use the same login page
+        <p class="text-gray-600 mt-1">
+          Change name, email, role, or password.
         </p>
       </div>
 
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="mb-5 space-y-2">
-            {% for category, message in messages %}
-              <div class="
-                px-4 py-3 rounded-lg text-sm border
-                {% if category == 'success' %}
-                  bg-green-50 text-green-700 border-green-200
-                {% elif category == 'danger' %}
-                  bg-red-50 text-red-700 border-red-200
-                {% elif category == 'warning' %}
-                  bg-yellow-50 text-yellow-700 border-yellow-200
-                {% else %}
-                  bg-blue-50 text-blue-700 border-blue-200
-                {% endif %}
-              ">
-                {{ message }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
+      <form
+        method="POST"
+        action="{{ url_for('auth.editUsers', id=user['id']) }}"
+        class="space-y-5"
+      >
 
-      <form action="{{ url_for('auth.login') }}" method="POST" class="space-y-5">
+        <!-- Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Full Name
+          </label>
 
+          <input
+            type="text"
+            name="name"
+            value="{{ user['name'] }}"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
+
+        <!-- Email -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Email Address
           </label>
 
-          <div class="relative">
-            <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              required
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-            />
-          </div>
+          <input
+            type="email"
+            name="email"
+            value="{{ user['email'] }}"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
         </div>
 
+        <!-- Role -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            Password
+            Role
           </label>
 
-          <div class="relative">
-            <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          <select
+            name="role"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          >
+            <option value="user" {% if user['role'] == 'user' %}selected{% endif %}>
+              Student
+            </option>
 
-            <input
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              required
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
-            />
-          </div>
+            <option value="admin" {% if user['role'] == 'admin' %}selected{% endif %}>
+              Admin
+            </option>
+          </select>
         </div>
 
-        <button
-          type="submit"
-          class="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
-        >
-          Login
-        </button>
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            New Password
+          </label>
 
-        <div class="text-center">
-          <a href="{{ url_for('auth.register') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-            Don't have an account? Register here
+          <input
+            type="password"
+            name="password"
+            placeholder="Leave empty to keep current password"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+
+          <p class="text-xs text-gray-500 mt-2">
+            Only enter a password if you want to change it.
+          </p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex items-center gap-3 pt-4">
+
+          <button
+            type="submit"
+            class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
+          >
+            Update User
+          </button>
+
+          <a
+            href="{{ url_for('auth.dashboard') }}"
+            class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition"
+          >
+            Cancel
           </a>
+
         </div>
 
       </form>
 
-      <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-        <p class="text-xs text-gray-600 text-center">
-          Admins are redirected to the admin dashboard. Students are redirected to the student library dashboard.
-        </p>
-      </div>
-    </div>
+    </section>
 
-  </div>
+  </main>
 
 </body>
 </html>
-{% endblock %}
