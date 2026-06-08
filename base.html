@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock%} - My website</title>
+    {% block style %} {% endblock%}
+
+
+</head>
+
+<body>
+    <nav>
+        this is a navigation bar
+    </nav>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endwith %}
+    {% block maincontent %} {% endblock%}
+    <footer>
+        this is a footer
+    </footer>
+
+</body>
+
+</html>
