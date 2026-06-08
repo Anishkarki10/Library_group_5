@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory Management</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-6 font-sans">
+
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-slate-900">Inventory Management</h1>
+      <div class="flex gap-2">
+        <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 text-sm font-medium rounded-lg">+ Add New Book</button>
+        <button class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 text-sm font-medium rounded-lg">Export CSV</button>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-3 items-center justify-between">
+      <input 
+        type="text" 
+        id="searchInput" 
+        onkeyup="filterTable()" 
+        placeholder="Search by title or author..." 
+        class="w-full md:w-1/2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      >
+      <div class="flex gap-3 w-full md:w-auto">
+        <select id="genreFilter" onchange="filterTable()" class="w-full md:w-40 px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+          <option value="all">All Genres</option>
+          <option value="Computer Science">Computer Science</option>
+          <option value="Programming">Programming</option>
+          <option value="Software Engineering">Software Engineering</option>
+          <option value="AI/ML">AI/ML</option>
+        </select>
+        <select id="statusFilter" onchange="filterTable()" class="w-full md:w-40 px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
+          <option value="all">All Statuses</option>
+          <option value="available">Available</option>
+          <option value="out">Out of Stock</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="text-xs text-slate-500 mb-3" id="counter">Showing 6 of 6 books</div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm" id="inventoryTable">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+            <th class="p-4 w-12 text-center">ID</th>
+            <th class="p-4">Title</th>
+            <th class="p-4">Author</th>
+            <th class="p-4">Genre</th>
+            <th class="p-4 text-center w-20">Total</th>
+            <th class="p-4 text-center w-24">Available</th>
+            <th class="p-4">Location</th>
+            <th class="p-4 text-center w-32">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          <tr class="hover:bg-slate-50">
+            <td class="p-4 text-center text-slate-400">1</td>
+            <td class="p-4 font-semibold text-slate-900 row-title">Introduction to Algorithms</td>
+            <td class="p-4 row-author">Thomas Cormen</td>
+            <td class="p-4 row-genre">Computer Science</td>
+            <td class="p-4 text-center row-total">5</td>
+            <td class="p-4 text-center"><span class="row-avail px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">1</span></td>
+            <td class="p-4">Shelf A-12</td>
+            <td class="p-4 text-center space-x-2">
+              <button onclick="openModal(this)" class="text-blue-600 hover:underline font-medium cursor-pointer">Edit</button>
+              <button onclick="deleteRow(this)" class="text-red-600 hover:underline font-medium cursor-pointer">Delete</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="p-4 text-center text-slate-400">2</td>
+            <td class="p-4 font-semibold text-slate-900 row-title">Clean Code</td>
+            <td class="p-4 row-author">Robert Martin</td>
+            <td class="p-4 row-genre">Programming</td>
+            <td class="p-4 text-center row-total">3</td>
+            <td class="p-4 text-center"><span class="row-avail px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">1</span></td>
+            <td class="p-4">Shelf B-05</td>
+            <td class="p-4 text-center space-x-2">
+              <button onclick="openModal(this)" class="text-blue-600 hover:underline font-medium cursor-pointer">Edit</button>
+              <button onclick="deleteRow(this)" class="text-red-600 hover:underline font-medium cursor-pointer">Delete</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="p-4 text-center text-slate-400">3</td>
+            <td class="p-4 font-semibold text-slate-900 row-title">Design Patterns</td>
+            <td class="p-4 row-author">Gang of Four</td>
+            <td class="p-4 row-genre">Software Engineering</td>
+            <td class="p-4 text-center row-total">4</td>
+            <td class="p-4 text-center"><span class="row-avail px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">0</span></td>
+            <td class="p-4">Shelf A-15</td>
+            <td class="p-4 text-center space-x-2">
+              <button onclick="openModal(this)" class="text-blue-600 hover:underline font-medium cursor-pointer">Edit</button>
+              <button onclick="deleteRow(this)" class="text-red-600 hover:underline font-medium cursor-pointer">Delete</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="p-4 text-center text-slate-400">4</td>
+            <td class="p-4 font-semibold text-slate-900 row-title">The Pragmatic Programmer</td>
+            <td class="p-4 row-author">Andy Hunt</td>
+            <td class="p-4 row-genre">Programming</td>
+            <td class="p-4 text-center row-total">6</td>
+            <td class="p-4 text-center"><span class="row-avail px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">3</span></td>
+            <td class="p-4">Shelf B-08</td>
+            <td class="p-4 text-center space-x-2">
+              <button onclick="openModal(this)" class="text-blue-600 hover:underline font-medium cursor-pointer">Edit</button>
+              <button onclick="deleteRow(this)" class="text-red-600 hover:underline font-medium cursor-pointer">Delete</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="p-4 text-center text-slate-400">5</td>
+            <td class="p-4 font-semibold text-slate-900 row-title">Data Structures and Algorithms</td>
+            <td class="p-4 row-author">Mark Weiss</td>
+            <td class="p-4 row-genre">Computer Science</td>
+            <td class="p-4 text-center row-total">4</td>
+            <td class="p-4 text-center"><span class="row-avail px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">2</span></td>
+            <td class="p-4">Shelf A-10</td>
+            <td class="p-4 text-center space-x-2">
+              <button onclick="openModal(this)" class="text-blue-600 hover:underline font-medium cursor-pointer">Edit</button>
+              <button onclick="deleteRow(this)" class="text-red-600 hover:underline font-medium cursor-pointer">Delete</button>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50">
+            <td class="p-4 text-center text-slate-400">6</td>
+            <td class="p-4 font-semibold text-slate-900 row-title">Artificial Intelligence: A Modern Approach</td>
+            <td class="p-4 row-author">Stuart Russell</td>
+            <td class="p-4 row-genre">AI/ML</td>
+            <td class="p-4 text-center row-total">3</td>
+            <td class="p-4 text-center"><span class="row-avail px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">0</span></td>
+            <td class="p-4">Shelf C-03</td>
+            <td class="p-4 text-center space-x-2">
+              <button onclick="openModal(this)" class="text-blue-600 hover:underline font-medium cursor-pointer">Edit</button>
+              <button onclick="deleteRow(this)" class="text-red-600 hover:underline font-medium cursor-pointer">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="editModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-sm w-full border border-slate-200 p-6 space-y-4">
+      <h3 class="font-bold text-base text-slate-900">Update Book Details</h3>
+      
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Title</label>
+          <input type="text" id="mTitle" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Author</label>
+          <input type="text" id="mAuthor" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Total Stock</label>
+            <input type="number" id="mTotal" min="0" oninput="calcBorrowed()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Available</label>
+            <input type="number" id="mAvail" min="0" oninput="calcBorrowed()" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none">
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 p-2.5 rounded-lg flex justify-between text-xs text-slate-600">
+        <span>Borrowed Copies:</span>
+        <span id="mBorrowed" class="font-bold">0</span>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">Cancel</button>
+        <button onclick="saveChanges()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeRow = null;
+
+    // Search and Filter logic combined into one small function
+    function filterTable() {
+      let search = document.getElementById('searchInput').value.toLowerCase();
+      let genre = document.getElementById('genreFilter').value;
+      let status = document.getElementById('statusFilter').value;
+      let rows = document.querySelectorAll('#inventoryTable tbody tr');
+      let visible = 0;
+
+      rows.forEach(row => {
+        let title = row.querySelector('.row-title').textContent.toLowerCase();
+        let author = row.querySelector('.row-author').textContent.toLowerCase();
+        let rowGenre = row.querySelector('.row-genre').textContent;
+        let avail = parseInt(row.querySelector('.row-avail').textContent, 10);
+
+        let matchSearch = title.includes(search) || author.includes(search);
+        let matchGenre = (genre === 'all') || (rowGenre === genre);
+        let matchStatus = (status === 'all') || (status === 'available' && avail > 0) || (status === 'out' && avail === 0);
+
+        if (matchSearch && matchGenre && matchStatus) {
+          row.style.display = "";
+          visible++;
+        } else {
+          row.style.display = "none";
+        }
+      });
+      document.getElementById('counter').textContent = `Showing ${visible} of ${rows.length} books`;
+    }
+
+    // Modal Control functions
+    function openModal(btn) {
+      activeRow = btn.closest('tr');
+      document.getElementById('mTitle').value = activeRow.querySelector('.row-title').textContent;
+      document.getElementById('mAuthor').value = activeRow.querySelector('.row-author').textContent;
+      document.getElementById('mTotal').value = activeRow.querySelector('.row-total').textContent;
+      document.getElementById('mAvail').value = activeRow.querySelector('.row-avail').textContent;
+      
+      calcBorrowed();
+      document.getElementById('editModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('editModal').classList.add('hidden');
+    }
+
+    function calcBorrowed() {
+      let total = parseInt(document.getElementById('mTotal').value) || 0;
+      let avail = parseInt(document.getElementById('mAvail').value) || 0;
+      
+      // Validation check
+      if (avail > total) {
+        document.getElementById('mAvail').value = total;
+        avail = total;
+      }
+      document.getElementById('mBorrowed').textContent = total - avail;
+    }
+
+    function saveChanges() {
+      activeRow.querySelector('.row-title').textContent = document.getElementById('mTitle').value;
+      activeRow.querySelector('.row-author').textContent = document.getElementById('mAuthor').value;
+      activeRow.querySelector('.row-total').textContent = document.getElementById('mTotal').value;
+      
+      let availSpan = activeRow.querySelector('.row-avail');
+      let availValue = document.getElementById('mAvail').value;
+      availSpan.textContent = availValue;
+
+      // Color coding badges switch
+      if(parseInt(availValue) === 0) {
+        availSpan.className = "row-avail px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200";
+      } else {
+        availSpan.className = "row-avail px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200";
+      }
+
+      closeModal();
+      filterTable();
+    }
+
+    // Delete Action
+    function deleteRow(btn) {
+      btn.closest('tr').remove();
+      filterTable();
+    }
+  </script>
+</body>
+</html>
