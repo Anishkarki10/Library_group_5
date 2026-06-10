@@ -23,11 +23,11 @@
       </div>
 
       <div>
-        <h1 class="text-xl font-bold text-gray-900">
+        <h1 class="text-2xl font-bold text-gray-900">
           Library Resource Management
         </h1>
         <p class="text-sm text-gray-500">
-          Student Dashboard
+          Student Portal
         </p>
       </div>
     </div>
@@ -50,43 +50,41 @@
     </div>
   </header>
 
-  <div class="flex">
+  <div class="flex min-h-[calc(100vh-73px)]">
 
     <!-- Sidebar -->
-    <aside class="hidden md:block w-64 min-h-[calc(100vh-73px)] bg-white border-r border-gray-200 p-4 sticky top-[73px]">
+    <aside class="hidden md:block w-64 bg-white border-r border-gray-200 p-4">
       <nav class="space-y-2">
 
-        <a
-          href="#catalog"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium"
+        <button
+          type="button"
+          onclick="showPage('catalog')"
+          id="nav-catalog"
+          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium"
         >
           <i class="fa-solid fa-magnifying-glass"></i>
           Book Catalog
-        </a>
+        </button>
 
-        <a
-          href="#borrowings"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+        <button
+          type="button"
+          onclick="showPage('dashboard')"
+          id="nav-dashboard"
+          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
         >
-          <i class="fa-solid fa-book"></i>
-          My Borrowings
-        </a>
+          <i class="fa-solid fa-gauge"></i>
+          My Dashboard
+        </button>
 
-        <a
-          href="#history"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
-        >
-          <i class="fa-solid fa-clock-rotate-left"></i>
-          Reading History
-        </a>
-
-        <a
-          href="#password"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+        <button
+          type="button"
+          onclick="showPage('password')"
+          id="nav-password"
+          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
         >
           <i class="fa-solid fa-lock"></i>
           Change Password
-        </a>
+        </button>
 
         <a
           href="{{ url_for('auth.logout') }}"
@@ -100,123 +98,104 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-6">
+    <main class="flex-1 p-6 overflow-y-auto">
 
-      <!-- Welcome -->
-      <section class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">
-          Welcome back, {{ session.get("user_name", "Student") }}!
-        </h2>
-        <p class="text-gray-600 mt-1">
-          Search books, track your borrowings, and manage your library activity.
-        </p>
-      </section>
+      <!-- Catalog Page -->
+      <section id="page-catalog" class="page-section">
 
-      <!-- Stats Cards -->
-      <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-
-        <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-1">Books Borrowed</p>
-              <h3 class="text-3xl font-bold text-gray-900">2</h3>
-            </div>
-            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
-            </div>
-          </div>
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">
+            Book Catalog
+          </h2>
+          <p class="text-gray-600">
+            Search books, filter by genre, and check availability.
+          </p>
         </div>
 
-        <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-1">Overdue Books</p>
-              <h3 class="text-3xl font-bold text-red-600">1</h3>
-            </div>
-            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-              <i class="fa-solid fa-bell text-red-600 text-xl"></i>
-            </div>
-          </div>
-        </div>
+        <!-- Search and Filters -->
+        <div class="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-gray-500 mb-1">Reading History</p>
-              <h3 class="text-3xl font-bold text-gray-900">5</h3>
-            </div>
-            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-              <i class="fa-solid fa-clock text-green-600 text-xl"></i>
-            </div>
-          </div>
-        </div>
-
-      </section>
-
-      <!-- Book Catalog -->
-      <section id="catalog" class="mb-8 scroll-mt-24">
-
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-bold text-gray-900">Book Catalog</h3>
-        </div>
-
-        <!-- Search / Filter -->
-        <div class="bg-white border border-gray-200 rounded-xl p-4 mb-6 shadow-sm">
-          <form method="GET" action="#" class="flex flex-col md:flex-row gap-4">
-            <div class="relative flex-1">
+            <div class="relative">
               <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
               <input
                 type="text"
-                name="search"
+                id="searchInput"
                 placeholder="Search by title or author..."
-                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                oninput="filterBooks()"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
 
-            <select
-              name="genre"
-              class="px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Genres</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Programming">Programming</option>
-              <option value="Software Engineering">Software Engineering</option>
-              <option value="AI/ML">AI/ML</option>
-            </select>
+            <div class="relative">
+              <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <select
+                id="genreFilter"
+                onchange="filterBooks()"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              >
+                <option value="all">All Genres</option>
+                <option value="Computer Science">Computer Science</option>
+                <option value="Programming">Programming</option>
+                <option value="Software Engineering">Software Engineering</option>
+                <option value="AI/ML">AI/ML</option>
+              </select>
+            </div>
 
-            <button
-              type="submit"
-              class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              Search
-            </button>
-          </form>
+            <div>
+              <select
+                id="availabilityFilter"
+                onchange="filterBooks()"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              >
+                <option value="all">All Books</option>
+                <option value="available">Available Only</option>
+                <option value="unavailable">Checked Out</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="mt-3 text-sm text-gray-600">
+            Showing <span id="shownCount">6</span> of <span id="totalCount">6</span> books
+          </div>
         </div>
 
-        <!-- Books Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Book Grid -->
+        <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          <!-- Book Card 1 -->
-          <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex gap-4">
-              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div
+            class="book-card bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition"
+            data-title="Introduction to Algorithms"
+            data-author="Thomas Cormen"
+            data-genre="Computer Science"
+            data-available="available"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center flex-shrink-0">
                 <i class="fa-solid fa-book-open text-white text-3xl"></i>
               </div>
 
               <div class="flex-1 min-w-0">
-                <h4 class="font-bold text-gray-900 truncate">Introduction to Algorithms</h4>
-                <p class="text-sm text-gray-600 mt-1">Thomas Cormen</p>
+                <h3 class="font-semibold text-gray-900 mb-1 truncate">
+                  Introduction to Algorithms
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">Thomas Cormen</p>
 
-                <span class="inline-block mt-3 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                <span class="inline-block px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded mb-2">
                   Computer Science
                 </span>
 
-                <div class="mt-4 flex items-center justify-between">
-                  <span class="text-sm font-semibold text-green-600">
+                <p class="text-xs text-gray-500 mb-3">
+                  Location: Shelf A-12
+                </p>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-green-600">
                     Available
                   </span>
 
-                  <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                  <button class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
                     Reserve
                   </button>
                 </div>
@@ -224,27 +203,38 @@
             </div>
           </div>
 
-          <!-- Book Card 2 -->
-          <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex gap-4">
-              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div
+            class="book-card bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition"
+            data-title="Clean Code"
+            data-author="Robert Martin"
+            data-genre="Programming"
+            data-available="available"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center flex-shrink-0">
                 <i class="fa-solid fa-book-open text-white text-3xl"></i>
               </div>
 
               <div class="flex-1 min-w-0">
-                <h4 class="font-bold text-gray-900 truncate">Clean Code</h4>
-                <p class="text-sm text-gray-600 mt-1">Robert Martin</p>
+                <h3 class="font-semibold text-gray-900 mb-1 truncate">
+                  Clean Code
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">Robert Martin</p>
 
-                <span class="inline-block mt-3 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                <span class="inline-block px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded mb-2">
                   Programming
                 </span>
 
-                <div class="mt-4 flex items-center justify-between">
-                  <span class="text-sm font-semibold text-green-600">
+                <p class="text-xs text-gray-500 mb-3">
+                  Location: Shelf B-05
+                </p>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-green-600">
                     Available
                   </span>
 
-                  <button class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+                  <button class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
                     Reserve
                   </button>
                 </div>
@@ -252,27 +242,155 @@
             </div>
           </div>
 
-          <!-- Book Card 3 -->
-          <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex gap-4">
-              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div
+            class="book-card bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition"
+            data-title="Design Patterns"
+            data-author="Gang of Four"
+            data-genre="Software Engineering"
+            data-available="unavailable"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center flex-shrink-0">
                 <i class="fa-solid fa-book-open text-white text-3xl"></i>
               </div>
 
               <div class="flex-1 min-w-0">
-                <h4 class="font-bold text-gray-900 truncate">Design Patterns</h4>
-                <p class="text-sm text-gray-600 mt-1">Gang of Four</p>
+                <h3 class="font-semibold text-gray-900 mb-1 truncate">
+                  Design Patterns
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">Gang of Four</p>
 
-                <span class="inline-block mt-3 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
+                <span class="inline-block px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded mb-2">
                   Software Engineering
                 </span>
 
-                <div class="mt-4 flex items-center justify-between">
-                  <span class="text-sm font-semibold text-red-600">
+                <p class="text-xs text-gray-500 mb-3">
+                  Location: Shelf A-15
+                </p>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-red-600">
                     Checked Out
                   </span>
 
-                  <button class="px-4 py-2 bg-gray-300 text-gray-500 rounded-lg text-sm font-medium cursor-not-allowed">
+                  <button disabled class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-300 text-gray-500 cursor-not-allowed">
+                    Waitlist
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="book-card bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition"
+            data-title="The Pragmatic Programmer"
+            data-author="Andy Hunt"
+            data-genre="Programming"
+            data-available="available"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-book-open text-white text-3xl"></i>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 mb-1 truncate">
+                  The Pragmatic Programmer
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">Andy Hunt</p>
+
+                <span class="inline-block px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded mb-2">
+                  Programming
+                </span>
+
+                <p class="text-xs text-gray-500 mb-3">
+                  Location: Shelf B-08
+                </p>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-green-600">
+                    Available
+                  </span>
+
+                  <button class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
+                    Reserve
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="book-card bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition"
+            data-title="Data Structures and Algorithms"
+            data-author="Mark Weiss"
+            data-genre="Computer Science"
+            data-available="available"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-book-open text-white text-3xl"></i>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 mb-1 truncate">
+                  Data Structures and Algorithms
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">Mark Weiss</p>
+
+                <span class="inline-block px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded mb-2">
+                  Computer Science
+                </span>
+
+                <p class="text-xs text-gray-500 mb-3">
+                  Location: Shelf A-10
+                </p>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-green-600">
+                    Available
+                  </span>
+
+                  <button class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
+                    Reserve
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="book-card bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition"
+            data-title="Artificial Intelligence A Modern Approach"
+            data-author="Stuart Russell"
+            data-genre="AI/ML"
+            data-available="unavailable"
+          >
+            <div class="flex items-start gap-4">
+              <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid fa-book-open text-white text-3xl"></i>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 mb-1 truncate">
+                  Artificial Intelligence
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">Stuart Russell</p>
+
+                <span class="inline-block px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded mb-2">
+                  AI/ML
+                </span>
+
+                <p class="text-xs text-gray-500 mb-3">
+                  Location: Shelf C-03
+                </p>
+
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-red-600">
+                    Checked Out
+                  </span>
+
+                  <button disabled class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-300 text-gray-500 cursor-not-allowed">
                     Waitlist
                   </button>
                 </div>
@@ -281,188 +399,351 @@
           </div>
 
         </div>
+
+        <div id="noBooksMessage" class="hidden bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-500 mt-6">
+          No books found matching your filters.
+        </div>
+
       </section>
 
-      <!-- Current Borrowings -->
-      <section id="borrowings" class="mb-8 scroll-mt-24">
-        <h3 class="text-xl font-bold text-gray-900 mb-4">My Current Borrowings</h3>
+      <!-- Dashboard Page -->
+      <section id="page-dashboard" class="page-section hidden">
 
-        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">
+            Welcome back, {{ session.get("user_name", "Student") }}!
+          </h2>
+          <p class="text-gray-600">
+            Here's your library activity.
+          </p>
+        </div>
 
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center">
-                <i class="fa-solid fa-book-open text-white"></i>
-              </div>
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 
+          <div class="bg-white rounded-lg border border-gray-200 p-5">
+            <div class="flex items-center justify-between">
               <div>
-                <h4 class="font-semibold text-gray-900">Design Patterns</h4>
-                <p class="text-sm text-gray-600">Gang of Four</p>
+                <p class="text-sm text-gray-600 mb-1">Books Borrowed</p>
+                <p class="text-3xl font-bold text-gray-900">2</p>
               </div>
-            </div>
-
-            <div class="text-left md:text-right">
-              <p class="text-sm text-gray-500">Due Date</p>
-              <p class="font-semibold text-gray-900">2026-05-05</p>
+              <i class="fa-solid fa-book-open text-blue-600 text-4xl"></i>
             </div>
           </div>
 
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded flex items-center justify-center">
-                <i class="fa-solid fa-book-open text-white"></i>
-              </div>
-
+          <div class="bg-white rounded-lg border border-gray-200 p-5">
+            <div class="flex items-center justify-between">
               <div>
-                <h4 class="font-semibold text-gray-900">Artificial Intelligence</h4>
-                <p class="text-sm text-gray-600">Stuart Russell</p>
+                <p class="text-sm text-gray-600 mb-1">Overdue Books</p>
+                <p class="text-3xl font-bold text-red-600">1</p>
               </div>
+              <i class="fa-solid fa-bell text-red-600 text-4xl"></i>
             </div>
+          </div>
 
-            <div class="text-left md:text-right">
-              <p class="text-sm text-gray-500">Due Date</p>
-              <p class="font-semibold text-red-600">2026-04-28</p>
-              <span class="inline-block mt-1 px-2 py-1 bg-red-100 text-red-700 text-xs rounded">
-                Overdue
-              </span>
+          <div class="bg-white rounded-lg border border-gray-200 p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Reading History</p>
+                <p class="text-3xl font-bold text-gray-900">2</p>
+              </div>
+              <i class="fa-solid fa-clock text-green-600 text-4xl"></i>
             </div>
           </div>
 
         </div>
+
+        <!-- Current Borrowings -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <h3 class="text-lg font-bold text-gray-900 mb-4">
+            My Current Borrowings
+          </h3>
+
+          <div class="space-y-3">
+
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center">
+                  <i class="fa-solid fa-book-open text-white"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-gray-900">Design Patterns</h4>
+                  <p class="text-sm text-gray-600">Gang of Four</p>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <p class="text-sm text-gray-600 mb-1">Due Date</p>
+                <p class="font-semibold text-gray-900">2026-05-05</p>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded flex items-center justify-center">
+                  <i class="fa-solid fa-book-open text-white"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-gray-900">Artificial Intelligence</h4>
+                  <p class="text-sm text-gray-600">Stuart Russell</p>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <p class="text-sm text-gray-600 mb-1">Due Date</p>
+                <p class="font-semibold text-red-600">2026-04-28</p>
+                <span class="inline-block mt-1 px-2 py-1 bg-red-100 text-red-700 text-xs rounded">
+                  Overdue
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Reading History -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 class="text-lg font-bold text-gray-900 mb-4">
+            Reading History
+          </h3>
+
+          <div class="space-y-3">
+
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded flex items-center justify-center">
+                  <i class="fa-solid fa-book-open text-white"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-gray-900">Clean Architecture</h4>
+                  <p class="text-sm text-gray-600">Robert Martin</p>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <p class="text-sm text-gray-600 mb-1">Returned</p>
+                <p class="font-semibold text-gray-900">2026-04-20</p>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded flex items-center justify-center">
+                  <i class="fa-solid fa-book-open text-white"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-semibold text-gray-900">JavaScript: The Good Parts</h4>
+                  <p class="text-sm text-gray-600">Douglas Crockford</p>
+                </div>
+              </div>
+
+              <div class="text-right">
+                <p class="text-sm text-gray-600 mb-1">Returned</p>
+                <p class="font-semibold text-gray-900">2026-04-15</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </section>
 
-      <!-- Reading History -->
-      <section id="history" class="mb-8 scroll-mt-24">
-        <h3 class="text-xl font-bold text-gray-900 mb-4">Reading History</h3>
+      <!-- Change Password Page -->
+      <section id="page-password" class="page-section hidden">
 
-        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm space-y-4">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">
+            Change Password
+          </h2>
+          <p class="text-gray-600">
+            Update your account password.
+          </p>
+        </div>
 
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded flex items-center justify-center">
-                <i class="fa-solid fa-book-open text-white"></i>
+        <div class="max-w-2xl">
+          <div class="bg-white rounded-lg border border-gray-200 p-6">
+
+            <!-- Flash Messages near password form -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="mb-5 space-y-2">
+                  {% for category, message in messages %}
+                    <div class="
+                      px-4 py-3 rounded-lg text-sm border
+                      {% if category == 'success' %}
+                        bg-green-50 text-green-700 border-green-200
+                      {% elif category == 'danger' %}
+                        bg-red-50 text-red-700 border-red-200
+                      {% elif category == 'warning' %}
+                        bg-yellow-50 text-yellow-700 border-yellow-200
+                      {% else %}
+                        bg-blue-50 text-blue-700 border-blue-200
+                      {% endif %}
+                    ">
+                      {{ message }}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('auth.change_password') }}" method="POST" class="space-y-5">
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Current Password
+                </label>
+
+                <div class="relative">
+                  <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="password"
+                    name="current_password"
+                    placeholder="Enter current password"
+                    required
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  />
+                </div>
               </div>
 
               <div>
-                <h4 class="font-semibold text-gray-900">Clean Architecture</h4>
-                <p class="text-sm text-gray-600">Robert Martin</p>
-              </div>
-            </div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  New Password
+                </label>
 
-            <div class="text-left md:text-right">
-              <p class="text-sm text-gray-500">Returned</p>
-              <p class="font-semibold text-gray-900">2026-04-20</p>
-            </div>
-          </div>
-
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-gray-50 rounded-lg">
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded flex items-center justify-center">
-                <i class="fa-solid fa-book-open text-white"></i>
+                <div class="relative">
+                  <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="password"
+                    name="new_password"
+                    placeholder="Enter new password"
+                    required
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  />
+                </div>
               </div>
 
               <div>
-                <h4 class="font-semibold text-gray-900">JavaScript: The Good Parts</h4>
-                <p class="text-sm text-gray-600">Douglas Crockford</p>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm New Password
+                </label>
+
+                <div class="relative">
+                  <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    placeholder="Confirm new password"
+                    required
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  />
+                </div>
               </div>
+
+              <div class="flex gap-3">
+                <button
+                  type="submit"
+                  class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+                >
+                  Update Password
+                </button>
+
+                <button
+                  type="button"
+                  onclick="showPage('dashboard')"
+                  class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+
+            </form>
+
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+              <h4 class="text-sm font-medium text-blue-900 mb-2">
+                Password Requirements:
+              </h4>
+              <ul class="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                <li>Minimum 6 characters</li>
+                <li>Must be different from current password</li>
+              </ul>
             </div>
 
-            <div class="text-left md:text-right">
-              <p class="text-sm text-gray-500">Returned</p>
-              <p class="font-semibold text-gray-900">2026-04-15</p>
-            </div>
           </div>
-
         </div>
-      </section>
 
-      <!-- Change Password -->
-      <section id="password" class="mb-8 scroll-mt-24">
-        <h3 class="text-xl font-bold text-gray-900 mb-4">Change Password</h3>
-
-        <div class="max-w-2xl bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-
-          <!-- Flash Messages appear here, near password change -->
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              <div class="mb-5 space-y-2">
-                {% for category, message in messages %}
-                  <div class="
-                    px-4 py-3 rounded-lg text-sm border
-                    {% if category == 'success' %}
-                      bg-green-50 text-green-700 border-green-200
-                    {% elif category == 'danger' %}
-                      bg-red-50 text-red-700 border-red-200
-                    {% elif category == 'warning' %}
-                      bg-yellow-50 text-yellow-700 border-yellow-200
-                    {% else %}
-                      bg-blue-50 text-blue-700 border-blue-200
-                    {% endif %}
-                  ">
-                    {{ message }}
-                  </div>
-                {% endfor %}
-              </div>
-            {% endif %}
-          {% endwith %}
-
-          <form action="{{ url_for('auth.change_password') }}" method="POST" class="space-y-5">
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Current Password
-              </label>
-
-              <input
-                type="password"
-                name="current_password"
-                placeholder="Enter current password"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                New Password
-              </label>
-
-              <input
-                type="password"
-                name="new_password"
-                placeholder="Enter new password"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Confirm New Password
-              </label>
-
-              <input
-                type="password"
-                name="confirm_password"
-                placeholder="Confirm new password"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <button
-              type="submit"
-              class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
-            >
-              Update Password
-            </button>
-
-          </form>
-        </div>
       </section>
 
     </main>
   </div>
+
+  <script>
+    function showPage(page) {
+      const sections = document.querySelectorAll(".page-section");
+      const navButtons = document.querySelectorAll(".nav-btn");
+
+      sections.forEach(section => {
+        section.classList.add("hidden");
+      });
+
+      navButtons.forEach(button => {
+        button.classList.remove("bg-blue-50", "text-blue-600");
+        button.classList.add("text-gray-700", "hover:bg-gray-50");
+      });
+
+      document.getElementById("page-" + page).classList.remove("hidden");
+
+      const activeButton = document.getElementById("nav-" + page);
+      activeButton.classList.remove("text-gray-700", "hover:bg-gray-50");
+      activeButton.classList.add("bg-blue-50", "text-blue-600");
+    }
+
+    function filterBooks() {
+      const searchValue = document.getElementById("searchInput").value.toLowerCase();
+      const genreValue = document.getElementById("genreFilter").value;
+      const availabilityValue = document.getElementById("availabilityFilter").value;
+
+      const cards = document.querySelectorAll(".book-card");
+      let shown = 0;
+
+      cards.forEach(card => {
+        const title = card.dataset.title.toLowerCase();
+        const author = card.dataset.author.toLowerCase();
+        const genre = card.dataset.genre;
+        const availability = card.dataset.available;
+
+        const matchesSearch = title.includes(searchValue) || author.includes(searchValue);
+        const matchesGenre = genreValue === "all" || genre === genreValue;
+        const matchesAvailability = availabilityValue === "all" || availability === availabilityValue;
+
+        if (matchesSearch && matchesGenre && matchesAvailability) {
+          card.classList.remove("hidden");
+          shown++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      document.getElementById("shownCount").textContent = shown;
+
+      if (shown === 0) {
+        document.getElementById("noBooksMessage").classList.remove("hidden");
+      } else {
+        document.getElementById("noBooksMessage").classList.add("hidden");
+      }
+    }
+
+    // If Flask redirects back with #password, open password tab automatically
+    window.addEventListener("DOMContentLoaded", function () {
+      if (window.location.hash === "#password") {
+        showPage("password");
+      }
+    });
+  </script>
 
 </body>
 </html>
