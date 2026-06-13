@@ -12,7 +12,7 @@
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.base_model import BaseModel
-from .database import Database
+from app.models.database import Database
 
 
 class User(BaseModel):
@@ -67,6 +67,45 @@ class User(BaseModel):
             return False
         return check_password_hash(self.__password, plain_password)
 
+
+# forgot pass
+    def find_by_email(self, email):
+        db = Database()
+        user = db.fetch_one(
+            "SELECT * FROM users WHERE email = %s",
+            (email,)
+        )
+        db.close()
+        return user
+
+
+    def save_reset_otp(self, email, hashed_otp, expiry_time):
+        db = Database()
+        db.execute(
+            """
+            UPDATE users
+            SET reset_otp = %s,
+                reset_otp_expires = %s
+            WHERE email = %s
+            """,
+            (hashed_otp, expiry_time, email)
+        )
+        db.close()
+
+
+    def update_password_by_email(self, email, hashed_password):
+        db = Database()
+        db.execute(
+            """
+            UPDATE users
+            SET password = %s,
+                reset_otp = NULL,
+                reset_otp_expires = NULL
+            WHERE email = %s
+            """,
+            (hashed_password, email)
+        )
+        db.close()
     # ── Create: Save a new user to the database ─────────────
 
     def save(self):

@@ -1,6 +1,7 @@
 import pymysql
 import config
 
+
 class Database:
     def __init__(self):
         """Open a database connection when object is created."""
@@ -16,9 +17,9 @@ class Database:
         except pymysql.MySQLError as e:
             print("Database connection failed!")
             print("Error:", e)
- 
+
     def fetch_one(self, query, params=None):
-        """Run a query and return ONE result (or None)."""
+        """Run a query and return ONE result."""
         cursor = self.__connection.cursor()
         cursor.execute(query, params)
         result = cursor.fetchone()
@@ -26,7 +27,7 @@ class Database:
         return result
 
     def fetch_all(self, query, params=None):
-        """Run a query and return ALL results as a list."""
+        """Run a query and return ALL results."""
         cursor = self.__connection.cursor()
         cursor.execute(query, params)
         results = cursor.fetchall()
@@ -34,7 +35,7 @@ class Database:
         return results
 
     def execute(self, query, params=None):
-        """Run a query that changes data (INSERT, UPDATE, DELETE)."""
+        """Run INSERT, UPDATE, DELETE, CREATE, ALTER queries."""
         cursor = self.__connection.cursor()
         cursor.execute(query, params)
         self.__connection.commit()
@@ -44,19 +45,17 @@ class Database:
         """Close the database connection."""
         self.__connection.close()
 
-                        
     # ── Static Method: Create tables on app startup ─────────
 
     @staticmethod
     def create_tables():
         """
         Create database tables if they don't exist.
-
-        @staticmethod: belongs to the class but doesn't need
-        'self' — it doesn't use any instance data.
-        You call it as: Database.create_tables()
+        Also adds OTP reset columns if they are missing.
         """
         db = Database()
+
+        # ── Users Table ─────────────────────────────
         db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -66,7 +65,28 @@ class Database:
                 role VARCHAR(20) NOT NULL DEFAULT 'user',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """) 
+        """)
+
+        # ── Add forgot-password OTP columns safely ──
+        try:
+            db.execute("""
+                ALTER TABLE users
+                ADD COLUMN reset_otp VARCHAR(255)
+            """)
+            print("reset_otp column added successfully.")
+        except Exception as e:
+            print("reset_otp column already exists or could not be added.")
+
+        try:
+            db.execute("""
+                ALTER TABLE users
+                ADD COLUMN reset_otp_expires DATETIME
+            """)
+            print("reset_otp_expires column added successfully.")
+        except Exception as e:
+            print("reset_otp_expires column already exists or could not be added.")
+
+        # ── Orders Table ────────────────────────────
         db.execute("""
             CREATE TABLE IF NOT EXISTS orders (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -76,7 +96,9 @@ class Database:
                 role VARCHAR(20) NOT NULL DEFAULT 'user',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """) 
+        """)
+
+        # ── Products Table ──────────────────────────
         db.execute("""
             CREATE TABLE IF NOT EXISTS products (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -86,18 +108,30 @@ class Database:
                 role VARCHAR(20) NOT NULL DEFAULT 'user',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """) 
-        
-        # Create default admin if not exists
+        """)
+
+        # ── Create default admin if not exists ──────
         admin = db.fetch_one(
-            "SELECT * FROM users WHERE email = %s", ("admin@admin.com",)
+            "SELECT * FROM users WHERE email = %s",
+            ("admin@admin.com",)
         )
+
         if not admin:
             from werkzeug.security import generate_password_hash
 
             db.execute(
-                "INSERT INTO users (name, email, password, role) VALUES (%s, %s, %s, %s)",
-                ("Admin", "admin@admin.com", generate_password_hash("admin123"), "admin"),
+                """
+                INSERT INTO users (name, email, password, role)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (
+                    "Admin",
+                    "admin@admin.com",
+                    generate_password_hash("admin123"),
+                    "admin"
+                )
             )
+
+            print("Default admin created successfully.")
 
         db.close()

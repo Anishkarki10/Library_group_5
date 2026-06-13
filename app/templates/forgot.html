@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Login</title>
+
+  <title>Forgot Password</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -19,19 +20,18 @@
 
     <div class="text-center mb-8">
       <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-        <i class="fa-solid fa-book-open text-blue-600 text-3xl"></i>
+        <i class="fa-solid fa-key text-blue-600 text-3xl"></i>
       </div>
 
       <h2 class="text-2xl font-bold text-gray-900 mb-2">
-        Student Portal
+        Forgot Password
       </h2>
 
       <p class="text-gray-600">
-        Access your library resources
+        Enter your registered student email.
       </p>
     </div>
 
-    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="mb-5 space-y-2">
@@ -40,7 +40,7 @@
               px-4 py-3 rounded-lg text-sm border
               {% if category == 'success' %}
                 bg-green-50 text-green-700 border-green-200
-              {% elif category == 'danger' %}
+              {% elif category == 'danger' or category == 'error' %}
                 bg-red-50 text-red-700 border-red-200
               {% elif category == 'warning' %}
                 bg-yellow-50 text-yellow-700 border-yellow-200
@@ -55,11 +55,11 @@
       {% endif %}
     {% endwith %}
 
-    <form action="{{ url_for('auth.login') }}" method="POST" class="space-y-5">
+    <form action="{{ url_for('auth.forgot_password') }}" method="POST" class="space-y-5">
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">
-          Email Address
+          Registered Email
         </label>
 
         <div class="relative">
@@ -68,27 +68,9 @@
           <input
             type="email"
             name="email"
-            placeholder="student@library.com"
+            placeholder="student@example.com"
             required
-            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-          />
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Password
-        </label>
-
-        <div class="relative">
-          <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-
-          <input
-            type="password"
-            name="password"
-            placeholder="••••••••"
-            required
-            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
           />
         </div>
       </div>
@@ -97,15 +79,12 @@
         type="submit"
         class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
       >
-        Login as Student
+        Send OTP
       </button>
 
-      <div class="text-center space-y-2">
-        <a href="{{ url_for('auth.forgot_password') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-          Forgot Password?
-        </a>
-        <a href="{{ url_for('auth.register') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium block">
-          Don't have an account? Register here
+      <div class="text-center">
+        <a href="{{ url_for('auth.login') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+          Back to Login
         </a>
       </div>
 

@@ -2,29 +2,18 @@
 =============================================================
   OOP Concept: INHERITANCE & POLYMORPHISM (Auth Controller)
 =============================================================
-  - AuthController INHERITS from BaseController.
-  - It gets all helper methods (get_form_data, is_logged_in)
-    from the parent FOR FREE — no need to rewrite them!
-  - Each method in this class handles one authentication task.
-=============================================================
 """
 
 from flask import render_template, redirect, url_for, session, flash, request
 from app.controllers.base_controller import BaseController
 from app.models.user import User
 
+import random
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 class AuthController(BaseController):
-    """
-    Handles authentication: login, register, logout, dashboard, profile.
-
-    Inherits from BaseController:
-      - get_form_data()
-      - is_logged_in()
-      - get_current_user_id()
-      - flash_and_redirect()
-    """
-
     def __init__(self):
         self.user_model = User()
 
@@ -33,7 +22,7 @@ class AuthController(BaseController):
     def home(self):
         return render_template("home.html")
 
-    # ── Student / Normal Login ───────────────────────────────
+    # ── Student Login ────────────────────────────────────────
 
     def login(self):
         if self.is_logged_in():
@@ -112,7 +101,7 @@ class AuthController(BaseController):
 
         return render_template("admin.html")
 
-    # ── Register ────────────────────────────────────────────
+    # ── Register ─────────────────────────────────────────────
 
     def register(self):
         if self.is_logged_in():
@@ -170,7 +159,8 @@ class AuthController(BaseController):
             )
 
         return render_template("register.html")
-    # ── Logout ──────────────────────────────────────────────
+
+    # ── Logout ───────────────────────────────────────────────
 
     def logout(self):
         session.clear()
@@ -178,67 +168,14 @@ class AuthController(BaseController):
             "Logged out successfully.", "success", "auth.login"
         )
 
-    # ── Admin Dashboard ─────────────────────────────────────
+    # ── Admin Dashboard ──────────────────────────────────────
 
     def dashboard(self):
         users = self.user_model.find_all()
-        print(users)
         return render_template("dashboard.html", users=users)
 
-    # ── Profile ─────────────────────────────────────────────
+    # ── Change Password ──────────────────────────────────────
 
-    def profile(self):
-        user_id = self.get_current_user_id()
-
-        if request.method == "POST":
-            name, email = self.get_form_data("name", "email")
-            current_password = request.form.get("current_password", "")
-            new_password = request.form.get("new_password", "")
-
-            if not name or not email:
-                flash("Name and email are required.", "danger")
-                user_data = self.user_model.find_by_id(user_id)
-                return render_template("profile.html", user=user_data)
-
-            user_obj = User(name=name, email=email)
-
-            if user_obj.email_exists(exclude_id=user_id):
-                flash("Email already taken by another user.", "danger")
-                user_data = self.user_model.find_by_id(user_id)
-                return render_template("profile.html", user=user_data)
-
-            update_password = False
-
-            if new_password:
-                if len(new_password) < 6:
-                    flash("New password must be at least 6 characters.", "danger")
-                    user_data = self.user_model.find_by_id(user_id)
-                    return render_template("profile.html", user=user_data)
-
-                stored_data = self.user_model.find_by_id(user_id)
-                stored_user = User.from_db(stored_data)
-
-                if not stored_user.check_password(current_password):
-                    flash("Current password is incorrect.", "danger")
-                    user_data = self.user_model.find_by_id(user_id)
-                    return render_template("profile.html", user=user_data)
-
-                user_obj.set_password(new_password)
-                update_password = True
-
-            user_obj.update_profile(user_id, update_password=update_password)
-            session["user_name"] = name
-
-            return self.flash_and_redirect(
-                "Profile updated successfully!", "success", "auth.profile"
-            )
-
-        user_data = self.user_model.find_by_id(user_id)
-        return render_template("profile.html", user=user_data)
-
-
-
-        # password change
     def change_password(self):
         user_id = self.get_current_user_id()
 
@@ -285,7 +222,105 @@ class AuthController(BaseController):
         flash("Password changed successfully. Please login again.", "success")
         return redirect(url_for("auth.login"))
 
-    # ── Edit User ───────────────────────────────────────────
+    # ── Forgot Password: Send OTP ────────────────────────────
+
+    def forgot_password(self):
+        if request.method == "POST":
+            email = request.form.get("email", "").strip()
+
+            if not email:
+                flash("Email is required.", "danger")
+                return redirect(url_for("auth.forgot_password"))
+
+            user = self.user_model.find_by_email(email)
+
+            if not user:
+                flash("No account found with this email.", "danger")
+                return redirect(url_for("auth.forgot_password"))
+
+            user_role = user["role"] if isinstance(user, dict) else user.role
+
+            if user_role == "admin":
+                flash("Admin password cannot be reset from student page.", "danger")
+                return redirect(url_for("auth.forgot_password"))
+
+            otp = str(random.randint(100000, 999999))
+            hashed_otp = generate_password_hash(otp)
+            expiry_time = datetime.now() + timedelta(minutes=5)
+
+            self.user_model.save_reset_otp(email, hashed_otp, expiry_time)
+
+            print("PASSWORD RESET OTP:", otp)
+
+            session["reset_email"] = email
+
+            flash("OTP has been generated. Check terminal for testing.", "success")
+            return redirect(url_for("auth.verify_otp"))
+
+        return render_template("forgot.html")
+
+    # ── Verify OTP and Reset Password ────────────────────────
+
+    def verify_otp(self):
+        if "reset_email" not in session:
+            flash("Please enter your email first.", "warning")
+            return redirect(url_for("auth.forgot_password"))
+
+        email = session["reset_email"]
+
+        if request.method == "POST":
+            otp = request.form.get("otp", "").strip()
+            new_password = request.form.get("new_password", "").strip()
+            confirm_password = request.form.get("confirm_password", "").strip()
+
+            if not otp or not new_password or not confirm_password:
+                flash("All fields are required.", "danger")
+                return redirect(url_for("auth.verify_otp"))
+
+            if new_password != confirm_password:
+                flash("Passwords do not match.", "danger")
+                return redirect(url_for("auth.verify_otp"))
+
+            if len(new_password) < 6:
+                flash("Password must be at least 6 characters.", "danger")
+                return redirect(url_for("auth.verify_otp"))
+
+            user = self.user_model.find_by_email(email)
+
+            if not user:
+                flash("User not found.", "danger")
+                return redirect(url_for("auth.forgot_password"))
+
+            saved_otp = user["reset_otp"]
+            expiry_time = user["reset_otp_expires"]
+
+            if not saved_otp or not expiry_time:
+                flash("OTP not found. Please request a new OTP.", "danger")
+                return redirect(url_for("auth.forgot_password"))
+
+            if isinstance(expiry_time, str):
+                expiry_time = datetime.strptime(expiry_time, "%Y-%m-%d %H:%M:%S")
+
+            if datetime.now() > expiry_time:
+                flash("OTP expired. Please request a new OTP.", "danger")
+                return redirect(url_for("auth.forgot_password"))
+
+            if not check_password_hash(saved_otp, otp):
+                flash("Invalid OTP.", "danger")
+                return redirect(url_for("auth.verify_otp"))
+
+            hashed_password = generate_password_hash(new_password)
+
+            self.user_model.update_password_by_email(email, hashed_password)
+
+            session.pop("reset_email", None)
+
+            flash("Password reset successful. Please login.", "success")
+            return redirect(url_for("auth.login"))
+
+        return render_template("verify_otp.html", email=email)
+
+    # ── Edit User ────────────────────────────────────────────
 
     def editUsers(self, id):
         user_data = self.user_model.find_by_id(id)
@@ -325,11 +360,24 @@ class AuthController(BaseController):
             return redirect(url_for("auth.dashboard"))
 
         return render_template("editUser.html", user=user_data)
- 
-    # ── Delete User ─────────────────────────────────────────
+
+    # ── Delete User ──────────────────────────────────────────
 
     def deleteUser(self, id):
         if request.method == "POST":
+            user = self.user_model.find_by_id(id)
+
+            if not user:
+                flash("User not found.", "danger")
+                return redirect(url_for("auth.dashboard"))
+
+            user_role = user["role"] if isinstance(user, dict) else user.role
+
+            if user_role == "admin":
+                flash("Admin cannot be deleted.", "danger")
+                return redirect(url_for("auth.dashboard"))
+
             self.user_model.delete_by_id(id)
+            flash("User deleted successfully.", "success")
 
         return redirect(url_for("auth.dashboard"))
