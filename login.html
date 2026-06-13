@@ -101,10 +101,9 @@
       </button>
 
       <div class="text-center space-y-2">
-        <a href="#" class="text-sm text-blue-600 hover:text-blue-700 font-medium block">
+        <a href="{{ url_for('auth.forgot_password') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
           Forgot Password?
         </a>
-
         <a href="{{ url_for('auth.register') }}" class="text-sm text-blue-600 hover:text-blue-700 font-medium block">
           Don't have an account? Register here
         </a>
