@@ -319,7 +319,48 @@ class AuthController(BaseController):
             return redirect(url_for("auth.login"))
 
         return render_template("verify_otp.html", email=email)
+ # ── add User ────────────────────────────────────────────
+    def add_user(self):
+        if request.method == "POST":
+            name = request.form.get("name", "").strip()
+            email = request.form.get("email", "").strip()
+            password = request.form.get("password", "").strip()
+            confirm_password = request.form.get("confirm_password", "").strip()
+            role = request.form.get("role", "user").strip()
 
+            if not name or not email or not password or not confirm_password:
+                flash("All fields are required.", "danger")
+                return render_template("addUser.html")
+
+            if len(password) < 6:
+                flash("Password must be at least 6 characters.", "danger")
+                return render_template("addUser.html")
+
+            if password != confirm_password:
+                flash("Passwords do not match.", "danger")
+                return render_template("addUser.html")
+
+            if role not in ["user", "admin"]:
+                flash("Invalid role selected.", "danger")
+                return render_template("addUser.html")
+
+            new_user = User(
+                name=name,
+                email=email,
+                password=password,
+                role=role
+            )
+
+            if new_user.email_exists():
+                flash("Email already exists.", "danger")
+                return render_template("addUser.html")
+
+            new_user.save()
+
+            flash("User added successfully.", "success")
+            return redirect(url_for("auth.dashboard"))
+
+        return render_template("addUser.html")
     # ── Edit User ────────────────────────────────────────────
 
     def editUsers(self, id):

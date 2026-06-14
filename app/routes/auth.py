@@ -47,6 +47,9 @@ class AuthRoutes:
         self.bp.route("/dashboard", methods=["GET", "POST"])(
             admin_required(self.controller.dashboard)
         )
+        # Add users
+        self.bp.route("/add-user", methods=["GET", "POST"])(
+            admin_required(self.controller.add_user))
 
         # Edit user
         self.bp.route("/edit/<int:id>", methods=["GET", "POST"])(
