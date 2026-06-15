@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Admin Dashboard - Library Resource Management</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -115,7 +116,7 @@
                 px-4 py-3 rounded-lg text-sm border
                 {% if category == 'success' %}
                   bg-green-50 text-green-700 border-green-200
-                {% elif category == 'danger' %}
+                {% elif category == 'danger' or category == 'error' %}
                   bg-red-50 text-red-700 border-red-200
                 {% elif category == 'warning' %}
                   bg-yellow-50 text-yellow-700 border-yellow-200
@@ -148,9 +149,10 @@
             <div>
               <p class="text-sm text-gray-500 mb-1">Total Users</p>
               <h3 class="text-3xl font-bold text-gray-900">
-                {{ users|length }}
+                {{ users|length if users else 0 }}
               </h3>
             </div>
+
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <i class="fa-solid fa-users text-green-600 text-xl"></i>
             </div>
@@ -161,8 +163,11 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-500 mb-1">Total Books</p>
-              <h3 class="text-3xl font-bold text-gray-900">0</h3>
+              <h3 class="text-3xl font-bold text-gray-900">
+                {{ books|length if books else 0 }}
+              </h3>
             </div>
+
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
               <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
             </div>
@@ -173,8 +178,11 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-500 mb-1">Borrowed</p>
-              <h3 class="text-3xl font-bold text-orange-600">0</h3>
+              <h3 class="text-3xl font-bold text-orange-600">
+                {{ borrowings|length if borrowings else 0 }}
+              </h3>
             </div>
+
             <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
               <i class="fa-solid fa-clock text-orange-600 text-xl"></i>
             </div>
@@ -185,8 +193,11 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-gray-500 mb-1">Overdue</p>
-              <h3 class="text-3xl font-bold text-red-600">0</h3>
+              <h3 class="text-3xl font-bold text-red-600">
+                {{ overdue_count if overdue_count else 0 }}
+              </h3>
             </div>
+
             <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
               <i class="fa-solid fa-bell text-red-600 text-xl"></i>
             </div>
@@ -209,12 +220,12 @@
           </div>
 
           <a
-          href="{{ url_for('auth.add_user') }}"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
-        >
-          <i class="fa-solid fa-plus"></i>
-          Add User
-        </a>
+            href="{{ url_for('auth.add_user') }}"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+          >
+            <i class="fa-solid fa-plus"></i>
+            Add User
+          </a>
         </div>
 
         <div class="overflow-x-auto">
@@ -234,23 +245,26 @@
 
               {% if users %}
                 {% for user in users %}
+                  {% set user_id = user.id if user.id is defined else user["id"] %}
+                  {% set user_name = user.name if user.name is defined else user["name"] %}
+                  {% set user_email = user.email if user.email is defined else user["email"] %}
+                  {% set role = user.role if user.role is defined else user["role"] %}
+
                   <tr class="hover:bg-gray-50 transition">
 
                     <td class="px-6 py-4 whitespace-nowrap text-gray-900">
-                      {{ user.id if user.id is defined else user["id"] }}
+                      {{ user_id }}
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                      {{ user.name if user.name is defined else user["name"] }}
+                      {{ user_name }}
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap text-gray-600">
-                      {{ user.email if user.email is defined else user["email"] }}
+                      {{ user_email }}
                     </td>
 
                     <td class="px-6 py-4 whitespace-nowrap">
-                      {% set role = user.role if user.role is defined else user["role"] %}
-
                       {% if role == "admin" %}
                         <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
                           Admin
@@ -266,7 +280,7 @@
                       <div class="flex items-center gap-3">
 
                         <a
-                          href="{{ url_for('auth.editUsers', id=(user.id if user.id is defined else user['id'])) }}"
+                          href="{{ url_for('auth.editUsers', id=user_id) }}"
                           class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
                         >
                           <i class="fa-solid fa-pen-to-square"></i>
@@ -274,7 +288,7 @@
                         </a>
 
                         <form
-                          action="{{ url_for('auth.deleteUser', id=(user.id if user.id is defined else user['id'])) }}"
+                          action="{{ url_for('auth.deleteUser', id=user_id) }}"
                           method="POST"
                           onsubmit="return confirm('Are you sure you want to delete this user?');"
                           class="inline"
@@ -308,31 +322,230 @@
 
       </section>
 
-      <!-- Books Management Placeholder -->
+      <!-- Books Management -->
       <section id="books" class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-8">
 
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h3 class="text-lg font-bold text-gray-900">
-              Book Inventory
-            </h3>
-            <p class="text-sm text-gray-500">
-              Add, edit, and manage books.
-            </p>
-          </div>
-
-          <button
-            class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
-          >
-            <i class="fa-solid fa-plus"></i>
-            Add Book
-          </button>
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-bold text-gray-900">
+            Book Inventory
+          </h3>
+          <p class="text-sm text-gray-500">
+            Add, delete, and manage books with cover images.
+          </p>
         </div>
 
-        <div class="p-6">
-          <p class="text-gray-500 text-sm">
-            Book database is not connected yet. Build a Book model and routes next.
-          </p>
+        <!-- Add Book Form -->
+        <div class="p-6 border-b border-gray-200 bg-gray-50">
+          <form
+            action="{{ url_for('auth.add_book') }}"
+            method="POST"
+            enctype="multipart/form-data"
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Book Title
+              </label>
+              <input
+                type="text"
+                name="title"
+                placeholder="Enter book title"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Author
+              </label>
+              <input
+                type="text"
+                name="author"
+                placeholder="Enter author name"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Genre
+              </label>
+              <input
+                type="text"
+                name="genre"
+                placeholder="Example: Programming, Novel, Science"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                name="location"
+                placeholder="Example: Shelf A1"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Total Copies
+              </label>
+              <input
+                type="number"
+                name="total"
+                placeholder="Total copies"
+                min="1"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Available Copies
+              </label>
+              <input
+                type="number"
+                name="available_count"
+                placeholder="Available copies"
+                min="0"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Book Cover Image
+              </label>
+              <input
+                type="file"
+                name="image"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white"
+              />
+            </div>
+
+            <div class="md:col-span-2">
+              <button
+                type="submit"
+                class="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition"
+              >
+                <i class="fa-solid fa-plus mr-2"></i>
+                Add Book
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Books Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Cover</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Title</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Author</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Genre</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Total</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Available</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Location</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Action</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200 bg-white">
+
+              {% if books %}
+                {% for book in books %}
+                  <tr class="hover:bg-gray-50 transition">
+
+                    <td class="px-6 py-4">
+                      {% if book.image %}
+                        <img
+                          src="{{ url_for('static', filename='uploads/books/' ~ book.image) }}"
+                          alt="{{ book.title }}"
+                          class="w-14 h-20 object-cover rounded border"
+                        />
+                      {% else %}
+                        <div class="w-14 h-20 bg-blue-100 rounded flex items-center justify-center">
+                          <i class="fa-solid fa-book-open text-blue-600"></i>
+                        </div>
+                      {% endif %}
+                    </td>
+
+                    <td class="px-6 py-4 font-medium text-gray-900">
+                      {{ book.title }}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                      {{ book.author }}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                      {{ book.genre }}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-900">
+                      {{ book.total }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                      {% if book.available_count > 0 %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                          {{ book.available_count }}
+                        </span>
+                      {% else %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                          0
+                        </span>
+                      {% endif %}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                      {{ book.location }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                      <form
+                        action="{{ url_for('auth.delete_book', id=book.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Are you sure you want to delete this book?');"
+                      >
+                        <button
+                          type="submit"
+                          class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
+                        >
+                          <i class="fa-solid fa-trash"></i>
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="8" class="px-6 py-10 text-center text-gray-500">
+                    No books added yet.
+                  </td>
+                </tr>
+              {% endif %}
+
+            </tbody>
+
+          </table>
         </div>
 
       </section>
