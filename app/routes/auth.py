@@ -33,7 +33,7 @@ class AuthRoutes:
             self.controller.register
         )
 
-        # Student home
+        # Student home/dashboard
         self.bp.route("/", methods=["GET", "POST"])(
             login_required(self.controller.home)
         )
@@ -47,9 +47,11 @@ class AuthRoutes:
         self.bp.route("/dashboard", methods=["GET", "POST"])(
             admin_required(self.controller.dashboard)
         )
-        # Add users
+
+        # Add user
         self.bp.route("/add-user", methods=["GET", "POST"])(
-            admin_required(self.controller.add_user))
+            admin_required(self.controller.add_user)
+        )
 
         # Edit user
         self.bp.route("/edit/<int:id>", methods=["GET", "POST"])(
@@ -57,13 +59,23 @@ class AuthRoutes:
         )
 
         # Delete user
-        self.bp.route("/delete/<int:id>", methods=["GET", "POST"])(
+        self.bp.route("/delete/<int:id>", methods=["POST"])(
             admin_required(self.controller.deleteUser)
         )
 
         # Student change password
         self.bp.route("/change-password", methods=["POST"])(
             login_required(self.controller.change_password)
+        )
+
+        # Add book from admin dashboard
+        self.bp.route("/add-book", methods=["POST"])(
+            admin_required(self.controller.add_book)
+        )
+
+        # Delete book from admin dashboard
+        self.bp.route("/delete-book/<int:id>", methods=["POST"])(
+            admin_required(self.controller.delete_book)
         )
 
         return self.bp

@@ -4,23 +4,125 @@
 =============================================================
 """
 
-from flask import render_template, redirect, url_for, session, flash, request
-from app.controllers.base_controller import BaseController
-from app.models.user import User
-
+import os
 import random
 from datetime import datetime, timedelta
+
+from flask import render_template, redirect, url_for, session, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+
+from app.controllers.base_controller import BaseController
+from app.models.user import User
+from app.models.book import Book
 
 
 class AuthController(BaseController):
     def __init__(self):
         self.user_model = User()
+        self.book_model = Book()
+
+    # ── Book Image Validation ────────────────────────────────
+
+    def allowed_file(self, filename):
+        allowed_extensions = {"png", "jpg", "jpeg", "webp"}
+        return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed_extensions
+
+    # ── Add Book ─────────────────────────────────────────────
+
+    def add_book(self):
+        if request.method == "POST":
+            title = request.form.get("title", "").strip()
+            author = request.form.get("author", "").strip()
+            genre = request.form.get("genre", "").strip()
+            total = request.form.get("total", "").strip()
+            available_count = request.form.get("available_count", "").strip()
+            location = request.form.get("location", "").strip()
+            image_file = request.files.get("image")
+
+            if not title or not author or not genre or not total or not available_count or not location:
+                flash("All book fields are required.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            try:
+                total = int(total)
+                available_count = int(available_count)
+            except ValueError:
+                flash("Total and available count must be numbers.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            if total < 1:
+                flash("Total books must be at least 1.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            if available_count < 0:
+                flash("Available count cannot be negative.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            if available_count > total:
+                flash("Available count cannot be greater than total books.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            image_name = None
+
+            if image_file and image_file.filename:
+                if not self.allowed_file(image_file.filename):
+                    flash("Only png, jpg, jpeg, and webp images are allowed.", "danger")
+                    return redirect(url_for("auth.dashboard") + "#books")
+
+                image_name = secure_filename(image_file.filename)
+                image_path = os.path.join(
+                    current_app.config["UPLOAD_FOLDER"],
+                    image_name
+                )
+
+                image_file.save(image_path)
+
+            new_book = Book(
+                title=title,
+                author=author,
+                genre=genre,
+                total=total,
+                available_count=available_count,
+                location=location,
+                image=image_name
+            )
+
+            new_book.save()
+
+            flash("Book added successfully.", "success")
+            return redirect(url_for("auth.dashboard") + "#books")
+
+        return redirect(url_for("auth.dashboard"))
+
+    # ── Delete Book ──────────────────────────────────────────
+
+    def delete_book(self, id):
+        book = self.book_model.find_by_id(id)
+
+        if not book:
+            flash("Book not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#books")
+
+        if book.get("image"):
+            image_path = os.path.join(
+                current_app.config["UPLOAD_FOLDER"],
+                book["image"]
+            )
+
+            if os.path.exists(image_path):
+                os.remove(image_path)
+
+        self.book_model.delete(id)
+
+        flash("Book deleted successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#books")
 
     # ── Home / Student Dashboard ─────────────────────────────
 
     def home(self):
-        return render_template("home.html")
+        books = self.book_model.get_all()
+        return render_template("home.html", books=books)
 
     # ── Student Login ────────────────────────────────────────
 
@@ -172,7 +274,13 @@ class AuthController(BaseController):
 
     def dashboard(self):
         users = self.user_model.find_all()
-        return render_template("dashboard.html", users=users)
+        books = self.book_model.get_all()
+
+        return render_template(
+            "dashboard.html",
+            users=users,
+            books=books
+        )
 
     # ── Change Password ──────────────────────────────────────
 
@@ -310,7 +418,6 @@ class AuthController(BaseController):
                 return redirect(url_for("auth.verify_otp"))
 
             hashed_password = generate_password_hash(new_password)
-
             self.user_model.update_password_by_email(email, hashed_password)
 
             session.pop("reset_email", None)
@@ -319,7 +426,9 @@ class AuthController(BaseController):
             return redirect(url_for("auth.login"))
 
         return render_template("verify_otp.html", email=email)
- # ── add User ────────────────────────────────────────────
+
+    # ── Add User ─────────────────────────────────────────────
+
     def add_user(self):
         if request.method == "POST":
             name = request.form.get("name", "").strip()
@@ -361,6 +470,7 @@ class AuthController(BaseController):
             return redirect(url_for("auth.dashboard"))
 
         return render_template("addUser.html")
+
     # ── Edit User ────────────────────────────────────────────
 
     def editUsers(self, id):

@@ -45,8 +45,6 @@ class Database:
         """Close the database connection."""
         self.__connection.close()
 
-    # ── Static Method: Create tables on app startup ─────────
-
     @staticmethod
     def create_tables():
         """
@@ -74,7 +72,7 @@ class Database:
                 ADD COLUMN reset_otp VARCHAR(255)
             """)
             print("reset_otp column added successfully.")
-        except Exception as e:
+        except Exception:
             print("reset_otp column already exists or could not be added.")
 
         try:
@@ -83,8 +81,23 @@ class Database:
                 ADD COLUMN reset_otp_expires DATETIME
             """)
             print("reset_otp_expires column added successfully.")
-        except Exception as e:
+        except Exception:
             print("reset_otp_expires column already exists or could not be added.")
+
+        # ── Books Table ─────────────────────────────
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS books (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(150) NOT NULL,
+                author VARCHAR(150) NOT NULL,
+                genre VARCHAR(100) NOT NULL,
+                total INT NOT NULL,
+                available_count INT NOT NULL,
+                location VARCHAR(100) NOT NULL,
+                image VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
 
         # ── Orders Table ────────────────────────────
         db.execute("""
