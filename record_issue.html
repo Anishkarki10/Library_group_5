@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Manager - Issue & Return System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen p-6 sm:p-12">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Library Transaction Center</h1>
+            <p class="text-slate-500 mt-1">US 23: Record Issue Transactions & Manage Returns.</p>
+        </header>
+
+        <!-- Main Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Issue New Book Form -->
+            <div class="space-y-6">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="w-2.5 h-5 bg-blue-600 rounded-full"></span>
+                        Issue New Book
+                    </h2>
+                    
+                    <form id="issue-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Book Title</label>
+                            <input type="text" id="form-title" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g., The Hobbit">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Author</label>
+                            <input type="text" id="form-author" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g., J.R.R. Tolkien">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Due Date</label>
+                            <input type="date" id="form-date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-all shadow-sm active:scale-[0.98]">
+                            Record Issue Transaction
+                        </button>
+                    </form>
+                </section>
+            </div>
+            
+            <!-- Middle Column: Active Borrowed Books List -->
+            <div class="space-y-6">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="w-2.5 h-5 bg-indigo-600 rounded-full"></span>
+                        Active Borrowed Books
+                    </h2>
+                    <ul id="borrowed-list" class="space-y-3">
+                        <!-- Loaded dynamically -->
+                    </ul>
+                </section>
+            </div>
+
+            <!-- Right Column: History Panel -->
+            <div class="space-y-6">
+                <section class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
+                    <h2 class="text-lg font-bold mb-4 tracking-wide text-slate-200">Transaction History Log</h2>
+                    <ul id="history-list" class="space-y-3 max-h-[440px] overflow-y-auto pr-1">
+                        <!-- History logs loaded dynamically -->
+                        <p id="empty-history" class="text-sm text-slate-400 italic">No transactions recorded yet.</p>
+                    </ul>
+                </section>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="record_issue.js"></script>
+</body>
+</html> 
