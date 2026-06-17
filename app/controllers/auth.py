@@ -666,12 +666,103 @@ class AuthController(BaseController):
             flash("Book is already returned.", "warning")
             return redirect(url_for("auth.dashboard") + "#circulation")
 
-        if reservation["status"] != "reserved":
-            flash("Only reserved books can be returned.", "warning")
+        if reservation["status"] not in ["reserved", "borrowed", "renew_requested"]:
+            flash("Only active borrowed/reserved books can be returned.", "warning")
             return redirect(url_for("auth.dashboard") + "#circulation")
 
         self.reservation_model.mark_returned(reservation_id)
         self.book_model.increase_available(reservation["book_id"])
 
         flash("Book returned successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+        # ── Admin Mark Book Picked Up ────────────────────────────
+
+    def mark_book_picked_up(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "reserved":
+            flash("Only reserved books can be marked as picked up.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        due_date = datetime.now() + timedelta(days=15)
+
+        self.reservation_model.mark_picked_up(
+            reservation_id,
+            due_date.date()
+        )
+
+        flash("Book marked as picked up. Student must return it within 15 days.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Student Request Renew ────────────────────────────────
+
+    def request_renew_book(self, reservation_id):
+        user_id = self.get_current_user_id()
+
+        if not user_id:
+            flash("Please login first.", "warning")
+            return redirect(url_for("auth.login"))
+
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        if reservation["user_id"] != user_id:
+            flash("You cannot renew this book.", "danger")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        if reservation["status"] != "borrowed":
+            flash("Only borrowed books can be renewed.", "warning")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        self.reservation_model.request_renew(reservation_id, user_id)
+
+        flash("Renew request sent to admin for approval.", "success")
+        return redirect(url_for("auth.home") + "#dashboard")
+
+    # ── Admin Approve Renew ──────────────────────────────────
+
+    def approve_renew_book(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "renew_requested":
+            flash("This book does not have a renew request.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        new_due_date = datetime.now() + timedelta(days=15)
+
+        self.reservation_model.approve_renew(
+            reservation_id,
+            new_due_date.date()
+        )
+
+        flash("Renew request approved. Due date extended by 15 days.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Admin Reject Renew ───────────────────────────────────
+
+    def reject_renew_book(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "renew_requested":
+            flash("This book does not have a renew request.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.reject_renew(reservation_id)
+
+        flash("Renew request rejected. Student must return the book by the current due date.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")

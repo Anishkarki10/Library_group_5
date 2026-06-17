@@ -109,7 +109,7 @@ class Reservation:
             AND status = 'cancel_requested'
         """, (reservation_id,))
         db.close()
-
+ 
     def mark_returned(self, reservation_id):
         db = Database()
         db.execute("""
@@ -117,6 +117,49 @@ class Reservation:
             SET status = 'returned',
                 returned_at = NOW()
             WHERE id = %s
+            AND status IN ('reserved', 'borrowed', 'renew_requested')
+        """, (reservation_id,))
+        db.close()
+
+    def mark_picked_up(self, reservation_id, due_date):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'borrowed',
+                due_date = %s
+            WHERE id = %s
             AND status = 'reserved'
+        """, (due_date, reservation_id))
+        db.close()
+
+    def request_renew(self, reservation_id, user_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'renew_requested'
+            WHERE id = %s
+            AND user_id = %s
+            AND status = 'borrowed'
+        """, (reservation_id, user_id))
+        db.close()
+
+    def approve_renew(self, reservation_id, new_due_date):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'borrowed',
+                due_date = %s
+            WHERE id = %s
+            AND status = 'renew_requested'
+        """, (new_due_date, reservation_id))
+        db.close()
+
+    def reject_renew(self, reservation_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'borrowed'
+            WHERE id = %s
+            AND status = 'renew_requested'
         """, (reservation_id,))
         db.close()

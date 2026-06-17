@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - Library Resource Management</title>
-  <link
-  rel="icon"
-  type="image/png"
-  href="{{ url_for('static', filename='images/fav.ico') }}"
-/>
 
+  <title>Admin Dashboard - Library Resource Management</title>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="{{ url_for('static', filename='images/fav.ico') }}"
+  />
 
   <script src="https://cdn.tailwindcss.com"></script>
+
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -22,14 +24,19 @@
 
   <!-- Top Navbar -->
   <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
+
     <div class="flex items-center gap-3">
       <div class="w-11 h-11 bg-indigo-100 rounded-xl flex items-center justify-center">
         <i class="fa-solid fa-user-shield text-indigo-600 text-xl"></i>
       </div>
 
       <div>
-        <h1 class="text-xl font-bold text-gray-900">Library Resource Management</h1>
-        <p class="text-sm text-gray-500">Admin Dashboard</p>
+        <h1 class="text-xl font-bold text-gray-900">
+          Library Resource Management
+        </h1>
+        <p class="text-sm text-gray-500">
+          Admin Dashboard
+        </p>
       </div>
     </div>
 
@@ -49,12 +56,14 @@
         Logout
       </a>
     </div>
+
   </header>
 
   <div class="flex pt-[80px]">
 
     <!-- Sidebar -->
     <aside class="hidden md:block fixed top-[80px] left-0 w-64 h-[calc(100vh-80px)] bg-white border-r border-gray-200 p-4 overflow-y-auto z-40">
+
       <nav class="space-y-2">
 
         <button
@@ -94,7 +103,9 @@
           <i class="fa-solid fa-right-from-bracket"></i>
           Logout
         </a>
+
       </nav>
+
     </aside>
 
     <!-- Main Content -->
@@ -147,6 +158,7 @@
                   {{ users|length if users else 0 }}
                 </h3>
               </div>
+
               <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
                 <i class="fa-solid fa-users text-green-600 text-2xl"></i>
               </div>
@@ -161,6 +173,7 @@
                   {{ books|length if books else 0 }}
                 </h3>
               </div>
+
               <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
                 <i class="fa-solid fa-book-open text-blue-600 text-2xl"></i>
               </div>
@@ -170,11 +183,12 @@
           <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-500 mb-1">Borrowed</p>
+                <p class="text-sm text-gray-500 mb-1">Circulation Records</p>
                 <h3 class="text-3xl font-bold text-orange-600">
                   {{ borrowings|length if borrowings else 0 }}
                 </h3>
               </div>
+
               <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
                 <i class="fa-solid fa-clock text-orange-600 text-2xl"></i>
               </div>
@@ -189,6 +203,7 @@
                   {{ overdue_count if overdue_count else 0 }}
                 </h3>
               </div>
+
               <div class="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center">
                 <i class="fa-solid fa-bell text-red-600 text-2xl"></i>
               </div>
@@ -199,10 +214,15 @@
 
         <!-- Users Table -->
         <section class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+
           <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h3 class="text-xl font-bold text-gray-900">Registered Users</h3>
-              <p class="text-sm text-gray-500">View, edit, and delete users from the system.</p>
+              <h3 class="text-xl font-bold text-gray-900">
+                Registered Users
+              </h3>
+              <p class="text-sm text-gray-500">
+                View, edit, and delete users from the system.
+              </p>
             </div>
 
             <a
@@ -216,6 +236,7 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
+
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">ID</th>
@@ -227,6 +248,7 @@
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
+
                 {% if users %}
                   {% for user in users %}
                     {% set user_id = user.id if user.id is defined else user["id"] %}
@@ -235,9 +257,19 @@
                     {% set role = user.role if user.role is defined else user["role"] %}
 
                     <tr class="hover:bg-gray-50">
-                      <td class="px-6 py-4">{{ user_id }}</td>
-                      <td class="px-6 py-4 font-medium text-gray-900">{{ user_name }}</td>
-                      <td class="px-6 py-4 text-gray-600">{{ user_email }}</td>
+
+                      <td class="px-6 py-4">
+                        {{ user_id }}
+                      </td>
+
+                      <td class="px-6 py-4 font-medium text-gray-900">
+                        {{ user_name }}
+                      </td>
+
+                      <td class="px-6 py-4 text-gray-600">
+                        {{ user_email }}
+                      </td>
+
                       <td class="px-6 py-4">
                         {% if role == "admin" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
@@ -249,8 +281,10 @@
                           </span>
                         {% endif %}
                       </td>
+
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-4">
+
                           <a
                             href="{{ url_for('auth.editUsers', id=user_id) }}"
                             class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
@@ -272,8 +306,10 @@
                               Delete
                             </button>
                           </form>
+
                         </div>
                       </td>
+
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -283,19 +319,26 @@
                     </td>
                   </tr>
                 {% endif %}
+
               </tbody>
+
             </table>
           </div>
+
         </section>
+
       </section>
 
       <!-- BOOKS PAGE -->
       <section id="page-books" class="page-section hidden">
 
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+
           <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h3 class="text-xl font-bold text-gray-900">Book Inventory</h3>
+              <h3 class="text-xl font-bold text-gray-900">
+                Book Inventory
+              </h3>
               <p class="text-sm text-gray-500">
                 Manage books, covers, stock, and availability.
               </p>
@@ -313,6 +356,7 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
+
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Cover</th>
@@ -327,6 +371,7 @@
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
+
                 {% if books %}
                   {% for book in books %}
                     {% set book_id = book.id if book.id is defined else book["id"] %}
@@ -339,6 +384,7 @@
                     {% set book_image = book.image if book.image is defined else book["image"] %}
 
                     <tr class="hover:bg-gray-50">
+
                       <td class="px-6 py-4">
                         {% if book_image %}
                           <img
@@ -353,10 +399,21 @@
                         {% endif %}
                       </td>
 
-                      <td class="px-6 py-4 font-semibold text-gray-900">{{ book_title }}</td>
-                      <td class="px-6 py-4 text-gray-600">{{ book_author }}</td>
-                      <td class="px-6 py-4 text-gray-600">{{ book_genre }}</td>
-                      <td class="px-6 py-4 text-gray-900">{{ book_total }}</td>
+                      <td class="px-6 py-4 font-semibold text-gray-900">
+                        {{ book_title }}
+                      </td>
+
+                      <td class="px-6 py-4 text-gray-600">
+                        {{ book_author }}
+                      </td>
+
+                      <td class="px-6 py-4 text-gray-600">
+                        {{ book_genre }}
+                      </td>
+
+                      <td class="px-6 py-4 text-gray-900">
+                        {{ book_total }}
+                      </td>
 
                       <td class="px-6 py-4">
                         {% if book_available > 0 %}
@@ -370,7 +427,9 @@
                         {% endif %}
                       </td>
 
-                      <td class="px-6 py-4 text-gray-600">{{ book_location }}</td>
+                      <td class="px-6 py-4 text-gray-600">
+                        {{ book_location }}
+                      </td>
 
                       <td class="px-6 py-4">
                         <form
@@ -387,6 +446,7 @@
                           </button>
                         </form>
                       </td>
+
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -396,24 +456,33 @@
                     </td>
                   </tr>
                 {% endif %}
+
               </tbody>
+
             </table>
           </div>
+
         </div>
+
       </section>
 
       <!-- CIRCULATION PAGE -->
       <section id="page-circulation" class="page-section hidden">
+
         <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+
           <div class="px-6 py-5 border-b border-gray-200">
-            <h3 class="text-xl font-bold text-gray-900">Circulation Tracking</h3>
+            <h3 class="text-xl font-bold text-gray-900">
+              Circulation Tracking
+            </h3>
             <p class="text-sm text-gray-500">
-              Track reserved, borrowed, returned, and overdue books.
+              Track reserved, borrowed, returned, renew requests, cancel requests, and overdue books.
             </p>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
+
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Student</th>
@@ -426,9 +495,14 @@
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
+
                 {% if borrowings %}
                   {% for item in borrowings %}
+                    {% set reservation_id = item.id if item.id is defined else item["id"] %}
+                    {% set status = item.status if item.status is defined else item["status"] %}
+
                     <tr class="hover:bg-gray-50">
+
                       <td class="px-6 py-4">
                         <div class="font-medium text-gray-900">
                           {{ item.student_name if item.student_name is defined else item["student_name"] }}
@@ -448,23 +522,36 @@
                       </td>
 
                       <td class="px-6 py-4">
-                        {% set status = item.status if item.status is defined else item["status"] %}
                         {% if status == "reserved" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
                             Reserved
                           </span>
+
+                        {% elif status == "borrowed" %}
+                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                            Borrowed
+                          </span>
+
+                        {% elif status == "renew_requested" %}
+                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                            Renew Requested
+                          </span>
+
                         {% elif status == "cancel_requested" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
                             Cancel Requested
                           </span>
+
                         {% elif status == "cancelled" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                             Cancelled
                           </span>
+
                         {% elif status == "returned" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                             Returned
                           </span>
+
                         {% else %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
                             {{ status }}
@@ -479,15 +566,45 @@
                       <td class="px-6 py-4 text-gray-600">
                         {{ item.due_date if item.due_date is defined else item["due_date"] }}
                       </td>
+
                       <td class="px-6 py-4">
-                        {% set reservation_id = item.id if item.id is defined else item["id"] %}
-                        {% set status = item.status if item.status is defined else item["status"] %}
-                      
+
                         {% if status == "reserved" %}
+                          <div class="flex items-center gap-2">
+
+                            <form
+                              action="{{ url_for('auth.mark_book_picked_up', reservation_id=reservation_id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Mark this book as picked up by the student?');"
+                            >
+                              <button
+                                type="submit"
+                                class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
+                              >
+                                Picked Up
+                              </button>
+                            </form>
+
+                            <form
+                              action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Mark this book as returned?');"
+                            >
+                              <button
+                                type="submit"
+                                class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                              >
+                                Return
+                              </button>
+                            </form>
+
+                          </div>
+
+                        {% elif status == "borrowed" %}
                           <form
                             action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}"
                             method="POST"
-                            onsubmit="return confirm('Mark this book as returned?');"
+                            onsubmit="return confirm('Mark this borrowed book as returned?');"
                           >
                             <button
                               type="submit"
@@ -496,10 +613,41 @@
                               Return
                             </button>
                           </form>
-                      
+
+                        {% elif status == "renew_requested" %}
+                          <div class="flex items-center gap-2">
+
+                            <form
+                              action="{{ url_for('auth.approve_renew_book', reservation_id=reservation_id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Approve this renew request?');"
+                            >
+                              <button
+                                type="submit"
+                                class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                              >
+                                Approve Renew
+                              </button>
+                            </form>
+
+                            <form
+                              action="{{ url_for('auth.reject_renew_book', reservation_id=reservation_id) }}"
+                              method="POST"
+                              onsubmit="return confirm('Reject this renew request?');"
+                            >
+                              <button
+                                type="submit"
+                                class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                              >
+                                Reject
+                              </button>
+                            </form>
+
+                          </div>
+
                         {% elif status == "cancel_requested" %}
                           <div class="flex items-center gap-2">
-                      
+
                             <form
                               action="{{ url_for('auth.approve_cancel_reservation', reservation_id=reservation_id) }}"
                               method="POST"
@@ -509,10 +657,10 @@
                                 type="submit"
                                 class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
                               >
-                                Approve
+                                Approve Cancel
                               </button>
                             </form>
-                      
+
                             <form
                               action="{{ url_for('auth.reject_cancel_reservation', reservation_id=reservation_id) }}"
                               method="POST"
@@ -525,25 +673,27 @@
                                 Reject
                               </button>
                             </form>
-                      
+
                           </div>
-                      
+
                         {% elif status == "cancelled" %}
                           <span class="text-sm text-red-500 font-medium">
                             Cancelled
                           </span>
-                      
+
                         {% elif status == "returned" %}
                           <span class="text-sm text-green-600 font-medium">
                             Returned
                           </span>
-                      
+
                         {% else %}
                           <span class="text-sm text-gray-400">
                             No Action
                           </span>
                         {% endif %}
+
                       </td>
+
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -553,13 +703,18 @@
                     </td>
                   </tr>
                 {% endif %}
+
               </tbody>
+
             </table>
           </div>
+
         </div>
+
       </section>
 
     </main>
+
   </div>
 
   <!-- Add Book Modal -->
@@ -568,10 +723,15 @@
     class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4"
   >
     <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+
       <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
         <div>
-          <h3 class="text-xl font-bold text-gray-900">Add New Book</h3>
-          <p class="text-sm text-gray-500">Fill in the book details carefully.</p>
+          <h3 class="text-xl font-bold text-gray-900">
+            Add New Book
+          </h3>
+          <p class="text-sm text-gray-500">
+            Fill in the book details carefully.
+          </p>
         </div>
 
         <button
@@ -592,7 +752,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Book Title</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Book Title
+            </label>
             <input
               type="text"
               name="title"
@@ -603,7 +765,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Author</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Author
+            </label>
             <input
               type="text"
               name="author"
@@ -614,7 +778,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Genre</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Genre
+            </label>
             <input
               type="text"
               name="genre"
@@ -625,7 +791,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Location
+            </label>
             <input
               type="text"
               name="location"
@@ -636,7 +804,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Total Copies</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Total Copies
+            </label>
             <input
               type="number"
               name="total"
@@ -648,7 +818,9 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Available Copies</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Available Copies
+            </label>
             <input
               type="number"
               name="available_count"
@@ -660,7 +832,9 @@
           </div>
 
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Book Cover Image</label>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Book Cover Image
+            </label>
             <input
               type="file"
               name="image"
@@ -668,6 +842,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white"
             />
           </div>
+
         </div>
 
         <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
@@ -687,7 +862,9 @@
             Add Book
           </button>
         </div>
+
       </form>
+
     </div>
   </div>
 
@@ -706,11 +883,13 @@
       });
 
       const activeSection = document.getElementById("page-" + page);
+
       if (activeSection) {
         activeSection.classList.remove("hidden");
       }
 
       const activeButton = document.getElementById("nav-" + page);
+
       if (activeButton) {
         activeButton.classList.remove("text-gray-700", "hover:bg-gray-50");
         activeButton.classList.add("bg-indigo-50", "text-indigo-600");
@@ -719,18 +898,21 @@
 
     function openAddBookModal() {
       const modal = document.getElementById("addBookModal");
+
       modal.classList.remove("hidden");
       modal.classList.add("flex");
     }
 
     function closeAddBookModal() {
       const modal = document.getElementById("addBookModal");
+
       modal.classList.add("hidden");
       modal.classList.remove("flex");
     }
 
     window.addEventListener("click", function (e) {
       const modal = document.getElementById("addBookModal");
+
       if (e.target === modal) {
         closeAddBookModal();
       }
