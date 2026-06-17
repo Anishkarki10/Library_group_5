@@ -97,4 +97,51 @@ function logToHistory(book) {
 }
 
 // Initialize system state loop
-renderBooks();v
+renderBooks();
+function returnBook(bookId) {
+    const bookIndex = borrowedBooks.findIndex(b => b.id === bookId);
+    const targetBook = borrowedBooks[bookIndex];
+
+    borrowedBooks.splice(bookIndex, 1);
+    
+    // Save the change to history array
+    returnHistory.push({
+        title: targetBook.title,
+        isOverdue: targetBook.isOverdue,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+
+    saveToStorage();
+    renderBooks();
+    renderHistory(); // Extract history rendering into its own update call
+}
+
+function renderHistory() {
+    historyListUI.innerHTML = '';
+    if (returnHistory.length === 0) {
+        historyListUI.innerHTML = '<p id="empty-history" class="text-sm text-slate-400 italic">No items checked in yet.</p>';
+        return;
+    }
+
+    returnHistory.forEach(item => {
+        const li = document.createElement('li');
+        li.className = "text-xs p-3 bg-slate-800 rounded-xl border border-slate-700 flex justify-between items-center";
+        
+        const statusBadge = item.isOverdue 
+            ? `<span class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded border border-amber-500/30">Fine Charged</span>`
+            : `<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Returned Safe</span>`;
+
+        li.innerHTML = `
+            <div class="truncate mr-2">
+                <strong class="text-slate-100 block truncate">${item.title}</strong>
+                <span class="text-[10px] text-slate-400">${item.timestamp}</span>
+            </div>
+            ${statusBadge}
+        `;
+        historyListUI.prepend(li);
+    });
+}
+
+// Initial application bootstrap
+renderBooks();
+renderHistory();
