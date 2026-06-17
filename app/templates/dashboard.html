@@ -178,9 +178,9 @@
           <div class="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-500 mb-1">Borrowed</p>
+                <p class="text-sm text-gray-500 mb-1">Reservations</p>
                 <h3 class="text-3xl font-bold text-orange-600">
-                  {{ borrowings|length if borrowings else 0 }}
+                  {{ reservations|length if reservations else 0 }}
                 </h3>
               </div>
 
@@ -561,14 +561,111 @@
             Circulation Tracking
           </h3>
           <p class="text-sm text-gray-500">
-            Track borrowed, returned, and overdue books.
+            Track reserved, returned, and overdue books.
           </p>
         </div>
 
-        <div class="p-6">
-          <p class="text-gray-500 text-sm">
-            Borrowing system is not connected yet. You need borrow/return tables and routes for this.
-          </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+
+            <thead class="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">ID</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Student</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Email</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Book</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Author</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Status</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Reserved At</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Due Date</th>
+                <th class="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Action</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-200 bg-white">
+
+              {% if reservations %}
+                {% for item in reservations %}
+                  <tr class="hover:bg-gray-50 transition">
+
+                    <td class="px-6 py-4 text-gray-900">
+                      {{ item.id }}
+                    </td>
+
+                    <td class="px-6 py-4 font-medium text-gray-900">
+                      {{ item.student_name }}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                      {{ item.student_email }}
+                    </td>
+
+                    <td class="px-6 py-4 font-medium text-gray-900">
+                      {{ item.book_title }}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                      {{ item.book_author }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                      {% if item.status == "reserved" %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                          Reserved
+                        </span>
+                      {% elif item.status == "returned" %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                          Returned
+                        </span>
+                      {% else %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                          {{ item.status }}
+                        </span>
+                      {% endif %}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                      {{ item.reserved_at }}
+                    </td>
+
+                    <td class="px-6 py-4 text-gray-600">
+                      {{ item.due_date }}
+                    </td>
+
+                    <td class="px-6 py-4">
+                      {% if item.status == "reserved" %}
+                        <form
+                          action="{{ url_for('auth.return_book', reservation_id=item.id) }}"
+                          method="POST"
+                          onsubmit="return confirm('Mark this book as returned?');"
+                        >
+                          <button
+                            type="submit"
+                            class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                          >
+                            Return
+                          </button>
+                        </form>
+                      {% else %}
+                        <span class="text-gray-400 text-sm">
+                          Completed
+                        </span>
+                      {% endif %}
+                    </td>
+
+                  </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="9" class="px-6 py-10 text-center text-gray-500">
+                    No reservations found.
+                  </td>
+                </tr>
+              {% endif %}
+
+            </tbody>
+
+          </table>
         </div>
 
       </section>

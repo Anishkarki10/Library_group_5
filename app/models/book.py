@@ -64,3 +64,21 @@ class Book:
             WHERE id = %s
         """, (book_id,))
         db.close()
+    
+    def decrease_available(self, book_id):
+        db = Database()
+        db.execute("""
+            UPDATE books
+            SET available_count = available_count - 1
+            WHERE id = %s AND available_count > 0
+        """, (book_id,))
+        db.close()
+    
+    def increase_available(self, book_id):
+        db = Database()
+        db.execute("""
+            UPDATE books
+            SET available_count = available_count + 1
+            WHERE id = %s
+        """, (book_id,))
+        db.close()

@@ -77,5 +77,15 @@ class AuthRoutes:
         self.bp.route("/delete-book/<int:id>", methods=["POST"])(
             admin_required(self.controller.delete_book)
         )
+        # Student reserve book
+        self.bp.route("/reserve-book/<int:book_id>", methods=["POST"])(
+            login_required(self.controller.reserve_book)
+        )
+
+        # Admin return book
+        self.bp.route("/return-book/<int:reservation_id>", methods=["POST"])(
+            admin_required(self.controller.return_book)
+        )
+
 
         return self.bp

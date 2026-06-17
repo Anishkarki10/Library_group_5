@@ -99,6 +99,22 @@ class Database:
             )
         """)
 
+        # ── Reservations Table ──────────────────────
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS reservations (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                user_id INT NOT NULL,
+                book_id INT NOT NULL,
+                status VARCHAR(30) NOT NULL DEFAULT 'reserved',
+                reserved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                due_date DATE,
+                returned_at DATETIME,
+
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE
+            )
+        """)
+
         # ── Orders Table ────────────────────────────
         db.execute("""
             CREATE TABLE IF NOT EXISTS orders (

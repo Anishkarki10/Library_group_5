@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Student Library Dashboard</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -16,7 +17,8 @@
 <body class="min-h-screen bg-gray-50">
 
   <!-- Top Navbar -->
-  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
+
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
         <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
@@ -48,12 +50,14 @@
         Logout
       </a>
     </div>
+
   </header>
 
-  <div class="flex min-h-[calc(100vh-73px)]">
+  <div class="flex pt-[73px]">
 
-    <!-- Sidebar -->
-    <aside class="hidden md:block w-64 bg-white border-r border-gray-200 p-4">
+    <!-- Fixed Sidebar -->
+    <aside class="hidden md:block fixed left-0 top-[73px] w-64 h-[calc(100vh-73px)] bg-white border-r border-gray-200 p-4 overflow-y-auto z-40">
+
       <nav class="space-y-2">
 
         <button
@@ -95,10 +99,11 @@
         </a>
 
       </nav>
+
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 p-6 overflow-y-auto">
+    <main class="flex-1 p-6 md:ml-64 overflow-y-auto">
 
       <!-- Flash Messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
@@ -124,7 +129,7 @@
         {% endif %}
       {% endwith %}
 
-      <!-- Catalog Page -->
+      <!-- CATALOG PAGE -->
       <section id="page-catalog" class="page-section">
 
         <div class="mb-6">
@@ -132,7 +137,7 @@
             Book Catalog
           </h2>
           <p class="text-gray-600">
-            Search books, filter by genre, and check availability.
+            Search books, filter by genre, and reserve available books.
           </p>
         </div>
 
@@ -193,7 +198,7 @@
           </div>
         </div>
 
-        <!-- Dynamic Book Grid -->
+        <!-- Book Grid -->
         <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {% if books %}
@@ -207,7 +212,7 @@
               >
                 <div class="flex items-start gap-4">
 
-                  <!-- Book Cover Image -->
+                  <!-- Book Cover -->
                   {% if book.image %}
                     <img
                       src="{{ url_for('static', filename='uploads/books/' ~ book.image) }}"
@@ -221,6 +226,7 @@
                   {% endif %}
 
                   <div class="flex-1 min-w-0">
+
                     <h3 class="font-semibold text-gray-900 mb-1 truncate">
                       {{ book.title }}
                     </h3>
@@ -237,26 +243,42 @@
                       Location: {{ book.location }}
                     </p>
 
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between gap-3">
+
                       {% if book.available_count > 0 %}
                         <span class="text-sm font-medium text-green-600">
                           Available: {{ book.available_count }}
                         </span>
 
-                        <button class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
-                          Reserve
-                        </button>
+                        <form
+                          action="{{ url_for('auth.reserve_book', book_id=book.id) }}"
+                          method="POST"
+                        >
+                          <button
+                            type="submit"
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                          >
+                            Reserve
+                          </button>
+                        </form>
+
                       {% else %}
                         <span class="text-sm font-medium text-red-600">
                           Checked Out
                         </span>
 
-                        <button disabled class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-300 text-gray-500 cursor-not-allowed">
+                        <button
+                          disabled
+                          class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-300 text-gray-500 cursor-not-allowed"
+                        >
                           Waitlist
                         </button>
                       {% endif %}
+
                     </div>
+
                   </div>
+
                 </div>
               </div>
             {% endfor %}
@@ -274,7 +296,7 @@
 
       </section>
 
-      <!-- Dashboard Page -->
+      <!-- STUDENT DASHBOARD PAGE -->
       <section id="page-dashboard" class="page-section hidden">
 
         <div class="mb-6">
@@ -292,8 +314,10 @@
           <div class="bg-white rounded-lg border border-gray-200 p-5">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 mb-1">Books Borrowed</p>
-                <p class="text-3xl font-bold text-gray-900">0</p>
+                <p class="text-sm text-gray-600 mb-1">Reserved Books</p>
+                <p class="text-3xl font-bold text-gray-900">
+                  {{ reservations|length if reservations else 0 }}
+                </p>
               </div>
               <i class="fa-solid fa-book-open text-blue-600 text-4xl"></i>
             </div>
@@ -321,15 +345,60 @@
 
         </div>
 
-        <!-- Current Borrowings -->
+        <!-- My Reserved Books -->
         <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
           <h3 class="text-lg font-bold text-gray-900 mb-4">
-            My Current Borrowings
+            My Reserved Books
           </h3>
 
-          <div class="text-gray-500 text-sm">
-            No borrowed books yet.
-          </div>
+          {% if reservations %}
+            <div class="space-y-3">
+              {% for item in reservations %}
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+
+                  <div class="flex items-center gap-4">
+                    {% if item.image %}
+                      <img
+                        src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
+                        class="w-12 h-16 object-cover rounded border"
+                        alt="{{ item.title }}"
+                      />
+                    {% else %}
+                      <div class="w-12 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center">
+                        <i class="fa-solid fa-book-open text-white"></i>
+                      </div>
+                    {% endif %}
+
+                    <div>
+                      <h4 class="font-semibold text-gray-900">
+                        {{ item.title }}
+                      </h4>
+                      <p class="text-sm text-gray-600">
+                        {{ item.author }}
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        Status: {{ item.status }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="text-right">
+                    <p class="text-sm text-gray-600 mb-1">
+                      Due Date
+                    </p>
+                    <p class="font-semibold text-gray-900">
+                      {{ item.due_date }}
+                    </p>
+                  </div>
+
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-gray-500 text-sm">
+              No reserved books yet.
+            </div>
+          {% endif %}
         </div>
 
         <!-- Reading History -->
@@ -345,7 +414,7 @@
 
       </section>
 
-      <!-- Change Password Page -->
+      <!-- CHANGE PASSWORD PAGE -->
       <section id="page-password" class="page-section hidden">
 
         <div class="mb-6">
@@ -448,6 +517,7 @@
       </section>
 
     </main>
+
   </div>
 
   <script>
@@ -509,6 +579,10 @@
     window.addEventListener("DOMContentLoaded", function () {
       if (window.location.hash === "#password") {
         showPage("password");
+      } else if (window.location.hash === "#dashboard") {
+        showPage("dashboard");
+      } else {
+        showPage("catalog");
       }
 
       filterBooks();

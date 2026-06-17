@@ -16,11 +16,14 @@ from app.controllers.base_controller import BaseController
 from app.models.user import User
 from app.models.book import Book
 
+from app.models.reservation import Reservation
+from datetime import datetime, timedelta
 
 class AuthController(BaseController):
     def __init__(self):
         self.user_model = User()
         self.book_model = Book()
+        self.reservation_model = Reservation()
 
     # ── Book Image Validation ────────────────────────────────
 
@@ -121,8 +124,16 @@ class AuthController(BaseController):
     # ── Home / Student Dashboard ─────────────────────────────
 
     def home(self):
+        user_id = self.get_current_user_id()
+
         books = self.book_model.get_all()
-        return render_template("home.html", books=books)
+        reservations = self.reservation_model.get_user_reservations(user_id)
+
+        return render_template(
+            "home.html",
+            books=books,
+            reservations=reservations
+        )
 
     # ── Student Login ────────────────────────────────────────
 
@@ -271,15 +282,18 @@ class AuthController(BaseController):
         )
 
     # ── Admin Dashboard ──────────────────────────────────────
-
     def dashboard(self):
         users = self.user_model.find_all()
         books = self.book_model.get_all()
+        reservations = self.reservation_model.get_all_reservations()
 
         return render_template(
             "dashboard.html",
             users=users,
-            books=books
+            books=books,
+            borrowings=reservations,
+            reservations=reservations,
+            overdue_count=0
         )
 
     # ── Change Password ──────────────────────────────────────
@@ -532,3 +546,90 @@ class AuthController(BaseController):
             flash("User deleted successfully.", "success")
 
         return redirect(url_for("auth.dashboard"))
+
+# reserve book
+    def reserve_book(self, book_id):
+        user_id = self.get_current_user_id()
+
+        if not user_id:
+            flash("Please login first.", "warning")
+            return redirect(url_for("auth.login"))
+
+        book = self.book_model.find_by_id(book_id)
+
+        if not book:
+            flash("Book not found.", "danger")
+            return redirect(url_for("auth.home"))
+
+        if book["available_count"] <= 0:
+            flash("This book is not available right now.", "danger")
+            return redirect(url_for("auth.home"))
+
+        if self.reservation_model.already_reserved(user_id, book_id):
+            flash("You already reserved this book.", "warning")
+            return redirect(url_for("auth.home"))
+
+        due_date = datetime.now() + timedelta(days=14)
+
+        self.reservation_model.create(
+            user_id=user_id,
+            book_id=book_id,
+            due_date=due_date.date()
+        )
+
+        self.book_model.decrease_available(book_id)
+
+        flash("Book reserved successfully.", "success")
+        return redirect(url_for("auth.home"))
+
+
+    def reserve_book(self, book_id):
+        user_id = self.get_current_user_id()
+
+        if not user_id:
+            flash("Please login first.", "warning")
+            return redirect(url_for("auth.login"))
+
+        book = self.book_model.find_by_id(book_id)
+
+        if not book:
+            flash("Book not found.", "danger")
+            return redirect(url_for("auth.home"))
+
+        if book["available_count"] <= 0:
+            flash("This book is not available right now.", "danger")
+            return redirect(url_for("auth.home"))
+
+        if self.reservation_model.already_reserved(user_id, book_id):
+            flash("You already reserved this book.", "warning")
+            return redirect(url_for("auth.home"))
+
+        due_date = datetime.now() + timedelta(days=14)
+
+        self.reservation_model.create(
+            user_id=user_id,
+            book_id=book_id,
+            due_date=due_date.date()
+        )
+
+        self.book_model.decrease_available(book_id)
+
+        flash("Book reserved successfully.", "success")
+        return redirect(url_for("auth.home"))
+
+    def return_book(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] == "returned":
+            flash("Book is already returned.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.mark_returned(reservation_id)
+        self.book_model.increase_available(reservation["book_id"])
+
+        flash("Book returned successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
