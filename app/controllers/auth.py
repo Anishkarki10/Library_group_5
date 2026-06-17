@@ -633,3 +633,64 @@ class AuthController(BaseController):
 
         flash("Book returned successfully.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")
+
+    def request_cancel_reservation(self, reservation_id):
+        user_id = self.get_current_user_id()
+
+        if not user_id:
+            flash("Please login first.", "warning")
+            return redirect(url_for("auth.login"))
+
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        if reservation["user_id"] != user_id:
+            flash("You cannot cancel this reservation.", "danger")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        if reservation["status"] != "reserved":
+            flash("Only active reservations can request cancellation.", "warning")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        self.reservation_model.request_cancel(reservation_id, user_id)
+
+        flash("Cancel request sent to admin for approval.", "success")
+        return redirect(url_for("auth.home") + "#dashboard")
+
+
+    def approve_cancel_reservation(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "cancel_requested":
+            flash("This reservation does not have a cancel request.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.approve_cancel(reservation_id)
+        self.book_model.increase_available(reservation["book_id"])
+
+        flash("Cancel request approved. Book is available again.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+
+    def reject_cancel_reservation(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "cancel_requested":
+            flash("This reservation does not have a cancel request.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.reject_cancel(reservation_id)
+
+        flash("Cancel request rejected. Reservation is still active.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")

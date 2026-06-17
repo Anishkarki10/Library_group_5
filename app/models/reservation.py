@@ -17,7 +17,7 @@ class Reservation:
             FROM reservations
             WHERE user_id = %s
             AND book_id = %s
-            AND status = 'reserved'
+            AND status IN ('reserved', 'cancel_requested')
         """, (user_id, book_id))
         db.close()
         return result is not None
@@ -27,9 +27,11 @@ class Reservation:
         reservations = db.fetch_all("""
             SELECT 
                 reservations.id,
+                reservations.book_id,
                 reservations.status,
                 reservations.reserved_at,
                 reservations.due_date,
+                reservations.returned_at,
                 books.title,
                 books.author,
                 books.genre,
@@ -48,9 +50,12 @@ class Reservation:
         reservations = db.fetch_all("""
             SELECT 
                 reservations.id,
+                reservations.user_id,
+                reservations.book_id,
                 reservations.status,
                 reservations.reserved_at,
                 reservations.due_date,
+                reservations.returned_at,
                 users.name AS student_name,
                 users.email AS student_email,
                 books.title AS book_title,
@@ -63,16 +68,6 @@ class Reservation:
         db.close()
         return reservations
 
-    def mark_returned(self, reservation_id):
-        db = Database()
-        db.execute("""
-            UPDATE reservations
-            SET status = 'returned',
-                returned_at = NOW()
-            WHERE id = %s
-        """, (reservation_id,))
-        db.close()
-
     def find_by_id(self, reservation_id):
         db = Database()
         reservation = db.fetch_one("""
@@ -82,3 +77,46 @@ class Reservation:
         """, (reservation_id,))
         db.close()
         return reservation
+
+    def request_cancel(self, reservation_id, user_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'cancel_requested'
+            WHERE id = %s
+            AND user_id = %s
+            AND status = 'reserved'
+        """, (reservation_id, user_id))
+        db.close()
+
+    def approve_cancel(self, reservation_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'cancelled',
+                returned_at = NOW()
+            WHERE id = %s
+            AND status = 'cancel_requested'
+        """, (reservation_id,))
+        db.close()
+
+    def reject_cancel(self, reservation_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'reserved'
+            WHERE id = %s
+            AND status = 'cancel_requested'
+        """, (reservation_id,))
+        db.close()
+
+    def mark_returned(self, reservation_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'returned',
+                returned_at = NOW()
+            WHERE id = %s
+            AND status = 'reserved'
+        """, (reservation_id,))
+        db.close()

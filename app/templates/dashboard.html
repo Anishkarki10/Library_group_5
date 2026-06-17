@@ -610,18 +610,26 @@
 
                     <td class="px-6 py-4">
                       {% if item.status == "reserved" %}
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
-                          Reserved
-                        </span>
-                      {% elif item.status == "returned" %}
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                          Returned
-                        </span>
-                      {% else %}
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
-                          {{ item.status }}
-                        </span>
-                      {% endif %}
+                      <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                        Reserved
+                      </span>
+                    {% elif item.status == "cancel_requested" %}
+                      <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                        Cancel Requested
+                      </span>
+                    {% elif item.status == "cancelled" %}
+                      <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                        Cancelled
+                      </span>
+                    {% elif item.status == "returned" %}
+                      <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                        Returned
+                      </span>
+                    {% else %}
+                      <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                        {{ item.status }}
+                      </span>
+                    {% endif %}
                     </td>
 
                     <td class="px-6 py-4 text-gray-600">
@@ -634,23 +642,53 @@
 
                     <td class="px-6 py-4">
                       {% if item.status == "reserved" %}
+                      <form
+                        action="{{ url_for('auth.return_book', reservation_id=item.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Mark this book as returned?');"
+                      >
+                        <button
+                          type="submit"
+                          class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                        >
+                          Return
+                        </button>
+                      </form>
+                    
+                    {% elif item.status == "cancel_requested" %}
+                      <div class="flex items-center gap-2">
                         <form
-                          action="{{ url_for('auth.return_book', reservation_id=item.id) }}"
+                          action="{{ url_for('auth.approve_cancel_reservation', reservation_id=item.id) }}"
                           method="POST"
-                          onsubmit="return confirm('Mark this book as returned?');"
+                          onsubmit="return confirm('Approve this cancel request?');"
                         >
                           <button
                             type="submit"
                             class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
                           >
-                            Return
+                            Approve
                           </button>
                         </form>
-                      {% else %}
-                        <span class="text-gray-400 text-sm">
-                          Completed
-                        </span>
-                      {% endif %}
+                    
+                        <form
+                          action="{{ url_for('auth.reject_cancel_reservation', reservation_id=item.id) }}"
+                          method="POST"
+                          onsubmit="return confirm('Reject this cancel request?');"
+                        >
+                          <button
+                            type="submit"
+                            class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                          >
+                            Reject
+                          </button>
+                        </form>
+                      </div>
+                    
+                    {% else %}
+                      <span class="text-gray-400 text-sm">
+                        Completed
+                      </span>
+                    {% endif %}
                     </td>
 
                   </tr>

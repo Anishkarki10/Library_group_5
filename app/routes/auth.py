@@ -87,5 +87,17 @@ class AuthRoutes:
             admin_required(self.controller.return_book)
         )
 
+        # Student request cancel reservation
+        self.bp.route("/request-cancel-reservation/<int:reservation_id>", methods=["POST"])(
+        login_required(self.controller.request_cancel_reservation))
+
+# Admin approve cancel reservation
+        self.bp.route("/approve-cancel-reservation/<int:reservation_id>", methods=["POST"])(
+        admin_required(self.controller.approve_cancel_reservation))
+
+# Admin reject cancel reservation
+        self.bp.route("/reject-cancel-reservation/<int:reservation_id>", methods=["POST"])(
+        admin_required(self.controller.reject_cancel_reservation))
+
 
         return self.bp
