@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Manager - Consolidated Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen p-6 sm:p-12">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-10">
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Admin Dashboard</h1>
+            <p class="text-slate-500 mt-1">US 23: Single File Unified Issue Tracker & Return System</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="space-y-6">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="w-2.5 h-5 bg-blue-600 rounded-full"></span>
+                        Issue New Book
+                    </h2>
+                    
+                    <form id="issue-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Borrower User ID</label>
+                            <input type="text" id="form-userid" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g., USR-9021">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Book Title</label>
+                            <input type="text" id="form-title" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g., The Hobbit">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Author</label>
+                            <input type="text" id="form-author" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g., J.R.R. Tolkien">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Due Date</label>
+                            <input type="date" id="form-date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-all shadow-sm active:scale-[0.98]">
+                            Record Issue Transaction
+                        </button>
+                    </form>
+                </section>
+            </div>
+            
+            <div class="space-y-6">
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="w-2.5 h-5 bg-indigo-600 rounded-full"></span>
+                        Active Borrowed Books
+                    </h2>
+                    <ul id="borrowed-list" class="space-y-3">
+                        </ul>
+                </section>
+            </div>
+
+            <div class="space-y-6">
+                <section class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl">
+                    <h2 class="text-lg font-bold mb-4 tracking-wide text-slate-200">Transaction History Log</h2>
+                    <ul id="history-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                        <p id="empty-history" class="text-sm text-slate-400 italic">No transactions recorded yet.</p>
+                    </ul>
+                </section>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // State Management - Loads existing storage array data or sets fallbacks
+        let borrowedBooks = JSON.parse(localStorage.getItem('libraryBooks')) || [
+            { id: 201, userId: "USR-4412", title: "Moby Dick", author: "Herman Melville", daysLate: 14, isOverdue: true, dueDate: "Past Due" },
+            { id: 203, userId: "USR-7889", title: "Brave New World", author: "Aldous Huxley", daysLate: 0, isOverdue: false, dueDate: "Standard Care" }
+        ];
+        let transactionHistory = JSON.parse(localStorage.getItem('libraryHistory')) || [];
+
+        // UI Selectors
+        const borrowedListUI = document.getElementById('borrowed-list');
+        const historyListUI = document.getElementById('history-list');
+        const issueForm = document.getElementById('issue-form');
+
+        // State Storage Synchronizer
+        function saveState() {
+            localStorage.setItem('libraryBooks', JSON.stringify(borrowedBooks));
+            localStorage.setItem('libraryHistory', JSON.stringify(transactionHistory));
+        }
+
+        // Form Submit Lifecycle Listener
+        issueForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const userIdInput = document.getElementById('form-userid').value;
+            const titleInput = document.getElementById('form-title').value;
+            const authorInput = document.getElementById('form-author').value;
+            const dateInput = document.getElementById('form-date').value;
+
+            const selectedDate = new Date(dateInput);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            
+            const isOverdue = selectedDate < today;
+            let daysLate = 0;
+            
+            if (isOverdue) {
+                const diffTime = Math.abs(today - selectedDate);
+                daysLate = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            }
+
+            // New Data Struct Formulation
+            const newIssue = {
+                id: Date.now(),
+                userId: userIdInput.toUpperCase(),
+                title: titleInput,
+                author: authorInput,
+                daysLate: daysLate,
+                isOverdue: isOverdue,
+                dueDate: selectedDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+            };
+
+            borrowedBooks.push(newIssue);
+            transactionHistory.push({
+                title: newIssue.title,
+                userId: newIssue.userId,
+                type: 'Issued',
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            saveState();
+            renderBooks();
+            renderHistory();
+            
+            issueForm.reset();
+        });
+
+        // UI Compilation: Active Checked Out Elements
+        function renderBooks() {
+            borrowedListUI.innerHTML = '';
+            if (borrowedBooks.length === 0) {
+                borrowedListUI.innerHTML = '<p class="text-sm text-slate-400 italic text-center py-4">No books currently checked out.</p>';
+                return;
+            }
+
+            borrowedBooks.forEach(book => {
+                const li = document.createElement('li');
+                li.className = `flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border transition-all gap-4 ${
+                    book.isOverdue ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'
+                }`;
+                
+                li.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full ${
+                                book.isOverdue ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-600'
+                            }">${book.isOverdue ? 'Overdue' : 'Current'}</span>
+                            <span class="text-[10px] font-mono font-bold bg-slate-200/80 text-slate-700 px-2 py-0.5 rounded border border-slate-300">
+                                👤 ${book.userId}
+                            </span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-base mt-1.5">${book.title}</h3>
+                        <p class="text-xs text-slate-500">${book.author}</p>
+                    </div>
+                    <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-2 sm:pt-0">
+                        <span class="text-xs font-semibold ${book.isOverdue ? 'text-red-600' : 'text-indigo-600'}">
+                            ${book.isOverdue ? `${book.daysLate} Days Late` : `Due: ${book.dueDate}`}
+                        </span>
+                        <button onclick="returnBook(${book.id})" class="bg-slate-800 hover:bg-red-600 text-white text-xs font-bold px-3 py-2 rounded-lg transition-all active:scale-95">
+                            Return
+                        </button>
+                    </div>
+                `;
+                borrowedListUI.appendChild(li);
+            });
+        }
+
+        // Return Action Transaction Handler
+        function returnBook(bookId) {
+            const bookIndex = borrowedBooks.findIndex(b => b.id === bookId);
+            const targetBook = borrowedBooks[bookIndex];
+
+            borrowedBooks.splice(bookIndex, 1);
+            
+            transactionHistory.push({
+                title: targetBook.title,
+                userId: targetBook.userId,
+                type: 'Returned',
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            saveState();
+            renderBooks();
+            renderHistory();
+        }
+
+        // UI Compilation: Audit Feed Log Elements
+        function renderHistory() {
+            historyListUI.innerHTML = '';
+            if (transactionHistory.length === 0) {
+                historyListUI.innerHTML = '<p id="empty-history" class="text-sm text-slate-400 italic">No transactions recorded yet.</p>';
+                return;
+            }
+
+            transactionHistory.forEach(item => {
+                const li = document.createElement('li');
+                li.className = "text-xs p-3 bg-slate-800 rounded-xl border border-slate-700 flex justify-between items-center";
+                
+                const badge = item.type === 'Issued' 
+                    ? `<span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded border border-blue-500/30">Issued</span>`
+                    : `<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">Returned</span>`;
+
+                li.innerHTML = `
+                    <div class="truncate mr-2">
+                        <strong class="text-slate-100 block truncate">${item.title}</strong>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">User: <span class="font-mono text-blue-300 font-bold">${item.userId}</span> • ${item.timestamp}</span>
+                    </div>
+                    ${badge}
+                `;
+                historyListUI.prepend(li);
+            });
+        }
+
+        // Initial App Bootstrapping Execution
+        renderBooks();
+        renderHistory();
+    </script>
+</body>
+</html>
