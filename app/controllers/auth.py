@@ -17,7 +17,7 @@ from app.models.user import User
 from app.models.book import Book
 
 from app.models.reservation import Reservation
-from datetime import datetime, timedelta
+
 
 class AuthController(BaseController):
     def __init__(self):
@@ -122,18 +122,21 @@ class AuthController(BaseController):
         return redirect(url_for("auth.dashboard") + "#books")
 
     # ── Home / Student Dashboard ─────────────────────────────
-
     def home(self):
         user_id = self.get_current_user_id()
 
         books = self.book_model.get_all()
         reservations = self.reservation_model.get_user_reservations(user_id)
 
+        reservation_success = session.pop("reservation_success", None)
+
         return render_template(
             "home.html",
             books=books,
-            reservations=reservations
+            reservations=reservations,
+            reservation_success=reservation_success
         )
+
 
     # ── Student Login ────────────────────────────────────────
 
@@ -579,60 +582,13 @@ class AuthController(BaseController):
 
         self.book_model.decrease_available(book_id)
 
-        flash("Book reserved successfully.", "success")
-        return redirect(url_for("auth.home"))
+        session["reservation_success"] = {
+            "title": book["title"],
+            "location": book["location"]
+        }
 
-
-    def reserve_book(self, book_id):
-        user_id = self.get_current_user_id()
-
-        if not user_id:
-            flash("Please login first.", "warning")
-            return redirect(url_for("auth.login"))
-
-        book = self.book_model.find_by_id(book_id)
-
-        if not book:
-            flash("Book not found.", "danger")
-            return redirect(url_for("auth.home"))
-
-        if book["available_count"] <= 0:
-            flash("This book is not available right now.", "danger")
-            return redirect(url_for("auth.home"))
-
-        if self.reservation_model.already_reserved(user_id, book_id):
-            flash("You already reserved this book.", "warning")
-            return redirect(url_for("auth.home"))
-
-        due_date = datetime.now() + timedelta(days=14)
-
-        self.reservation_model.create(
-            user_id=user_id,
-            book_id=book_id,
-            due_date=due_date.date()
-        )
-
-        self.book_model.decrease_available(book_id)
-
-        flash("Book reserved successfully.", "success")
-        return redirect(url_for("auth.home"))
-
-    def return_book(self, reservation_id):
-        reservation = self.reservation_model.find_by_id(reservation_id)
-
-        if not reservation:
-            flash("Reservation not found.", "danger")
-            return redirect(url_for("auth.dashboard") + "#circulation")
-
-        if reservation["status"] == "returned":
-            flash("Book is already returned.", "warning")
-            return redirect(url_for("auth.dashboard") + "#circulation")
-
-        self.reservation_model.mark_returned(reservation_id)
-        self.book_model.increase_available(reservation["book_id"])
-
-        flash("Book returned successfully.", "success")
-        return redirect(url_for("auth.dashboard") + "#circulation")
+        return redirect(url_for("auth.home") + "#dashboard")
+    # ── Student Request Cancel Reservation ───────────────────
 
     def request_cancel_reservation(self, reservation_id):
         user_id = self.get_current_user_id()
@@ -660,6 +616,7 @@ class AuthController(BaseController):
         flash("Cancel request sent to admin for approval.", "success")
         return redirect(url_for("auth.home") + "#dashboard")
 
+    # ── Admin Approve Cancel Reservation ─────────────────────
 
     def approve_cancel_reservation(self, reservation_id):
         reservation = self.reservation_model.find_by_id(reservation_id)
@@ -678,6 +635,7 @@ class AuthController(BaseController):
         flash("Cancel request approved. Book is available again.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")
 
+    # ── Admin Reject Cancel Reservation ──────────────────────
 
     def reject_cancel_reservation(self, reservation_id):
         reservation = self.reservation_model.find_by_id(reservation_id)
@@ -693,4 +651,27 @@ class AuthController(BaseController):
         self.reservation_model.reject_cancel(reservation_id)
 
         flash("Cancel request rejected. Reservation is still active.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Admin Return Book ────────────────────────────────────
+
+    def return_book(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] == "returned":
+            flash("Book is already returned.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "reserved":
+            flash("Only reserved books can be returned.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.mark_returned(reservation_id)
+        self.book_model.increase_available(reservation["book_id"])
+
+        flash("Book returned successfully.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")

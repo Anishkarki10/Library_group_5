@@ -423,12 +423,13 @@
                         method="POST"
                         onsubmit="return confirm('Request admin to cancel this reservation?');"
                       >
-                        <button
-                          type="submit"
-                          class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
-                        >
-                          Request Cancel
-                        </button>
+                      <button
+                      type="button"
+                      onclick="openCancelModal('{{ item.id }}', '{{ item.title }}')"
+                      class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                    >
+                      Request Cancel
+                    </button>
                       </form>
                     {% elif item.status == "cancel_requested" %}
                       <span class="text-sm text-yellow-600 font-medium">
@@ -573,8 +574,108 @@
     </main>
 
   </div>
+<!-- Cancel Reservation Modal -->
+<div
+  id="cancelReservationModal"
+  class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4"
+>
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
 
+    <div class="p-6 text-center">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
+      </div>
+
+      <h3 class="text-xl font-bold text-gray-900 mb-2">
+        Cancel Reservation?
+      </h3>
+
+      <p class="text-gray-600 text-sm mb-2">
+        Do you want to request admin to cancel your reservation?
+      </p>
+
+      <p class="text-sm font-semibold text-gray-900 mb-6" id="cancelBookTitle">
+        Book name
+      </p>
+
+      <form id="cancelReservationForm" method="POST">
+        <div class="flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onclick="closeCancelModal()"
+            class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+          >
+            No, Keep It
+          </button>
+
+          <button
+            type="submit"
+            class="px-5 py-3 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition"
+          >
+            Yes, Request Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+{% if reservation_success %}
+  <!-- Reservation Success Modal -->
+  <div
+    id="reservationSuccessModal"
+    class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+  >
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-circle-check text-green-600 text-3xl"></i>
+        </div>
+
+        <h3 class="text-xl font-bold text-gray-900 mb-2">
+          Book Reserved Successfully!
+        </h3>
+
+        <p class="text-sm text-gray-600 mb-4">
+          Your reservation for
+          <span class="font-semibold text-gray-900">
+            {{ reservation_success.title }}
+          </span>
+          has been confirmed.
+        </p>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5 text-left">
+          <p class="text-sm text-blue-800">
+            <i class="fa-solid fa-location-dot mr-2"></i>
+            You can grab this book from library shelf
+            <span class="font-bold">
+              {{ reservation_success.location }}
+            </span>
+            within <span class="font-bold">2 days</span>.
+          </p>
+
+          <p class="text-xs text-blue-700 mt-2">
+            If you do not collect it within 2 days, your reservation may be cancelled.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onclick="closeReservationSuccessModal()"
+          class="w-full px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition"
+        >
+          Okay, Got It
+        </button>
+      </div>
+
+    </div>
+  </div>
+{% endif %}
   <script>
+
+    
     function showPage(page) {
       const sections = document.querySelectorAll(".page-section");
       const navButtons = document.querySelectorAll(".nav-btn");
@@ -594,6 +695,50 @@
       activeButton.classList.remove("text-gray-700", "hover:bg-gray-50");
       activeButton.classList.add("bg-blue-50", "text-blue-600");
     }
+
+    function closeReservationSuccessModal() {
+  const modal = document.getElementById("reservationSuccessModal");
+
+  if (modal) {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+}
+
+
+  function openCancelModal(reservationId, bookTitle) {
+    const modal = document.getElementById("cancelReservationModal");
+    const form = document.getElementById("cancelReservationForm");
+    const title = document.getElementById("cancelBookTitle");
+
+    form.action = "/request-cancel-reservation/" + reservationId;
+    title.textContent = bookTitle;
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+
+  function closeCancelModal() {
+    const modal = document.getElementById("cancelReservationModal");
+
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  }
+
+  window.addEventListener("click", function (e) {
+    const modal = document.getElementById("cancelReservationModal");
+
+    if (e.target === modal) {
+      closeCancelModal();
+    }
+  });
+
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      closeCancelModal();
+    }
+  });
+
 
     function filterBooks() {
       const searchValue = document.getElementById("searchInput").value.toLowerCase();
@@ -641,6 +786,8 @@
 
       filterBooks();
     });
+
+    
   </script>
 
 </body>
