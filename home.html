@@ -376,9 +376,29 @@
                       <p class="text-sm text-gray-600">
                         {{ item.author }}
                       </p>
-                      <p class="text-xs text-gray-500">
-                        Status: {{ item.status }}
-                      </p>
+                      <div class="mt-1">
+                        {% if item.status == "reserved" %}
+                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                            Reserved
+                          </span>
+                        {% elif item.status == "cancel_requested" %}
+                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                            Cancel Requested
+                          </span>
+                        {% elif item.status == "cancelled" %}
+                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                            Cancelled
+                          </span>
+                        {% elif item.status == "returned" %}
+                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                            Returned
+                          </span>
+                        {% else %}
+                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                            {{ item.status }}
+                          </span>
+                        {% endif %}
+                      </div>
                     </div>
                   </div>
 
@@ -386,9 +406,37 @@
                     <p class="text-sm text-gray-600 mb-1">
                       Due Date
                     </p>
-                    <p class="font-semibold text-gray-900">
+                  
+                    <p class="font-semibold text-gray-900 mb-3">
                       {{ item.due_date }}
                     </p>
+                  
+                    {% if item.status == "reserved" %}
+                      <form
+                        action="{{ url_for('auth.request_cancel_reservation', reservation_id=item.id) }}"
+                        method="POST"
+                        onsubmit="return confirm('Request admin to cancel this reservation?');"
+                      >
+                        <button
+                          type="submit"
+                          class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
+                        >
+                          Request Cancel
+                        </button>
+                      </form>
+                    {% elif item.status == "cancel_requested" %}
+                      <span class="text-sm text-yellow-600 font-medium">
+                        Waiting Admin Approval
+                      </span>
+                    {% elif item.status == "cancelled" %}
+                      <span class="text-sm text-red-600 font-medium">
+                        Cancelled
+                      </span>
+                    {% elif item.status == "returned" %}
+                      <span class="text-sm text-green-600 font-medium">
+                        Returned
+                      </span>
+                    {% endif %}
                   </div>
 
                 </div>
