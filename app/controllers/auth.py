@@ -122,20 +122,36 @@ class AuthController(BaseController):
         return redirect(url_for("auth.dashboard") + "#books")
 
     # ── Home / Student Dashboard ─────────────────────────────
+
     def home(self):
         user_id = self.get_current_user_id()
 
         books = self.book_model.get_all()
         reservations = self.reservation_model.get_user_reservations(user_id)
 
+        active_reservations = []
+        reading_history = []
+        cancelled_reservations = []
+
+        for item in reservations:
+            if item["status"] == "returned":
+                reading_history.append(item)
+            elif item["status"] == "cancelled":
+                cancelled_reservations.append(item)
+            else:
+                active_reservations.append(item)
+
         reservation_success = session.pop("reservation_success", None)
 
         return render_template(
             "home.html",
             books=books,
-            reservations=reservations,
+            reservations=active_reservations,
+            reading_history=reading_history,
+            cancelled_reservations=cancelled_reservations,
             reservation_success=reservation_success
         )
+
 
 
     # ── Student Login ────────────────────────────────────────

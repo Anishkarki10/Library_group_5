@@ -165,20 +165,28 @@
             <div class="relative">
               <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
               <select
-                id="genreFilter"
-                onchange="filterBooks()"
-                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              >
-                <option value="all">All Genres</option>
-
-                {% if books %}
-                  {% for book in books %}
-                    <option value="{{ book.genre }}">
-                      {{ book.genre }}
+              id="genreFilter"
+              onchange="filterBooks()"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+            >
+              <option value="all">All Genres</option>
+            
+              {% if books %}
+                {% set genres = namespace(list=[]) %}
+            
+                {% for book in books %}
+                  {% set genre_name = book.genre.strip() %}
+            
+                  {% if genre_name not in genres.list %}
+                    {% set _ = genres.list.append(genre_name) %}
+            
+                    <option value="{{ genre_name }}">
+                      {{ genre_name }}
                     </option>
-                  {% endfor %}
-                {% endif %}
-              </select>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+            </select>
             </div>
 
             <div>
@@ -343,7 +351,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm text-gray-600 mb-1">Reading History</p>
-                <p class="text-3xl font-bold text-gray-900">0</p>
+                <p class="text-3xl font-bold text-gray-900">  {{ reading_history|length if reading_history else 0 }}</p>
               </div>
               <i class="fa-solid fa-clock text-green-600 text-4xl"></i>
             </div>
@@ -484,16 +492,64 @@
         </div>
 
         <!-- Reading History -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-4">
-            Reading History
-          </h3>
+       <!-- Reading History -->
+<div class="bg-white rounded-lg border border-gray-200 p-6">
+  <h3 class="text-lg font-bold text-gray-900 mb-4">
+    Reading History
+  </h3>
 
-          <div class="text-gray-500 text-sm">
-            No reading history yet.
+  {% if reading_history %}
+    <div class="space-y-3">
+      {% for item in reading_history %}
+        <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
+
+          <div class="flex items-center gap-4">
+            {% if item.image %}
+              <img
+                src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
+                class="w-12 h-16 object-cover rounded border"
+                alt="{{ item.title }}"
+              />
+            {% else %}
+              <div class="w-12 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded flex items-center justify-center">
+                <i class="fa-solid fa-book-open text-white"></i>
+              </div>
+            {% endif %}
+
+            <div>
+              <h4 class="font-semibold text-gray-900">
+                {{ item.title }}
+              </h4>
+
+              <p class="text-sm text-gray-600">
+                {{ item.author }}
+              </p>
+
+              <span class="inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                Completed Reading
+              </span>
+            </div>
           </div>
-        </div>
 
+          <div class="text-right">
+            <p class="text-sm text-gray-600 mb-1">
+              Returned At
+            </p>
+
+            <p class="font-semibold text-gray-900">
+              {{ item.returned_at if item.returned_at else "Returned" }}
+            </p>
+          </div>
+
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-gray-500 text-sm">
+      No reading history yet.
+    </div>
+  {% endif %}
+</div>
       </section>
 
       <!-- CHANGE PASSWORD PAGE -->
