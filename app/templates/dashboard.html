@@ -525,12 +525,12 @@
                           <button
                             type="button"
                             data-book-id="{{ book_id }}"
-                            data-title="{{ book_title }}"
-                            data-author="{{ book_author }}"
-                            data-genre="{{ book_genre }}"
+                            data-title="{{ book_title|e }}"
+                            data-author="{{ book_author|e }}"
+                            data-genre="{{ book_genre|e }}"
                             data-total="{{ book_total }}"
                             data-available="{{ book_available }}"
-                            data-location="{{ book_location }}"
+                            data-location="{{ book_location|e }}"
                             onclick="openEditBookModal(this)"
                             class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
                           >
@@ -825,6 +825,20 @@
     </section>
 
   </main>
+
+  <!-- Hidden borrowing data for charts -->
+  <div id="borrowingData" class="hidden">
+    {% if borrowings %}
+      {% for item in borrowings %}
+        <div
+          class="borrowing-record"
+          data-book-title="{{ (item.book_title if item.book_title is defined else item['book_title'])|e }}"
+          data-reserved-at="{{ (item.reserved_at if item.reserved_at is defined else item['reserved_at']) }}"
+          data-status="{{ (item.status if item.status is defined else item['status'])|e }}"
+        ></div>
+      {% endfor %}
+    {% endif %}
+  </div>
 
   <!-- Add Book Modal -->
   <div
@@ -1133,19 +1147,11 @@
     let popularBooksChartInstance = null;
     let circulationTrendChartInstance = null;
 
-    const borrowingRecords = [
-      {% if borrowings %}
-        {% for item in borrowings %}
-          {
-            bookTitle: {{ (item.book_title if item.book_title is defined else item["book_title"])|tojson }},
-            reservedAt: {{ (item.reserved_at if item.reserved_at is defined else item["reserved_at"])|string|tojson }},
-            status: {{ (item.status if item.status is defined else item["status"])|tojson }}
-          },
-        {% endfor %}
-      {% endif %}
-    ];
-
     function showPage(page) {
+      if (window.location.hash !== "#" + page) {
+        history.replaceState(null, "", "#" + page);
+      }
+
       const sections = document.querySelectorAll(".page-section");
       const navButtons = document.querySelectorAll(".nav-btn");
 
@@ -1174,10 +1180,22 @@
       }
     }
 
+    function getBorrowingRecords() {
+      const records = document.querySelectorAll(".borrowing-record");
+
+      return Array.from(records).map(record => {
+        return {
+          bookTitle: record.dataset.bookTitle || "",
+          reservedAt: record.dataset.reservedAt || "",
+          status: record.dataset.status || ""
+        };
+      });
+    }
+
     function buildPopularBooksData() {
       const counts = {};
 
-      borrowingRecords.forEach(record => {
+      getBorrowingRecords().forEach(record => {
         if (!record.bookTitle) return;
 
         counts[record.bookTitle] = (counts[record.bookTitle] || 0) + 1;
@@ -1200,17 +1218,27 @@
       };
     }
 
+    function parseDateValue(value) {
+      if (!value) return null;
+
+      const raw = String(value).trim();
+      let date = new Date(raw.replace(" ", "T"));
+
+      if (isNaN(date.getTime())) {
+        date = new Date(raw);
+      }
+
+      return isNaN(date.getTime()) ? null : date;
+    }
+
     function buildCirculationTrendData() {
       const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
       const counts = {};
 
-      borrowingRecords.forEach(record => {
-        if (!record.reservedAt) return;
+      getBorrowingRecords().forEach(record => {
+        const date = parseDateValue(record.reservedAt);
 
-        let cleanDate = String(record.reservedAt).replace(" ", "T");
-        const date = new Date(cleanDate);
-
-        if (isNaN(date.getTime())) return;
+        if (!date) return;
 
         const monthName = months[date.getMonth()];
         counts[monthName] = (counts[monthName] || 0) + 1;
@@ -1232,6 +1260,11 @@
     }
 
     function renderAdminCharts() {
+      if (typeof Chart === "undefined") {
+        console.warn("Chart.js is not loaded. Check your internet connection or CDN access.");
+        return;
+      }
+
       const popularCanvas = document.getElementById("popularBooksChart");
       const trendCanvas = document.getElementById("circulationTrendChart");
 
@@ -1347,12 +1380,12 @@
 
       form.action = "/edit-book/" + bookId;
 
-      document.getElementById("editBookTitle").value = button.dataset.title;
-      document.getElementById("editBookAuthor").value = button.dataset.author;
-      document.getElementById("editBookGenre").value = button.dataset.genre;
-      document.getElementById("editBookTotal").value = button.dataset.total;
-      document.getElementById("editBookAvailable").value = button.dataset.available;
-      document.getElementById("editBookLocation").value = button.dataset.location;
+      document.getElementById("editBookTitle").value = button.dataset.title || "";
+      document.getElementById("editBookAuthor").value = button.dataset.author || "";
+      document.getElementById("editBookGenre").value = button.dataset.genre || "";
+      document.getElementById("editBookTotal").value = button.dataset.total || "";
+      document.getElementById("editBookAvailable").value = button.dataset.available || "";
+      document.getElementById("editBookLocation").value = button.dataset.location || "";
 
       modal.classList.remove("hidden");
       modal.classList.add("flex");
