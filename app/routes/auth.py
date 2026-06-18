@@ -78,6 +78,10 @@ class AuthRoutes:
         self.bp.route("/delete-book/<int:id>", methods=["POST"])(
             admin_required(self.controller.delete_book)
         )
+        # ── Edit Book From Admin Dashboard ───────────────────
+        self.bp.route("/edit-book/<int:id>", methods=["POST"])(
+            admin_required(self.controller.edit_book)
+        )
 
         # ── Student Reserve Book ─────────────────────────────
         self.bp.route("/reserve-book/<int:book_id>", methods=["POST"])(

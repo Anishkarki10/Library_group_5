@@ -432,19 +432,39 @@
                       </td>
 
                       <td class="px-6 py-4">
-                        <form
-                          action="{{ url_for('auth.delete_book', id=book_id) }}"
-                          method="POST"
-                          onsubmit="return confirm('Are you sure you want to delete this book?');"
-                        >
+                        <div class="flex items-center gap-4">
+
                           <button
-                            type="submit"
-                            class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
+                            type="button"
+                            data-book-id="{{ book_id }}"
+                            data-title="{{ book_title }}"
+                            data-author="{{ book_author }}"
+                            data-genre="{{ book_genre }}"
+                            data-total="{{ book_total }}"
+                            data-available="{{ book_available }}"
+                            data-location="{{ book_location }}"
+                            onclick="openEditBookModal(this)"
+                            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
                           >
-                            <i class="fa-solid fa-trash"></i>
-                            Delete
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            Edit
                           </button>
-                        </form>
+
+                          <form
+                            action="{{ url_for('auth.delete_book', id=book_id) }}"
+                            method="POST"
+                            onsubmit="return confirm('Are you sure you want to delete this book?');"
+                          >
+                            <button
+                              type="submit"
+                              class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
+                            >
+                              <i class="fa-solid fa-trash"></i>
+                              Delete
+                            </button>
+                          </form>
+
+                        </div>
                       </td>
 
                     </tr>
@@ -868,6 +888,159 @@
     </div>
   </div>
 
+  <!-- Edit Book Modal -->
+  <div
+    id="editBookModal"
+    class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4"
+  >
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <div>
+          <h3 class="text-xl font-bold text-gray-900">
+            Edit Book
+          </h3>
+          <p class="text-sm text-gray-500">
+            Update book details carefully.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onclick="closeEditBookModal()"
+          class="w-10 h-10 rounded-full hover:bg-gray-100 text-gray-500"
+        >
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form
+        id="editBookForm"
+        method="POST"
+        enctype="multipart/form-data"
+        class="p-6"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Book Title
+            </label>
+            <input
+              type="text"
+              name="title"
+              id="editBookTitle"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Author
+            </label>
+            <input
+              type="text"
+              name="author"
+              id="editBookAuthor"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Genre
+            </label>
+            <input
+              type="text"
+              name="genre"
+              id="editBookGenre"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Location
+            </label>
+            <input
+              type="text"
+              name="location"
+              id="editBookLocation"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Total Copies
+            </label>
+            <input
+              type="number"
+              name="total"
+              id="editBookTotal"
+              min="1"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Available Copies
+            </label>
+            <input
+              type="number"
+              name="available_count"
+              id="editBookAvailable"
+              min="0"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Change Book Cover Image
+            </label>
+            <input
+              type="file"
+              name="image"
+              accept="image/png, image/jpeg, image/jpg, image/webp"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white"
+            />
+            <p class="text-xs text-gray-500 mt-2">
+              Leave empty if you do not want to change the current image.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
+          <button
+            type="button"
+            onclick="closeEditBookModal()"
+            class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+          >
+            <i class="fa-solid fa-floppy-disk mr-2"></i>
+            Update Book
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
   <script>
     function showPage(page) {
       const sections = document.querySelectorAll(".page-section");
@@ -910,17 +1083,49 @@
       modal.classList.remove("flex");
     }
 
-    window.addEventListener("click", function (e) {
-      const modal = document.getElementById("addBookModal");
+    function openEditBookModal(button) {
+      const modal = document.getElementById("editBookModal");
+      const form = document.getElementById("editBookForm");
 
-      if (e.target === modal) {
+      const bookId = button.dataset.bookId;
+
+      form.action = "/edit-book/" + bookId;
+
+      document.getElementById("editBookTitle").value = button.dataset.title;
+      document.getElementById("editBookAuthor").value = button.dataset.author;
+      document.getElementById("editBookGenre").value = button.dataset.genre;
+      document.getElementById("editBookTotal").value = button.dataset.total;
+      document.getElementById("editBookAvailable").value = button.dataset.available;
+      document.getElementById("editBookLocation").value = button.dataset.location;
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeEditBookModal() {
+      const modal = document.getElementById("editBookModal");
+
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    window.addEventListener("click", function (e) {
+      const addModal = document.getElementById("addBookModal");
+      const editModal = document.getElementById("editBookModal");
+
+      if (e.target === addModal) {
         closeAddBookModal();
+      }
+
+      if (e.target === editModal) {
+        closeEditBookModal();
       }
     });
 
     window.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
         closeAddBookModal();
+        closeEditBookModal();
       }
     });
 

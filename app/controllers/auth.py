@@ -782,3 +782,85 @@ class AuthController(BaseController):
 
         flash("Renew request rejected. Student must return the book by the current due date.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")
+    
+    # ── Edit Book ────────────────────────────────────────────
+
+    def edit_book(self, id):
+        book = self.book_model.find_by_id(id)
+
+        if not book:
+            flash("Book not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#books")
+
+        if request.method == "POST":
+            title = request.form.get("title", "").strip()
+            author = request.form.get("author", "").strip()
+            genre = request.form.get("genre", "").strip()
+            total = request.form.get("total", "").strip()
+            available_count = request.form.get("available_count", "").strip()
+            location = request.form.get("location", "").strip()
+            image_file = request.files.get("image")
+
+            if not title or not author or not genre or not total or not available_count or not location:
+                flash("All book fields are required.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            try:
+                total = int(total)
+                available_count = int(available_count)
+            except ValueError:
+                flash("Total and available count must be numbers.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            if total < 1:
+                flash("Total books must be at least 1.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            if available_count < 0:
+                flash("Available count cannot be negative.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            if available_count > total:
+                flash("Available count cannot be greater than total books.", "danger")
+                return redirect(url_for("auth.dashboard") + "#books")
+
+            image_name = None
+
+            if image_file and image_file.filename:
+                if not self.allowed_file(image_file.filename):
+                    flash("Only png, jpg, jpeg, and webp images are allowed.", "danger")
+                    return redirect(url_for("auth.dashboard") + "#books")
+
+                image_name = secure_filename(image_file.filename)
+
+                image_path = os.path.join(
+                    current_app.config["UPLOAD_FOLDER"],
+                    image_name
+                )
+
+                image_file.save(image_path)
+
+                if book.get("image"):
+                    old_image_path = os.path.join(
+                        current_app.config["UPLOAD_FOLDER"],
+                        book["image"]
+                    )
+
+                    if os.path.exists(old_image_path):
+                        os.remove(old_image_path)
+
+            self.book_model.update(
+                book_id=id,
+                title=title,
+                author=author,
+                genre=genre,
+                total=total,
+                available_count=available_count,
+                location=location,
+                image=image_name
+            )
+
+            flash("Book updated successfully.", "success")
+            return redirect(url_for("auth.dashboard") + "#books")
+
+        return redirect(url_for("auth.dashboard") + "#books")
