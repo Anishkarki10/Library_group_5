@@ -23,21 +23,15 @@
 <body class="min-h-screen bg-gray-50">
 
   <!-- Top Navbar -->
-  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
-
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+      <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
         <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
       </div>
 
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">
-          Library Resource Management
-        </h1>
-        <p class="text-sm text-gray-500">
-          Student Portal
-        </p>
-      </div>
+      <h1 class="text-2xl font-bold text-gray-900">
+        Library Resource Management
+      </h1>
     </div>
 
     <div class="flex items-center gap-4">
@@ -50,105 +44,107 @@
 
       <a
         href="{{ url_for('auth.logout') }}"
-        class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition"
+        class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
       >
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
       </a>
     </div>
-
   </header>
 
-  <div class="flex pt-[73px]">
+  <!-- Student Top Tabs -->
+  <nav class="bg-white border-b border-gray-200 px-8 sticky top-[73px] z-40">
+    <div class="flex gap-1">
+      <button
+        type="button"
+        onclick="showPage('catalog')"
+        id="nav-catalog"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-blue-600 text-blue-600"
+      >
+        <i class="fa-solid fa-magnifying-glass"></i>
+        Book Catalog
+      </button>
 
-    <!-- Fixed Sidebar -->
-    <aside class="hidden md:block fixed left-0 top-[73px] w-64 h-[calc(100vh-73px)] bg-white border-r border-gray-200 p-4 overflow-y-auto z-40">
+      <button
+        type="button"
+        onclick="showPage('dashboard')"
+        id="nav-dashboard"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+      >
+        <i class="fa-solid fa-gauge"></i>
+        My Dashboard
+      </button>
 
-      <nav class="space-y-2">
+      <button
+        type="button"
+        onclick="showPage('password')"
+        id="nav-password"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+      >
+        <i class="fa-solid fa-lock"></i>
+        Change Password
+      </button>
+    </div>
+  </nav>
 
-        <button
-          type="button"
-          onclick="showPage('catalog')"
-          id="nav-catalog"
-          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium"
-        >
-          <i class="fa-solid fa-magnifying-glass"></i>
-          Book Catalog
-        </button>
+  <!-- Flash Messages -->
+  <div class="px-6 pt-6">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2">
+          {% for category, message in messages %}
+            <div class="
+              px-4 py-3 rounded-lg text-sm border
+              {% if category == 'success' %}
+                bg-green-50 text-green-700 border-green-200
+              {% elif category == 'danger' or category == 'error' %}
+                bg-red-50 text-red-700 border-red-200
+              {% elif category == 'warning' %}
+                bg-yellow-50 text-yellow-700 border-yellow-200
+              {% else %}
+                bg-blue-50 text-blue-700 border-blue-200
+              {% endif %}
+            ">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
 
-        <button
-          type="button"
-          onclick="showPage('dashboard')"
-          id="nav-dashboard"
-          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
-        >
-          <i class="fa-solid fa-gauge"></i>
-          My Dashboard
-        </button>
+  <main class="min-h-screen">
 
-        <button
-          type="button"
-          onclick="showPage('password')"
-          id="nav-password"
-          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
-        >
-          <i class="fa-solid fa-lock"></i>
-          Change Password
-        </button>
+    <!-- CATALOG PAGE -->
+    <section id="page-catalog" class="page-section">
 
-        <a
-          href="{{ url_for('auth.logout') }}"
-          class="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 font-medium"
-        >
-          <i class="fa-solid fa-right-from-bracket"></i>
-          Logout
-        </a>
+      <!-- Hero Banner -->
+      <div class="relative h-80 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1600&q=80"
+          alt="Library books"
+          class="w-full h-full object-cover object-center"
+        />
 
-      </nav>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-blue-300 text-sm uppercase tracking-widest mb-2">
+            Library Resource Management
+          </p>
 
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 p-6 md:ml-64 overflow-y-auto">
-
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="mb-6 space-y-2">
-            {% for category, message in messages %}
-              <div class="
-                px-4 py-3 rounded-lg text-sm border
-                {% if category == 'success' %}
-                  bg-green-50 text-green-700 border-green-200
-                {% elif category == 'danger' or category == 'error' %}
-                  bg-red-50 text-red-700 border-red-200
-                {% elif category == 'warning' %}
-                  bg-yellow-50 text-yellow-700 border-yellow-200
-                {% else %}
-                  bg-blue-50 text-blue-700 border-blue-200
-                {% endif %}
-              ">
-                {{ message }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
-
-      <!-- CATALOG PAGE -->
-      <section id="page-catalog" class="page-section">
-
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">
-            Book Catalog
+          <h2 class="text-5xl font-bold text-white mb-3">
+            Explore Our Collection
           </h2>
-          <p class="text-gray-600">
-            Search books, filter by genre, and reserve available books.
+
+          <p class="text-gray-200 text-lg max-w-xl">
+            Search, reserve, and discover books from our library catalog.
           </p>
         </div>
+      </div>
+
+      <div class="p-6">
 
         <!-- Search and Filters -->
-        <div class="bg-white p-4 rounded-lg border border-gray-200 mb-6">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
             <div class="relative">
@@ -158,42 +154,42 @@
                 id="searchInput"
                 placeholder="Search by title or author..."
                 oninput="filterBooks()"
-                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               />
             </div>
 
             <div class="relative">
               <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
               <select
-              id="genreFilter"
-              onchange="filterBooks()"
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-            >
-              <option value="all">All Genres</option>
-            
-              {% if books %}
-                {% set genres = namespace(list=[]) %}
-            
-                {% for book in books %}
-                  {% set genre_name = book.genre.strip() %}
-            
-                  {% if genre_name not in genres.list %}
-                    {% set _ = genres.list.append(genre_name) %}
-            
-                    <option value="{{ genre_name }}">
-                      {{ genre_name }}
-                    </option>
-                  {% endif %}
-                {% endfor %}
-              {% endif %}
-            </select>
+                id="genreFilter"
+                onchange="filterBooks()"
+                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              >
+                <option value="all">All Genres</option>
+
+                {% if books %}
+                  {% set genres = namespace(list=[]) %}
+
+                  {% for book in books %}
+                    {% set genre_name = book.genre.strip() %}
+
+                    {% if genre_name not in genres.list %}
+                      {% set _ = genres.list.append(genre_name) %}
+
+                      <option value="{{ genre_name }}">
+                        {{ genre_name }}
+                      </option>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </select>
             </div>
 
             <div>
               <select
                 id="availabilityFilter"
                 onchange="filterBooks()"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
               >
                 <option value="all">All Books</option>
                 <option value="available">Available Only</option>
@@ -203,97 +199,108 @@
 
           </div>
 
-          <div class="mt-3 text-sm text-gray-600">
+          <div class="mt-3 text-sm text-gray-500">
             Showing
-            <span id="shownCount">{{ books|length if books else 0 }}</span>
+            <span id="shownCount" class="font-medium text-gray-700">
+              {{ books|length if books else 0 }}
+            </span>
             of
-            <span id="totalCount">{{ books|length if books else 0 }}</span>
+            <span id="totalCount">
+              {{ books|length if books else 0 }}
+            </span>
             books
           </div>
         </div>
 
         <!-- Book Grid -->
-        <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="booksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
 
           {% if books %}
             {% for book in books %}
               <div
-                class="book-card bg-white rounded-lg border border-gray-200 p-5 hover:shadow-lg transition"
+                class="book-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
                 data-title="{{ book.title|lower }}"
                 data-author="{{ book.author|lower }}"
                 data-genre="{{ book.genre }}"
                 data-available="{% if book.available_count > 0 %}available{% else %}unavailable{% endif %}"
               >
-                <div class="flex items-start gap-4">
 
-                  <!-- Book Cover -->
-                  {% if book.image %}
+                <!-- Book Cover -->
+                {% if book.image %}
+                  <div class="relative h-52 bg-gray-100 flex items-center justify-center">
                     <img
                       src="{{ url_for('static', filename='uploads/books/' ~ book.image) }}"
-                      class="w-20 h-28 object-cover rounded border flex-shrink-0"
                       alt="{{ book.title }}"
+                      class="w-full h-full object-contain p-3"
                     />
-                  {% else %}
-                    <div class="w-20 h-28 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center flex-shrink-0">
-                      <i class="fa-solid fa-book-open text-white text-3xl"></i>
-                    </div>
-                  {% endif %}
 
-                  <div class="flex-1 min-w-0">
-
-                    <h3 class="font-semibold text-gray-900 mb-1 truncate">
-                      {{ book.title }}
-                    </h3>
-
-                    <p class="text-sm text-gray-600 mb-2">
-                      {{ book.author }}
-                    </p>
-
-                    <span class="inline-block px-2 py-1 bg-gray-100 text-xs text-gray-700 rounded mb-2">
-                      {{ book.genre }}
-                    </span>
-
-                    <p class="text-xs text-gray-500 mb-3">
-                      Location: {{ book.location }}
-                    </p>
-
-                    <div class="flex items-center justify-between gap-3">
-
-                      {% if book.available_count > 0 %}
-                        <span class="text-sm font-medium text-green-600">
-                          Available: {{ book.available_count }}
-                        </span>
-
-                        <form
-                          action="{{ url_for('auth.reserve_book', book_id=book.id) }}"
-                          method="POST"
-                        >
-                          <button
-                            type="submit"
-                            class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
-                          >
-                            Reserve
-                          </button>
-                        </form>
-
-                      {% else %}
-                        <span class="text-sm font-medium text-red-600">
-                          Checked Out
-                        </span>
-
-                        <button
-                          disabled
-                          class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-300 text-gray-500 cursor-not-allowed"
-                        >
-                          Waitlist
-                        </button>
-                      {% endif %}
-
-                    </div>
-
+                    <div class="absolute top-3 right-3 w-3 h-3 rounded-full {% if book.available_count > 0 %}bg-green-400{% else %}bg-red-400{% endif %} shadow"></div>
                   </div>
+                {% else %}
+                  <div class="relative bg-gradient-to-br from-blue-500 to-indigo-700 h-52 flex flex-col items-center justify-center p-4">
+                    <div class="absolute left-0 top-0 bottom-0 w-3 bg-black/20 rounded-l-2xl"></div>
+                    <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-white/10"></div>
 
+                    <i class="fa-solid fa-book-open text-white/90 text-5xl mb-3"></i>
+
+                    <p class="text-white/90 text-xs text-center leading-tight px-2 line-clamp-3">
+                      {{ book.title }}
+                    </p>
+
+                    <div class="absolute top-3 right-3 w-3 h-3 rounded-full {% if book.available_count > 0 %}bg-green-400{% else %}bg-red-400{% endif %} shadow"></div>
+                  </div>
+                {% endif %}
+
+                <!-- Book Details -->
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="font-semibold text-gray-900 text-sm leading-tight mb-1 line-clamp-2">
+                    {{ book.title }}
+                  </h3>
+
+                  <p class="text-xs text-gray-500 mb-2">
+                    {{ book.author }}
+                  </p>
+
+                  <span class="inline-block self-start px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full mb-2">
+                    {{ book.genre }}
+                  </span>
+
+                  <p class="text-xs text-gray-500 mb-3">
+                    Location: {{ book.location }}
+                  </p>
+
+                  <div class="mt-auto flex flex-col gap-2">
+                    {% if book.available_count > 0 %}
+                      <span class="text-xs font-medium text-green-600">
+                        {{ book.available_count }} copies available
+                      </span>
+
+                      <form
+                        action="{{ url_for('auth.reserve_book', book_id=book.id) }}"
+                        method="POST"
+                      >
+                        <button
+                          type="submit"
+                          class="w-full py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                        >
+                          Reserve
+                        </button>
+                      </form>
+                    {% else %}
+                      <span class="text-xs font-medium text-red-500">
+                        Checked Out
+                      </span>
+
+                      <button
+                        disabled
+                        class="w-full py-2 rounded-xl text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+                      >
+                        Join Waitlist
+                      </button>
+                    {% endif %}
+                  </div>
                 </div>
+
               </div>
             {% endfor %}
           {% else %}
@@ -308,264 +315,283 @@
           No books found matching your filters.
         </div>
 
-      </section>
+      </div>
+    </section>
 
-      <!-- STUDENT DASHBOARD PAGE -->
-      <section id="page-dashboard" class="page-section hidden">
+    <!-- STUDENT DASHBOARD PAGE -->
+    <section id="page-dashboard" class="page-section hidden">
 
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">
+      <!-- Hero Banner -->
+      <div class="relative h-72 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1699443817739-cf2f7cbcd18d?auto=format&fit=crop&w=1600&q=80"
+          alt="Library shelves"
+          class="w-full h-full object-cover object-center"
+        />
+
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-indigo-300 text-sm uppercase tracking-widest mb-2">
+            Student Dashboard
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-2">
             Welcome back, {{ session.get("user_name", "Student") }}!
           </h2>
-          <p class="text-gray-600">
-            Here's your library activity.
+
+          <p class="text-gray-200 text-lg">
+            Here's your library activity at a glance.
           </p>
         </div>
+      </div>
+
+      <div class="p-6">
 
         <!-- Quick Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
 
-          <div class="bg-white rounded-lg border border-gray-200 p-5">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-600 mb-1">Reserved / Borrowed Books</p>
-                <p class="text-3xl font-bold text-gray-900">
-                  {{ reservations|length if reservations else 0 }}
-                </p>
-              </div>
-              <i class="fa-solid fa-book-open text-blue-600 text-4xl"></i>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
             </div>
-          </div>
-
-          <div class="bg-white rounded-lg border border-gray-200 p-5">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-600 mb-1">Overdue Books</p>
-                <p class="text-3xl font-bold text-red-600">0</p>
-              </div>
-              <i class="fa-solid fa-bell text-red-600 text-4xl"></i>
-            </div>
-          </div>
-
-          <div class="bg-white rounded-lg border border-gray-200 p-5">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-600 mb-1">Reading History</p>
-                <p class="text-3xl font-bold text-gray-900">  {{ reading_history|length if reading_history else 0 }}</p>
-              </div>
-              <i class="fa-solid fa-clock text-green-600 text-4xl"></i>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- My Reserved / Borrowed Books -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-          <h3 class="text-lg font-bold text-gray-900 mb-4">
-            My Reserved / Borrowed Books
-          </h3>
-
-          {% if reservations %}
-            <div class="space-y-3">
-              {% for item in reservations %}
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-
-                  <div class="flex items-center gap-4">
-                    {% if item.image %}
-                      <img
-                        src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
-                        class="w-12 h-16 object-cover rounded border"
-                        alt="{{ item.title }}"
-                      />
-                    {% else %}
-                      <div class="w-12 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center">
-                        <i class="fa-solid fa-book-open text-white"></i>
-                      </div>
-                    {% endif %}
-
-                    <div>
-                      <h4 class="font-semibold text-gray-900">
-                        {{ item.title }}
-                      </h4>
-
-                      <p class="text-sm text-gray-600">
-                        {{ item.author }}
-                      </p>
-
-                      <div class="mt-1">
-                        {% if item.status == "reserved" %}
-                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
-                            Reserved
-                          </span>
-
-                        {% elif item.status == "borrowed" %}
-                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
-                            Borrowed
-                          </span>
-
-                        {% elif item.status == "renew_requested" %}
-                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
-                            Renew Requested
-                          </span>
-
-                        {% elif item.status == "cancel_requested" %}
-                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
-                            Cancel Requested
-                          </span>
-
-                        {% elif item.status == "cancelled" %}
-                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                            Cancelled
-                          </span>
-
-                        {% elif item.status == "returned" %}
-                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            Returned
-                          </span>
-
-                        {% else %}
-                          <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
-                            {{ item.status }}
-                          </span>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="text-right">
-                    <p class="text-sm text-gray-600 mb-1">
-                      Due Date
-                    </p>
-
-                    <p class="font-semibold text-gray-900 mb-3">
-                      {{ item.due_date }}
-                    </p>
-
-                    {% if item.status == "reserved" %}
-                      <button
-                        type="button"
-                        onclick="openCancelModal('{{ item.id }}', '{{ item.title }}')"
-                        class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
-                      >
-                        Request Cancel
-                      </button>
-
-                    {% elif item.status == "borrowed" %}
-                      <button
-                        type="button"
-                        onclick="openRenewModal('{{ item.id }}', '{{ item.title }}')"
-                        class="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition"
-                      >
-                        Request Renew
-                      </button>
-
-                    {% elif item.status == "renew_requested" %}
-                      <span class="text-sm text-purple-600 font-medium">
-                        Waiting Renew Approval
-                      </span>
-
-                    {% elif item.status == "cancel_requested" %}
-                      <span class="text-sm text-yellow-600 font-medium">
-                        Waiting Cancel Approval
-                      </span>
-
-                    {% elif item.status == "cancelled" %}
-                      <span class="text-sm text-red-600 font-medium">
-                        Cancelled
-                      </span>
-
-                    {% elif item.status == "returned" %}
-                      <span class="text-sm text-green-600 font-medium">
-                        Returned
-                      </span>
-                    {% endif %}
-                  </div>
-
-                </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="text-gray-500 text-sm">
-              No reserved or borrowed books yet.
-            </div>
-          {% endif %}
-        </div>
-
-        <!-- Reading History -->
-       <!-- Reading History -->
-<div class="bg-white rounded-lg border border-gray-200 p-6">
-  <h3 class="text-lg font-bold text-gray-900 mb-4">
-    Reading History
-  </h3>
-
-  {% if reading_history %}
-    <div class="space-y-3">
-      {% for item in reading_history %}
-        <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-100">
-
-          <div class="flex items-center gap-4">
-            {% if item.image %}
-              <img
-                src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
-                class="w-12 h-16 object-cover rounded border"
-                alt="{{ item.title }}"
-              />
-            {% else %}
-              <div class="w-12 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded flex items-center justify-center">
-                <i class="fa-solid fa-book-open text-white"></i>
-              </div>
-            {% endif %}
 
             <div>
-              <h4 class="font-semibold text-gray-900">
-                {{ item.title }}
-              </h4>
-
-              <p class="text-sm text-gray-600">
-                {{ item.author }}
+              <p class="text-sm text-gray-500">Current Books</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ reservations|length if reservations else 0 }}
               </p>
-
-              <span class="inline-block mt-1 px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                Completed Reading
-              </span>
             </div>
           </div>
 
-          <div class="text-right">
-            <p class="text-sm text-gray-600 mb-1">
-              Returned At
-            </p>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-bell text-red-500 text-xl"></i>
+            </div>
 
-            <p class="font-semibold text-gray-900">
-              {{ item.returned_at if item.returned_at else "Returned" }}
-            </p>
+            <div>
+              <p class="text-sm text-gray-500">Overdue Books</p>
+              <p class="text-2xl font-bold text-red-600">0</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-clock text-green-600 text-xl"></i>
+            </div>
+
+            <div>
+              <p class="text-sm text-gray-500">Reading History</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ reading_history|length if reading_history else 0 }}
+              </p>
+            </div>
           </div>
 
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="text-gray-500 text-sm">
-      No reading history yet.
-    </div>
-  {% endif %}
-</div>
-      </section>
 
-      <!-- CHANGE PASSWORD PAGE -->
-      <section id="page-password" class="page-section hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <div class="mb-6">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">
+          <!-- Current Borrowings -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-book-open text-blue-600"></i>
+              Current Borrowings / Reservations
+            </h3>
+
+            {% if reservations %}
+              <div class="space-y-3">
+                {% for item in reservations %}
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+
+                    <div class="flex items-center gap-3">
+                      {% if item.image %}
+                        <img
+                          src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
+                          class="w-10 h-14 object-contain bg-white rounded-lg border flex-shrink-0 p-1"
+                          alt="{{ item.title }}"
+                        />
+                      {% else %}
+                        <div class="w-10 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <i class="fa-solid fa-book-open text-white"></i>
+                        </div>
+                      {% endif %}
+
+                      <div>
+                        <p class="font-medium text-gray-900 text-sm">
+                          {{ item.title }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                          {{ item.author }}
+                        </p>
+
+                        <div class="mt-1">
+                          {% if item.status == "reserved" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                              Reserved
+                            </span>
+                          {% elif item.status == "borrowed" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                              Borrowed
+                            </span>
+                          {% elif item.status == "renew_requested" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                              Renew Requested
+                            </span>
+                          {% elif item.status == "cancel_requested" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                              Cancel Requested
+                            </span>
+                          {% else %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                              {{ item.status }}
+                            </span>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-right">
+                      <p class="text-xs text-gray-500">
+                        Due Date
+                      </p>
+
+                      <p class="text-sm font-semibold text-gray-700 mb-2">
+                        {{ item.due_date }}
+                      </p>
+
+                      {% if item.status == "reserved" %}
+                        <button
+                          type="button"
+                          data-reservation-id="{{ item.id }}"
+                          data-book-title="{{ item.title }}"
+                          onclick="openCancelModalFromButton(this)"
+                          class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition"
+                        >
+                          Request Cancel
+                        </button>
+
+                      {% elif item.status == "borrowed" %}
+                        <button
+                          type="button"
+                          data-reservation-id="{{ item.id }}"
+                          data-book-title="{{ item.title }}"
+                          onclick="openRenewModalFromButton(this)"
+                          class="px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 transition"
+                        >
+                          Request Renew
+                        </button>
+
+                      {% elif item.status == "renew_requested" %}
+                        <span class="text-xs text-purple-600 font-medium">
+                          Waiting Renew Approval
+                        </span>
+
+                      {% elif item.status == "cancel_requested" %}
+                        <span class="text-xs text-yellow-600 font-medium">
+                          Waiting Cancel Approval
+                        </span>
+                      {% endif %}
+                    </div>
+
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-gray-500 text-sm">
+                No current reserved or borrowed books.
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Reading History -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-clock text-green-600"></i>
+              Reading History
+            </h3>
+
+            {% if reading_history %}
+              <div class="space-y-3">
+                {% for item in reading_history %}
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+
+                    <div class="flex items-center gap-3">
+                      {% if item.image %}
+                        <img
+                          src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
+                          class="w-10 h-14 object-contain bg-white rounded-lg border flex-shrink-0 p-1"
+                          alt="{{ item.title }}"
+                        />
+                      {% else %}
+                        <div class="w-10 h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <i class="fa-solid fa-book-open text-white"></i>
+                        </div>
+                      {% endif %}
+
+                      <div>
+                        <p class="font-medium text-gray-900 text-sm">
+                          {{ item.title }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                          {{ item.author }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="text-right">
+                      <p class="text-xs text-gray-500">
+                        Returned
+                      </p>
+
+                      <p class="text-sm font-semibold text-gray-700">
+                        {{ item.returned_at if item.returned_at else "Returned" }}
+                      </p>
+                    </div>
+
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-gray-500 text-sm">
+                No reading history yet.
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- CHANGE PASSWORD PAGE -->
+    <section id="page-password" class="page-section hidden">
+
+      <!-- Hero Banner -->
+      <div class="relative h-64 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1604866830893-c13cafa515d5?auto=format&fit=crop&w=1600&q=80"
+          alt="Library"
+          class="w-full h-full object-cover object-center"
+        />
+
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-amber-300 text-sm uppercase tracking-widest mb-2">
+            Account Settings
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-2">
             Change Password
           </h2>
-          <p class="text-gray-600">
-            Update your account password.
+
+          <p class="text-gray-200 text-lg">
+            Keep your account safe and secure.
           </p>
         </div>
+      </div>
 
-        <div class="max-w-2xl">
-          <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <div class="p-6">
+        <div class="max-w-lg">
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
 
             <form action="{{ url_for('auth.change_password') }}" method="POST" class="space-y-5">
 
@@ -643,6 +669,7 @@
               <h4 class="text-sm font-medium text-blue-900 mb-2">
                 Password Requirements:
               </h4>
+
               <ul class="text-xs text-blue-700 space-y-1 list-disc list-inside">
                 <li>Minimum 6 characters</li>
                 <li>Must be different from current password</li>
@@ -651,12 +678,10 @@
 
           </div>
         </div>
+      </div>
+    </section>
 
-      </section>
-
-    </main>
-
-  </div>
+  </main>
 
   <!-- Cancel Reservation Modal -->
   <div
@@ -815,15 +840,20 @@
       });
 
       navButtons.forEach(button => {
-        button.classList.remove("bg-blue-50", "text-blue-600");
-        button.classList.add("text-gray-700", "hover:bg-gray-50");
+        button.classList.remove("border-blue-600", "text-blue-600");
+        button.classList.add("border-transparent", "text-gray-500");
       });
 
-      document.getElementById("page-" + page).classList.remove("hidden");
+      const activeSection = document.getElementById("page-" + page);
+      if (activeSection) {
+        activeSection.classList.remove("hidden");
+      }
 
       const activeButton = document.getElementById("nav-" + page);
-      activeButton.classList.remove("text-gray-700", "hover:bg-gray-50");
-      activeButton.classList.add("bg-blue-50", "text-blue-600");
+      if (activeButton) {
+        activeButton.classList.remove("border-transparent", "text-gray-500");
+        activeButton.classList.add("border-blue-600", "text-blue-600");
+      }
     }
 
     function closeReservationSuccessModal() {
@@ -833,6 +863,10 @@
         modal.classList.add("hidden");
         modal.classList.remove("flex");
       }
+    }
+
+    function openCancelModalFromButton(button) {
+      openCancelModal(button.dataset.reservationId, button.dataset.bookTitle);
     }
 
     function openCancelModal(reservationId, bookTitle) {
@@ -852,6 +886,10 @@
 
       modal.classList.add("hidden");
       modal.classList.remove("flex");
+    }
+
+    function openRenewModalFromButton(button) {
+      openRenewModal(button.dataset.reservationId, button.dataset.bookTitle);
     }
 
     function openRenewModal(reservationId, bookTitle) {

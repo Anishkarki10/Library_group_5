@@ -23,21 +23,15 @@
 <body class="min-h-screen bg-gray-50">
 
   <!-- Top Navbar -->
-  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between fixed top-0 left-0 right-0 z-50">
-
+  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center gap-3">
-      <div class="w-11 h-11 bg-indigo-100 rounded-xl flex items-center justify-center">
+      <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
         <i class="fa-solid fa-user-shield text-indigo-600 text-xl"></i>
       </div>
 
-      <div>
-        <h1 class="text-xl font-bold text-gray-900">
-          Library Resource Management
-        </h1>
-        <p class="text-sm text-gray-500">
-          Admin Dashboard
-        </p>
-      </div>
+      <h1 class="text-2xl font-bold text-gray-900">
+        Library Resource Management
+      </h1>
     </div>
 
     <div class="flex items-center gap-4">
@@ -50,172 +44,165 @@
 
       <a
         href="{{ url_for('auth.logout') }}"
-        class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition"
+        class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
       >
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
       </a>
     </div>
-
   </header>
 
-  <div class="flex pt-[80px]">
+  <!-- Admin Top Tabs -->
+  <nav class="bg-white border-b border-gray-200 px-8 sticky top-[73px] z-40">
+    <div class="flex gap-1 overflow-x-auto">
+      <button
+        type="button"
+        onclick="showPage('dashboard')"
+        id="nav-dashboard"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap"
+      >
+        <i class="fa-solid fa-gauge-high"></i>
+        Dashboard
+      </button>
 
-    <!-- Sidebar -->
-    <aside class="hidden md:block fixed top-[80px] left-0 w-64 h-[calc(100vh-80px)] bg-white border-r border-gray-200 p-4 overflow-y-auto z-40">
+      <button
+        type="button"
+        onclick="showPage('books')"
+        id="nav-books"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+      >
+        <i class="fa-solid fa-book-open"></i>
+        Books
+      </button>
 
-      <nav class="space-y-2">
+      <button
+        type="button"
+        onclick="showPage('circulation')"
+        id="nav-circulation"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+      >
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Circulation
+      </button>
+    </div>
+  </nav>
 
-        <button
-          type="button"
-          onclick="showPage('dashboard')"
-          id="nav-dashboard"
-          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 text-indigo-600 font-medium"
-        >
-          <i class="fa-solid fa-gauge-high"></i>
-          Dashboard
-        </button>
+  <!-- Flash Messages -->
+  <div class="px-6 pt-6">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2">
+          {% for category, message in messages %}
+            <div class="
+              px-4 py-3 rounded-lg text-sm border
+              {% if category == 'success' %}
+                bg-green-50 text-green-700 border-green-200
+              {% elif category == 'danger' or category == 'error' %}
+                bg-red-50 text-red-700 border-red-200
+              {% elif category == 'warning' %}
+                bg-yellow-50 text-yellow-700 border-yellow-200
+              {% else %}
+                bg-blue-50 text-blue-700 border-blue-200
+              {% endif %}
+            ">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
 
-        <button
-          type="button"
-          onclick="showPage('books')"
-          id="nav-books"
-          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
-        >
-          <i class="fa-solid fa-book-open"></i>
-          Books
-        </button>
+  <main class="min-h-screen">
 
-        <button
-          type="button"
-          onclick="showPage('circulation')"
-          id="nav-circulation"
-          class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 font-medium"
-        >
-          <i class="fa-solid fa-clock-rotate-left"></i>
-          Circulation
-        </button>
+    <!-- DASHBOARD PAGE -->
+    <section id="page-dashboard" class="page-section">
 
-        <a
-          href="{{ url_for('auth.logout') }}"
-          class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 font-medium"
-        >
-          <i class="fa-solid fa-right-from-bracket"></i>
-          Logout
-        </a>
+      <!-- Hero Banner -->
+      <div class="relative h-72 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80"
+          alt="Library admin dashboard"
+          class="w-full h-full object-cover object-center"
+        />
 
-      </nav>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-indigo-300 text-sm uppercase tracking-widest mb-2">
+            Admin Dashboard
+          </p>
 
-    </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 md:ml-64 p-6">
-
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <div class="mb-6 space-y-2">
-            {% for category, message in messages %}
-              <div class="
-                px-4 py-3 rounded-xl text-sm border
-                {% if category == 'success' %}
-                  bg-green-50 text-green-700 border-green-200
-                {% elif category == 'danger' or category == 'error' %}
-                  bg-red-50 text-red-700 border-red-200
-                {% elif category == 'warning' %}
-                  bg-yellow-50 text-yellow-700 border-yellow-200
-                {% else %}
-                  bg-blue-50 text-blue-700 border-blue-200
-                {% endif %}
-              ">
-                {{ message }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-      {% endwith %}
-
-      <!-- DASHBOARD PAGE -->
-      <section id="page-dashboard" class="page-section">
-
-        <div class="mb-6">
-          <h2 class="text-3xl font-bold text-gray-900">
+          <h2 class="text-5xl font-bold text-white mb-2">
             Welcome back, {{ session.get("user_name", "Admin") }}!
           </h2>
-          <p class="text-gray-600 mt-1">
+
+          <p class="text-gray-200 text-lg">
             Manage users, books, circulation, and library records.
           </p>
         </div>
+      </div>
+
+      <div class="p-6">
 
         <!-- Stats -->
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
 
-          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-500 mb-1">Total Users</p>
-                <h3 class="text-3xl font-bold text-gray-900">
-                  {{ users|length if users else 0 }}
-                </h3>
-              </div>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-users text-green-600 text-xl"></i>
+            </div>
 
-              <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
-                <i class="fa-solid fa-users text-green-600 text-2xl"></i>
-              </div>
+            <div>
+              <p class="text-sm text-gray-500">Total Users</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ users|length if users else 0 }}
+              </p>
             </div>
           </div>
 
-          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-500 mb-1">Total Books</p>
-                <h3 class="text-3xl font-bold text-gray-900">
-                  {{ books|length if books else 0 }}
-                </h3>
-              </div>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
+            </div>
 
-              <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-                <i class="fa-solid fa-book-open text-blue-600 text-2xl"></i>
-              </div>
+            <div>
+              <p class="text-sm text-gray-500">Total Books</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ books|length if books else 0 }}
+              </p>
             </div>
           </div>
 
-          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-500 mb-1">Circulation Records</p>
-                <h3 class="text-3xl font-bold text-orange-600">
-                  {{ borrowings|length if borrowings else 0 }}
-                </h3>
-              </div>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-clock text-orange-600 text-xl"></i>
+            </div>
 
-              <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
-                <i class="fa-solid fa-clock text-orange-600 text-2xl"></i>
-              </div>
+            <div>
+              <p class="text-sm text-gray-500">Circulation Records</p>
+              <p class="text-2xl font-bold text-orange-600">
+                {{ borrowings|length if borrowings else 0 }}
+              </p>
             </div>
           </div>
 
-          <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm text-gray-500 mb-1">Overdue</p>
-                <h3 class="text-3xl font-bold text-red-600">
-                  {{ overdue_count if overdue_count else 0 }}
-                </h3>
-              </div>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-bell text-red-500 text-xl"></i>
+            </div>
 
-              <div class="w-14 h-14 bg-red-100 rounded-xl flex items-center justify-center">
-                <i class="fa-solid fa-bell text-red-600 text-2xl"></i>
-              </div>
+            <div>
+              <p class="text-sm text-gray-500">Overdue</p>
+              <p class="text-2xl font-bold text-red-600">
+                {{ overdue_count if overdue_count else 0 }}
+              </p>
             </div>
           </div>
 
         </section>
 
         <!-- Users Table -->
-        <section class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-
-          <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <section class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h3 class="text-xl font-bold text-gray-900">
                 Registered Users
@@ -236,7 +223,6 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">ID</th>
@@ -248,7 +234,6 @@
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
-
                 {% if users %}
                   {% for user in users %}
                     {% set user_id = user.id if user.id is defined else user["id"] %}
@@ -257,7 +242,6 @@
                     {% set role = user.role if user.role is defined else user["role"] %}
 
                     <tr class="hover:bg-gray-50">
-
                       <td class="px-6 py-4">
                         {{ user_id }}
                       </td>
@@ -284,7 +268,6 @@
 
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-4">
-
                           <a
                             href="{{ url_for('auth.editUsers', id=user_id) }}"
                             class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
@@ -306,10 +289,8 @@
                               Delete
                             </button>
                           </form>
-
                         </div>
                       </td>
-
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -319,28 +300,51 @@
                     </td>
                   </tr>
                 {% endif %}
-
               </tbody>
-
             </table>
           </div>
-
         </section>
 
-      </section>
+      </div>
+    </section>
 
-      <!-- BOOKS PAGE -->
-      <section id="page-books" class="page-section hidden">
+    <!-- BOOKS PAGE -->
+    <section id="page-books" class="page-section hidden">
 
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- Hero Banner -->
+      <div class="relative h-72 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1600&q=80"
+          alt="Books inventory"
+          class="w-full h-full object-cover object-center"
+        />
 
-          <div class="px-6 py-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-green-300 text-sm uppercase tracking-widest mb-2">
+            Inventory Management
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-2">
+            Book Inventory
+          </h2>
+
+          <p class="text-gray-200 text-lg">
+            Manage books, covers, stock, availability, and shelf locations.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-6">
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+
+          <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h3 class="text-xl font-bold text-gray-900">
                 Book Inventory
               </h3>
               <p class="text-sm text-gray-500">
-                Manage books, covers, stock, and availability.
+                Add, edit, delete, and track book copies.
               </p>
             </div>
 
@@ -356,7 +360,6 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Cover</th>
@@ -371,7 +374,6 @@
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
-
                 {% if books %}
                   {% for book in books %}
                     {% set book_id = book.id if book.id is defined else book["id"] %}
@@ -384,17 +386,16 @@
                     {% set book_image = book.image if book.image is defined else book["image"] %}
 
                     <tr class="hover:bg-gray-50">
-
                       <td class="px-6 py-4">
                         {% if book_image %}
                           <img
                             src="{{ url_for('static', filename='uploads/books/' ~ book_image) }}"
                             alt="{{ book_title }}"
-                            class="w-14 h-20 object-cover rounded-lg border"
+                            class="w-14 h-20 object-contain bg-white rounded-lg border p-1"
                           />
                         {% else %}
-                          <div class="w-14 h-20 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <i class="fa-solid fa-book-open text-blue-600"></i>
+                          <div class="w-14 h-20 bg-gradient-to-br from-blue-500 to-indigo-700 rounded-lg flex items-center justify-center">
+                            <i class="fa-solid fa-book-open text-white"></i>
                           </div>
                         {% endif %}
                       </td>
@@ -433,7 +434,6 @@
 
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-4">
-
                           <button
                             type="button"
                             data-book-id="{{ book_id }}"
@@ -463,10 +463,8 @@
                               Delete
                             </button>
                           </form>
-
                         </div>
                       </td>
-
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -476,33 +474,56 @@
                     </td>
                   </tr>
                 {% endif %}
-
               </tbody>
-
             </table>
           </div>
 
         </div>
 
-      </section>
+      </div>
+    </section>
 
-      <!-- CIRCULATION PAGE -->
-      <section id="page-circulation" class="page-section hidden">
+    <!-- CIRCULATION PAGE -->
+    <section id="page-circulation" class="page-section hidden">
 
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+      <!-- Hero Banner -->
+      <div class="relative h-72 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1600&q=80"
+          alt="Circulation tracking"
+          class="w-full h-full object-cover object-center"
+        />
 
-          <div class="px-6 py-5 border-b border-gray-200">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-orange-300 text-sm uppercase tracking-widest mb-2">
+            Circulation Tracking
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-2">
+            Borrowing Records
+          </h2>
+
+          <p class="text-gray-200 text-lg">
+            Track reserved, borrowed, returned, renew requests, and cancel requests.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-6">
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+
+          <div class="px-6 py-5 border-b border-gray-100">
             <h3 class="text-xl font-bold text-gray-900">
               Circulation Tracking
             </h3>
             <p class="text-sm text-gray-500">
-              Track reserved, borrowed, returned, renew requests, cancel requests, and overdue books.
+              Manage book pickup, return, renew approval, and cancellation requests.
             </p>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Student</th>
@@ -515,14 +536,12 @@
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
-
                 {% if borrowings %}
                   {% for item in borrowings %}
                     {% set reservation_id = item.id if item.id is defined else item["id"] %}
                     {% set status = item.status if item.status is defined else item["status"] %}
 
                     <tr class="hover:bg-gray-50">
-
                       <td class="px-6 py-4">
                         <div class="font-medium text-gray-900">
                           {{ item.student_name if item.student_name is defined else item["student_name"] }}
@@ -546,32 +565,26 @@
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
                             Reserved
                           </span>
-
                         {% elif status == "borrowed" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
                             Borrowed
                           </span>
-
                         {% elif status == "renew_requested" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
                             Renew Requested
                           </span>
-
                         {% elif status == "cancel_requested" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
                             Cancel Requested
                           </span>
-
                         {% elif status == "cancelled" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                             Cancelled
                           </span>
-
                         {% elif status == "returned" %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                             Returned
                           </span>
-
                         {% else %}
                           <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
                             {{ status }}
@@ -588,10 +601,8 @@
                       </td>
 
                       <td class="px-6 py-4">
-
                         {% if status == "reserved" %}
                           <div class="flex items-center gap-2">
-
                             <form
                               action="{{ url_for('auth.mark_book_picked_up', reservation_id=reservation_id) }}"
                               method="POST"
@@ -617,7 +628,6 @@
                                 Return
                               </button>
                             </form>
-
                           </div>
 
                         {% elif status == "borrowed" %}
@@ -636,7 +646,6 @@
 
                         {% elif status == "renew_requested" %}
                           <div class="flex items-center gap-2">
-
                             <form
                               action="{{ url_for('auth.approve_renew_book', reservation_id=reservation_id) }}"
                               method="POST"
@@ -662,12 +671,10 @@
                                 Reject
                               </button>
                             </form>
-
                           </div>
 
                         {% elif status == "cancel_requested" %}
                           <div class="flex items-center gap-2">
-
                             <form
                               action="{{ url_for('auth.approve_cancel_reservation', reservation_id=reservation_id) }}"
                               method="POST"
@@ -693,7 +700,6 @@
                                 Reject
                               </button>
                             </form>
-
                           </div>
 
                         {% elif status == "cancelled" %}
@@ -711,9 +717,7 @@
                             No Action
                           </span>
                         {% endif %}
-
                       </td>
-
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -723,19 +727,16 @@
                     </td>
                   </tr>
                 {% endif %}
-
               </tbody>
-
             </table>
           </div>
 
         </div>
 
-      </section>
+      </div>
+    </section>
 
-    </main>
-
-  </div>
+  </main>
 
   <!-- Add Book Modal -->
   <div
@@ -882,7 +883,6 @@
             Add Book
           </button>
         </div>
-
       </form>
 
     </div>
@@ -1044,28 +1044,26 @@
   <script>
     function showPage(page) {
       const sections = document.querySelectorAll(".page-section");
-      const buttons = document.querySelectorAll(".nav-btn");
+      const navButtons = document.querySelectorAll(".nav-btn");
 
       sections.forEach(section => {
         section.classList.add("hidden");
       });
 
-      buttons.forEach(button => {
-        button.classList.remove("bg-indigo-50", "text-indigo-600");
-        button.classList.add("text-gray-700", "hover:bg-gray-50");
+      navButtons.forEach(button => {
+        button.classList.remove("border-indigo-600", "text-indigo-600");
+        button.classList.add("border-transparent", "text-gray-500");
       });
 
       const activeSection = document.getElementById("page-" + page);
-
       if (activeSection) {
         activeSection.classList.remove("hidden");
       }
 
       const activeButton = document.getElementById("nav-" + page);
-
       if (activeButton) {
-        activeButton.classList.remove("text-gray-700", "hover:bg-gray-50");
-        activeButton.classList.add("bg-indigo-50", "text-indigo-600");
+        activeButton.classList.remove("border-transparent", "text-gray-500");
+        activeButton.classList.add("border-indigo-600", "text-indigo-600");
       }
     }
 
