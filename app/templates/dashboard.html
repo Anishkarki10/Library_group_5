@@ -14,6 +14,9 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -55,6 +58,7 @@
   <!-- Admin Top Tabs -->
   <nav class="bg-white border-b border-gray-200 px-8 sticky top-[73px] z-40">
     <div class="flex gap-1 overflow-x-auto">
+
       <button
         type="button"
         onclick="showPage('dashboard')"
@@ -63,6 +67,16 @@
       >
         <i class="fa-solid fa-gauge-high"></i>
         Dashboard
+      </button>
+
+      <button
+        type="button"
+        onclick="showPage('users')"
+        id="nav-users"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
+      >
+        <i class="fa-solid fa-users"></i>
+        Users
       </button>
 
       <button
@@ -84,6 +98,7 @@
         <i class="fa-solid fa-clock-rotate-left"></i>
         Circulation
       </button>
+
     </div>
   </nav>
 
@@ -136,7 +151,7 @@
           </h2>
 
           <p class="text-gray-200 text-lg">
-            Manage users, books, circulation, and library records.
+            View library performance, circulation activity, and important records.
           </p>
         </div>
       </div>
@@ -200,15 +215,79 @@
 
         </section>
 
-        <!-- Users Table -->
+        <!-- Charts -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Most Popular Books Chart -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">
+              Most Popular Books
+            </h3>
+            <p class="text-sm text-gray-500 mb-4">
+              Based on current circulation records.
+            </p>
+
+            <div class="h-[320px]">
+              <canvas id="popularBooksChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Circulation Trends Chart -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-1">
+              Circulation Trends
+            </h3>
+            <p class="text-sm text-gray-500 mb-4">
+              Monthly reservation and borrowing activity.
+            </p>
+
+            <div class="h-[320px]">
+              <canvas id="circulationTrendChart"></canvas>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </section>
+
+    <!-- USERS PAGE -->
+    <section id="page-users" class="page-section hidden">
+
+      <!-- Hero Banner -->
+      <div class="relative h-72 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
+          alt="Users management"
+          class="w-full h-full object-cover object-center"
+        />
+
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-green-300 text-sm uppercase tracking-widest mb-2">
+            User Management
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-2">
+            Registered Users
+          </h2>
+
+          <p class="text-gray-200 text-lg">
+            View, edit, and delete library users.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-6">
+
         <section class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+
           <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h3 class="text-xl font-bold text-gray-900">
-                Registered Users
+                Users
               </h3>
               <p class="text-sm text-gray-500">
-                View, edit, and delete users from the system.
+                Admin can manage all registered users here.
               </p>
             </div>
 
@@ -223,6 +302,7 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
+
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">ID</th>
@@ -234,6 +314,7 @@
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
+
                 {% if users %}
                   {% for user in users %}
                     {% set user_id = user.id if user.id is defined else user["id"] %}
@@ -242,6 +323,7 @@
                     {% set role = user.role if user.role is defined else user["role"] %}
 
                     <tr class="hover:bg-gray-50">
+
                       <td class="px-6 py-4">
                         {{ user_id }}
                       </td>
@@ -268,6 +350,7 @@
 
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-4">
+
                           <a
                             href="{{ url_for('auth.editUsers', id=user_id) }}"
                             class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
@@ -289,8 +372,10 @@
                               Delete
                             </button>
                           </form>
+
                         </div>
                       </td>
+
                     </tr>
                   {% endfor %}
                 {% else %}
@@ -300,9 +385,12 @@
                     </td>
                   </tr>
                 {% endif %}
+
               </tbody>
+
             </table>
           </div>
+
         </section>
 
       </div>
@@ -1042,6 +1130,21 @@
   </div>
 
   <script>
+    let popularBooksChartInstance = null;
+    let circulationTrendChartInstance = null;
+
+    const borrowingRecords = [
+      {% if borrowings %}
+        {% for item in borrowings %}
+          {
+            bookTitle: {{ (item.book_title if item.book_title is defined else item["book_title"])|tojson }},
+            reservedAt: {{ (item.reserved_at if item.reserved_at is defined else item["reserved_at"])|string|tojson }},
+            status: {{ (item.status if item.status is defined else item["status"])|tojson }}
+          },
+        {% endfor %}
+      {% endif %}
+    ];
+
     function showPage(page) {
       const sections = document.querySelectorAll(".page-section");
       const navButtons = document.querySelectorAll(".nav-btn");
@@ -1065,6 +1168,161 @@
         activeButton.classList.remove("border-transparent", "text-gray-500");
         activeButton.classList.add("border-indigo-600", "text-indigo-600");
       }
+
+      if (page === "dashboard") {
+        setTimeout(renderAdminCharts, 100);
+      }
+    }
+
+    function buildPopularBooksData() {
+      const counts = {};
+
+      borrowingRecords.forEach(record => {
+        if (!record.bookTitle) return;
+
+        counts[record.bookTitle] = (counts[record.bookTitle] || 0) + 1;
+      });
+
+      const sorted = Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5);
+
+      if (sorted.length === 0) {
+        return {
+          labels: ["No records"],
+          data: [0]
+        };
+      }
+
+      return {
+        labels: sorted.map(item => item[0]),
+        data: sorted.map(item => item[1])
+      };
+    }
+
+    function buildCirculationTrendData() {
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const counts = {};
+
+      borrowingRecords.forEach(record => {
+        if (!record.reservedAt) return;
+
+        let cleanDate = String(record.reservedAt).replace(" ", "T");
+        const date = new Date(cleanDate);
+
+        if (isNaN(date.getTime())) return;
+
+        const monthName = months[date.getMonth()];
+        counts[monthName] = (counts[monthName] || 0) + 1;
+      });
+
+      const labels = months.filter(month => counts[month]);
+
+      if (labels.length === 0) {
+        return {
+          labels: ["No records"],
+          data: [0]
+        };
+      }
+
+      return {
+        labels: labels,
+        data: labels.map(month => counts[month])
+      };
+    }
+
+    function renderAdminCharts() {
+      const popularCanvas = document.getElementById("popularBooksChart");
+      const trendCanvas = document.getElementById("circulationTrendChart");
+
+      if (!popularCanvas || !trendCanvas) return;
+
+      const popularData = buildPopularBooksData();
+      const trendData = buildCirculationTrendData();
+
+      if (popularBooksChartInstance) {
+        popularBooksChartInstance.destroy();
+      }
+
+      if (circulationTrendChartInstance) {
+        circulationTrendChartInstance.destroy();
+      }
+
+      popularBooksChartInstance = new Chart(popularCanvas, {
+        type: "bar",
+        data: {
+          labels: popularData.labels,
+          datasets: [
+            {
+              label: "Borrow count",
+              data: popularData.data,
+              backgroundColor: "rgba(59, 130, 246, 0.8)",
+              borderColor: "rgba(37, 99, 235, 1)",
+              borderWidth: 1,
+              borderRadius: 8
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            },
+            x: {
+              ticks: {
+                maxRotation: 45,
+                minRotation: 0
+              }
+            }
+          }
+        }
+      });
+
+      circulationTrendChartInstance = new Chart(trendCanvas, {
+        type: "line",
+        data: {
+          labels: trendData.labels,
+          datasets: [
+            {
+              label: "Circulation count",
+              data: trendData.data,
+              borderColor: "rgba(16, 185, 129, 1)",
+              backgroundColor: "rgba(16, 185, 129, 0.12)",
+              borderWidth: 3,
+              tension: 0.35,
+              pointRadius: 4,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                precision: 0
+              }
+            }
+          }
+        }
+      });
     }
 
     function openAddBookModal() {
@@ -1128,7 +1386,9 @@
     });
 
     window.addEventListener("DOMContentLoaded", function () {
-      if (window.location.hash === "#books") {
+      if (window.location.hash === "#users") {
+        showPage("users");
+      } else if (window.location.hash === "#books") {
         showPage("books");
       } else if (window.location.hash === "#circulation") {
         showPage("circulation");
