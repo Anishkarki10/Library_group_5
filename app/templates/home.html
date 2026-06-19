@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Student Library Dashboard</title>
+  <title>Student Library Management Dashboard</title>
 
   <link
     rel="icon"
@@ -18,25 +18,50 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   />
+
+  <style>
+    body {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f4ef;
+    }
+    .ebook-cover-0 { background: linear-gradient(135deg, #0f2044, #1a3a6e); }
+.ebook-cover-1 { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
+
+    .font-display {
+      font-family: "Playfair Display", Georgia, serif;
+    }
+
+    .theme-navy {
+      background: #0f2044;
+    }
+
+    .theme-gold {
+      color: #c9a84c;
+    }
+
+    .theme-border {
+      border-color: #e8e3da;
+    }
+  </style>
 </head>
 
-<body class="min-h-screen bg-gray-50">
+<body class="min-h-screen" style="background:#f7f4ef;">
 
   <!-- Top Navbar -->
-  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+  <header class="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-50" style="background:#0f2044;border-color:rgba(255,255,255,0.12);">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-        <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+        <i class="fa-solid fa-book-open text-xl" style="color:#c9a84c;"></i>
       </div>
 
-      <h1 class="text-2xl font-bold text-gray-900">
-        Library Resource Management
+      <h1 class="text-2xl font-bold text-white">
+        Library Management
       </h1>
     </div>
 
     <div class="flex items-center gap-4">
-      <div class="hidden sm:flex items-center gap-2 text-gray-700">
-        <i class="fa-solid fa-user text-gray-500"></i>
+      <div class="hidden sm:flex items-center gap-2 text-white/80">
+        <i class="fa-solid fa-user" style="color:#c9a84c;"></i>
         <span class="text-sm font-medium">
           {{ session.get("user_name", "Student") }}
         </span>
@@ -44,7 +69,7 @@
 
       <a
         href="{{ url_for('auth.logout') }}"
-        class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
+        class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition" style="color:#f7f4ef;background:rgba(255,255,255,0.08);"
       >
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
@@ -54,12 +79,12 @@
 
   <!-- Student Top Tabs -->
   <nav class="bg-white border-b border-gray-200 px-8 sticky top-[73px] z-40">
-    <div class="flex gap-1">
+    <div class="flex gap-1 overflow-x-auto">
       <button
         type="button"
         onclick="showPage('catalog')"
         id="nav-catalog"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-blue-600 text-blue-600"
+        class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:#c9a84c;color:#0f2044;"
       >
         <i class="fa-solid fa-magnifying-glass"></i>
         Book Catalog
@@ -67,9 +92,19 @@
 
       <button
         type="button"
+        onclick="showPage('ebooks')"
+        id="nav-ebooks"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
+      >
+        <i class="fa-solid fa-file-pdf"></i>
+        E-Books
+      </button>
+
+      <button
+        type="button"
         onclick="showPage('dashboard')"
         id="nav-dashboard"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
       >
         <i class="fa-solid fa-gauge"></i>
         My Dashboard
@@ -79,7 +114,7 @@
         type="button"
         onclick="showPage('password')"
         id="nav-password"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
       >
         <i class="fa-solid fa-lock"></i>
         Change Password
@@ -127,8 +162,8 @@
         />
 
         <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end px-10 pb-10">
-          <p class="text-blue-300 text-sm uppercase tracking-widest mb-2">
-            Library Resource Management
+          <p class="text-sm uppercase tracking-widest mb-2" style="color:#c9a84c;">
+            Library Management
           </p>
 
           <h2 class="text-5xl font-bold text-white mb-3">
@@ -154,7 +189,7 @@
                 id="searchInput"
                 placeholder="Search by title or author..."
                 oninput="filterBooks()"
-                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
               />
             </div>
 
@@ -163,7 +198,7 @@
               <select
                 id="genreFilter"
                 onchange="filterBooks()"
-                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
               >
                 <option value="all">All Genres</option>
 
@@ -189,7 +224,7 @@
               <select
                 id="availabilityFilter"
                 onchange="filterBooks()"
-                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
               >
                 <option value="all">All Books</option>
                 <option value="available">Available Only</option>
@@ -281,7 +316,7 @@
                       >
                         <button
                           type="submit"
-                          class="w-full py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition"
+                          class="w-full py-2 rounded-xl text-sm font-medium transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;"
                         >
                           Reserve
                         </button>
@@ -317,6 +352,173 @@
 
       </div>
     </section>
+
+
+    <!-- E-BOOKS PAGE -->
+    <section id="page-ebooks" class="page-section hidden">
+
+      <!-- Hero Banner -->
+      <div class="relative h-64 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1585779034823-7e9ac8faec70?auto=format&fit=crop&w=1600&q=80"
+          alt="E-Books"
+          class="w-full h-full object-cover object-center"
+        />
+
+        <div
+          class="absolute inset-0 flex flex-col justify-end px-10 pb-10"
+          style="background:linear-gradient(to top, rgba(15,32,68,0.92) 0%, rgba(15,32,68,0.35) 60%, transparent 100%);"
+        >
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">
+            Digital Library
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-2" style="font-family:Playfair Display, Georgia, serif;">
+            E-Books
+          </h2>
+
+          <p class="text-lg" style="color:rgba(255,255,255,0.82);">
+            Browse and read free PDF books from our digital collection.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-6">
+
+        <!-- Search and Filter -->
+        <div
+          class="rounded-xl p-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-3"
+          style="background:#ffffff;border:1px solid #e8e3da;"
+        >
+          <div class="relative md:col-span-2">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2" style="color:#c9a84c;"></i>
+            <input
+              type="text"
+              id="ebookSearch"
+              oninput="filterEbooks()"
+              placeholder="Search e-books by title or author..."
+              class="w-full pl-10 pr-4 py-3 rounded-lg text-sm border outline-none"
+              style="background:#f7f4ef;border:1.5px solid #e8e3da;color:#1a1a2e;"
+            />
+          </div>
+
+          <select
+            id="ebookCategory"
+            onchange="filterEbooks()"
+            class="px-4 py-3 rounded-lg text-sm border outline-none"
+            style="background:#f7f4ef;border:1.5px solid #e8e3da;color:#1a1a2e;"
+          >
+            <option value="all">All Categories</option>
+            <option value="Programming">Programming</option>
+            <option value="AI/ML">AI/ML</option>
+            <option value="Software Engineering">Software Engineering</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Database">Database</option>
+            <option value="Mathematics">Mathematics</option>
+          </select>
+        </div>
+
+        <!-- E-Book Grid -->
+        <div id="ebooksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+
+          {% set ebooks = [
+            {"title":"Think Python","author":"Allen B. Downey","category":"Programming","pages":"292","size":"3.2 MB","url":"https://greenteapress.com/thinkpython2/thinkpython2.pdf","from":"#0f2044","to":"#1a3a6e","desc":"An introduction to Python programming for beginners."},
+            {"title":"The Elements of Statistical Learning","author":"Hastie, Tibshirani & Friedman","category":"AI/ML","pages":"745","size":"12.4 MB","url":"https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf","from":"#4c1d95","to":"#7c3aed","desc":"A classic text for statistical learning and machine learning."},
+            {"title":"Pro Git","author":"Scott Chacon & Ben Straub","category":"Software Engineering","pages":"574","size":"6.1 MB","url":"https://git-scm.com/book/en/v2","from":"#7c2d12","to":"#c2410c","desc":"Everything you need to know about Git version control."},
+            {"title":"Automate the Boring Stuff with Python","author":"Al Sweigart","category":"Programming","pages":"505","size":"7.8 MB","url":"https://automatetheboringstuff.com/","from":"#064e3b","to":"#059669","desc":"Use Python to automate everyday tasks."},
+            {"title":"Computer Networks: A Systems Approach","author":"Larry Peterson & Bruce Davie","category":"Computer Science","pages":"920","size":"14.2 MB","url":"https://book.systemsapproach.org/","from":"#0c4a6e","to":"#0284c7","desc":"A systems approach to networking concepts."},
+            {"title":"Database Design for Mere Mortals","author":"Michael J. Hernandez","category":"Database","pages":"672","size":"9.3 MB","url":"https://www.oreilly.com/library/view/database-design-for/9780133122282/","from":"#831843","to":"#db2777","desc":"A practical guide to relational database design."},
+            {"title":"The Art of Problem Solving","author":"Sandor Lehoczky","category":"Mathematics","pages":"288","size":"4.5 MB","url":"https://artofproblemsolving.com/store/","from":"#78350f","to":"#d97706","desc":"Problem-solving in algebra, geometry, and number theory."},
+            {"title":"Operating Systems: Three Easy Pieces","author":"Arpaci-Dusseau","category":"Computer Science","pages":"747","size":"11.7 MB","url":"https://pages.cs.wisc.edu/~remzi/OSTEP/","from":"#1e3a5f","to":"#2d6a9f","desc":"A free operating systems book covering virtualization, concurrency, and persistence."}
+          ] %}
+
+          {% for ebook in ebooks %}
+            <div
+              class="ebook-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col"
+              data-title="{{ ebook.title|lower }}"
+              data-author="{{ ebook.author|lower }}"
+              data-category="{{ ebook.category }}"
+              style="background:#ffffff;border:1px solid #e8e3da;"
+            >
+              <div
+                class="relative h-40 flex flex-col items-center justify-center p-4"
+                class="relative h-40 flex flex-col items-center justify-center p-4 ebook-cover-{{ loop.index0 }};"
+              >
+                <div class="absolute left-0 top-0 bottom-0 w-3 bg-black/25"></div>
+                <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-white/10"></div>
+
+                <i class="fa-solid fa-file-pdf text-5xl mb-2" style="color:rgba(201,168,76,0.95);"></i>
+
+                <p class="text-xs text-center leading-tight line-clamp-2 px-2" style="color:rgba(255,255,255,0.88);">
+                  {{ ebook.title }}
+                </p>
+
+                <div class="absolute top-3 right-3 px-1.5 py-0.5 rounded text-xs font-bold" style="background:#c9a84c;color:#0f2044;">
+                  PDF
+                </div>
+              </div>
+
+              <div class="p-4 flex flex-col flex-1">
+                <h3 class="font-semibold text-sm leading-tight mb-1 line-clamp-2" style="color:#0f2044;">
+                  {{ ebook.title }}
+                </h3>
+
+                <p class="text-xs mb-1" style="color:#6b6560;">
+                  {{ ebook.author }}
+                </p>
+
+                <span class="inline-block self-start px-2 py-0.5 rounded-full text-xs mb-2" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">
+                  {{ ebook.category }}
+                </span>
+
+                <p class="text-xs leading-relaxed mb-3 line-clamp-2" style="color:#6b6560;">
+                  {{ ebook.desc }}
+                </p>
+
+                <div class="flex items-center gap-2 text-xs mb-3" style="color:#6b6560;">
+                  <i class="fa-solid fa-book-open"></i>
+                  <span>{{ ebook.pages }} pages</span>
+                  <span>·</span>
+                  <i class="fa-solid fa-download"></i>
+                  <span>{{ ebook.size }}</span>
+                </div>
+
+                <div class="mt-auto flex gap-2">
+                  <a
+                    href="{{ ebook.url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition hover:opacity-90"
+                    style="background:#0f2044;color:#c9a84c;"
+                  >
+                    <i class="fa-solid fa-eye"></i>
+                    Read
+                  </a>
+
+                  <a
+                    href="{{ ebook.url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition"
+                    style="background:#f0ebe2;color:#0f2044;border:1.5px solid #e8e3da;"
+                  >
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div id="noEbooksMessage" class="hidden text-center py-16">
+          <i class="fa-solid fa-file-pdf text-5xl mx-auto mb-4" style="color:#e8e3da;"></i>
+          <p class="font-semibold" style="color:#0f2044;">No e-books found</p>
+          <p class="text-sm mt-1" style="color:#6b6560;">Try adjusting your search or category filter.</p>
+        </div>
+
+      </div>
+    </section>
+
 
     <!-- STUDENT DASHBOARD PAGE -->
     <section id="page-dashboard" class="page-section hidden">
@@ -563,6 +765,8 @@
       </div>
     </section>
 
+    
+
     <!-- CHANGE PASSWORD PAGE -->
     <section id="page-password" class="page-section hidden">
 
@@ -607,7 +811,7 @@
                     name="current_password"
                     placeholder="Enter current password"
                     required
-                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
                   />
                 </div>
               </div>
@@ -624,7 +828,7 @@
                     name="new_password"
                     placeholder="Enter new password"
                     required
-                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
                   />
                 </div>
               </div>
@@ -641,7 +845,7 @@
                     name="confirm_password"
                     placeholder="Confirm new password"
                     required
-                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
                   />
                 </div>
               </div>
@@ -832,6 +1036,10 @@
 
   <script>
     function showPage(page) {
+      if (window.location.hash !== "#" + page) {
+        history.replaceState(null, "", "#" + page);
+      }
+
       const sections = document.querySelectorAll(".page-section");
       const navButtons = document.querySelectorAll(".nav-btn");
 
@@ -840,8 +1048,9 @@
       });
 
       navButtons.forEach(button => {
-        button.classList.remove("border-blue-600", "text-blue-600");
-        button.classList.add("border-transparent", "text-gray-500");
+        button.classList.remove("active");
+        button.style.borderColor = "transparent";
+        button.style.color = "#6b6560";
       });
 
       const activeSection = document.getElementById("page-" + page);
@@ -851,8 +1060,9 @@
 
       const activeButton = document.getElementById("nav-" + page);
       if (activeButton) {
-        activeButton.classList.remove("border-transparent", "text-gray-500");
-        activeButton.classList.add("border-blue-600", "text-blue-600");
+        activeButton.classList.add("active");
+        activeButton.style.borderColor = "#c9a84c";
+        activeButton.style.color = "#0f2044";
       }
     }
 
@@ -933,18 +1143,26 @@
     });
 
     function filterBooks() {
-      const searchValue = document.getElementById("searchInput").value.toLowerCase();
-      const genreValue = document.getElementById("genreFilter").value;
-      const availabilityValue = document.getElementById("availabilityFilter").value;
+      const searchInput = document.getElementById("searchInput");
+      const genreInput = document.getElementById("genreFilter");
+      const availabilityInput = document.getElementById("availabilityFilter");
+      const shownCount = document.getElementById("shownCount");
+      const noBooksMessage = document.getElementById("noBooksMessage");
+
+      if (!searchInput || !genreInput || !availabilityInput) return;
+
+      const searchValue = searchInput.value.toLowerCase();
+      const genreValue = genreInput.value;
+      const availabilityValue = availabilityInput.value;
 
       const cards = document.querySelectorAll(".book-card");
       let shown = 0;
 
       cards.forEach(card => {
-        const title = card.dataset.title.toLowerCase();
-        const author = card.dataset.author.toLowerCase();
-        const genre = card.dataset.genre;
-        const availability = card.dataset.available;
+        const title = card.dataset.title || "";
+        const author = card.dataset.author || "";
+        const genre = card.dataset.genre || "";
+        const availability = card.dataset.available || "";
 
         const matchesSearch = title.includes(searchValue) || author.includes(searchValue);
         const matchesGenre = genreValue === "all" || genre === genreValue;
@@ -958,17 +1176,63 @@
         }
       });
 
-      document.getElementById("shownCount").textContent = shown;
+      if (shownCount) {
+        shownCount.textContent = shown;
+      }
 
-      if (shown === 0 && cards.length > 0) {
-        document.getElementById("noBooksMessage").classList.remove("hidden");
-      } else {
-        document.getElementById("noBooksMessage").classList.add("hidden");
+      if (noBooksMessage) {
+        if (shown === 0 && cards.length > 0) {
+          noBooksMessage.classList.remove("hidden");
+        } else {
+          noBooksMessage.classList.add("hidden");
+        }
+      }
+    }
+
+
+
+    function filterEbooks() {
+      const searchInput = document.getElementById("ebookSearch");
+      const categoryInput = document.getElementById("ebookCategory");
+      const emptyMessage = document.getElementById("noEbooksMessage");
+
+      if (!searchInput || !categoryInput) return;
+
+      const searchValue = searchInput.value.toLowerCase();
+      const categoryValue = categoryInput.value;
+
+      const cards = document.querySelectorAll(".ebook-card");
+      let shown = 0;
+
+      cards.forEach(card => {
+        const title = card.dataset.title || "";
+        const author = card.dataset.author || "";
+        const category = card.dataset.category || "";
+
+        const matchesSearch = title.includes(searchValue) || author.includes(searchValue);
+        const matchesCategory = categoryValue === "all" || category === categoryValue;
+
+        if (matchesSearch && matchesCategory) {
+          card.classList.remove("hidden");
+          shown++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      if (emptyMessage) {
+        if (shown === 0 && cards.length > 0) {
+          emptyMessage.classList.remove("hidden");
+        } else {
+          emptyMessage.classList.add("hidden");
+        }
       }
     }
 
     window.addEventListener("DOMContentLoaded", function () {
-      if (window.location.hash === "#password") {
+      if (window.location.hash === "#ebooks") {
+        showPage("ebooks");
+      } else if (window.location.hash === "#password") {
         showPage("password");
       } else if (window.location.hash === "#dashboard") {
         showPage("dashboard");
@@ -977,6 +1241,7 @@
       }
 
       filterBooks();
+      filterEbooks();
     });
   </script>
 
