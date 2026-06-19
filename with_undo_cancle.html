@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cancel Book Reservations</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-6 font-sans relative min-h-screen">
+
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">My Active Reservations</h1>
+        <p class="text-xs text-slate-500 mt-1">Review your holds or cancel pending reservations before they pick up.</p>
+      </div>
+      <div class="bg-rose-50 text-rose-700 border border-rose-200 font-semibold px-4 py-1.5 text-sm rounded-lg">
+        Pending Holds: <span id="reservationCount">3</span>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-3 items-center justify-between">
+      <input 
+        type="text" 
+        id="reservationSearch" 
+        onkeyup="filterReservations()" 
+        placeholder="Search holds by book title or author details..." 
+        class="w-full md:w-1/2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      >
+      <div class="text-xs text-slate-400 font-medium" id="resultsCounter">Showing 3 holds</div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm" id="reservationsTable">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+            <th class="p-4">Reserved Book Details</th>
+            <th class="p-4">Genre Classification</th>
+            <th class="p-4">Hold Expiry Target</th>
+            <th class="p-4 text-center w-40">Queue Status</th>
+            <th class="p-4 text-center w-36">Management Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          
+          <tr class="hover:bg-slate-50 hold-row" data-original-status="Ready for Pickup" data-original-badge="bg-amber-50 text-amber-700 border border-amber-200">
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 data-title">Introduction to Algorithms</div>
+              <div class="text-xs text-slate-400 mt-0.5 data-author">Thomas Cormen</div>
+            </td>
+            <td class="p-4 text-slate-500">Computer Science</td>
+            <td class="p-4 text-slate-600 font-medium">Jun 25, 2026</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 hold-badge">Ready for Pickup</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="triggerCancellation(this)" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs cancel-btn">Cancel Hold</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 hold-row" data-original-status="Position #1 in Queue" data-original-badge="bg-blue-50 text-blue-700 border border-blue-200">
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 data-title">Design Patterns</div>
+              <div class="text-xs text-slate-400 mt-0.5 data-author">Gang of Four</div>
+            </td>
+            <td class="p-4 text-slate-500">Software Engineering</td>
+            <td class="p-4 text-slate-600 font-medium">Jul 02, 2026</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 hold-badge">Position #1 in Queue</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="triggerCancellation(this)" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs cancel-btn">Cancel Hold</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 hold-row" data-original-status="Position #2 in Queue" data-original-badge="bg-blue-50 text-blue-700 border border-blue-200">
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 data-title">The Pragmatic Programmer</div>
+              <div class="text-xs text-slate-400 mt-0.5 data-author">Andy Hunt</div>
+            </td>
+            <td class="p-4 text-slate-500">Programming</td>
+            <td class="p-4 text-slate-600 font-medium">Jul 05, 2026</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 hold-badge">Position #2 in Queue</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="triggerCancellation(this)" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs cancel-btn">Cancel Hold</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="undoToast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-4 text-sm transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+    <span id="toastMessage">Reservation hold canceled.</span>
+    <button onclick="executeUndo()" class="text-amber-400 hover:text-amber-300 font-bold uppercase text-xs cursor-pointer tracking-wider">Undo</button>
+  </div>
+
+  <script>
+    let lastCancelledRow = null;
+    let toastTimeout = null;
+
+    /**
+     * Client-side quick filter logic matching search strings to active row layouts
+     */
+    function filterReservations() {
+      const userSearchInput = document.getElementById('reservationSearch').value.toLowerCase();
+      const visibleDataRows = document.querySelectorAll('#reservationsTable tbody .hold-row');
+      let matchedMatchesCounter = 0;
+
+      visibleDataRows.forEach(row => {
+        const assetTitle = row.querySelector('.data-title').textContent.toLowerCase();
+        const assetAuthor = row.querySelector('.data-author').textContent.toLowerCase();
+        
+        const evaluationMatch = assetTitle.includes(userSearchInput) || assetAuthor.includes(userSearchInput);
+
+        if (evaluationMatch) {
+          row.style.display = "";
+          matchedMatchesCounter++;
+        } else {
+          row.style.display = "none";
+        }
+      });
+
+      document.getElementById('resultsCounter').textContent = `Showing ${matchedMatchesCounter} holds`;
+    }
+
+    /**
+     * Handles UI transformations and decrements counter metric upon user cancellation hold clicks
+     */
+    function triggerCancellation(selectedBtnCtx) {
+      const selectedRowContext = selectedBtnCtx.closest('.hold-row');
+      const targetBadgeElement = selectedRowContext.querySelector('.hold-badge');
+      const dynamicTotalCounter = document.getElementById('reservationCount');
+
+      // Track row index context state history cache for potential undo executions
+      lastCancelledRow = selectedRowContext;
+
+      // 1. Alter state indicators 
+      targetBadgeElement.textContent = "Cancelled Hold";
+      targetBadgeElement.className = "px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-400 border border-slate-200 hold-badge";
+
+      // 2. Adjust action buttons to lock duplicate triggers
+      selectedBtnCtx.textContent = "Removed";
+      selectedBtnCtx.disabled = true;
+      selectedBtnCtx.className = "bg-slate-200 text-slate-400 text-xs font-semibold px-3 py-1.5 rounded-lg cursor-not-allowed cancel-btn";
+
+      // 3. Subtract active total counters
+      let activeHolds = parseInt(dynamicTotalCounter.textContent, 10) || 0;
+      if (activeHolds > 0) {
+        dynamicTotalCounter.textContent = activeHolds - 1;
+      }
+
+      // 4. Trigger the upgraded Interactive Toast Alert
+      showUndoToast(selectedRowContext.querySelector('.data-title').textContent);
+    }
+
+    /**
+     * Renders toast animation overlay updates
+     */
+    function showUndoToast(bookTitle) {
+      const toast = document.getElementById('undoToast');
+      document.getElementById('toastMessage').textContent = `Canceled hold for "${bookTitle}"`;
+      
+      clearTimeout(toastTimeout);
+      
+      // Reveal Toast
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      
+      // Auto-hide toast after 6 seconds
+      toastTimeout = setTimeout(() => {
+        hideUndoToast();
+      }, 6000);
+    }
+
+    function hideUndoToast() {
+      const toast = document.getElementById('undoToast');
+      toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+    }
+
+    /**
+     * UPGRADE FEATURE: Restores state context values seamlessly backward 
+     */
+    function executeUndo() {
+      if (!lastCancelledRow) return;
+
+      const badge = lastCancelledRow.querySelector('.hold-badge');
+      const button = lastCancelledRow.querySelector('.cancel-btn');
+      const counter = document.getElementById('reservationCount');
+
+      // Read default configurations from dataset descriptors
+      const originalText = lastCancelledRow.getAttribute('data-original-status');
+      const originalClasses = lastCancelledRow.getAttribute('data-original-badge');
+
+      // 1. Restore Badge State
+      badge.textContent = originalText;
+      badge.className = `px-2 py-0.5 rounded text-xs font-bold ${originalClasses} hold-badge`;
+
+      // 2. Re-enable Control Button Interaction
+      button.textContent = "Cancel Hold";
+      button.disabled = false;
+      button.className = "bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs cancel-btn";
+
+      // 3. Re-increment Metric Total Overhead Metrics
+      counter.textContent = parseInt(counter.textContent, 10) + 1;
+
+      // Clean pointer tracker state references and dismiss toast banner
+      lastCancelledRow = null;
+      hideUndoToast();
+      filterReservations();
+    }
+  </script>
+</body>
+</html>
