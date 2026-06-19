@@ -49,7 +49,7 @@ class Database:
     def create_tables():
         """
         Create database tables if they don't exist.
-        Also adds OTP reset columns if they are missing.
+        Also adds missing columns safely.
         """
         db = Database()
 
@@ -95,6 +95,42 @@ class Database:
                 available_count INT NOT NULL,
                 location VARCHAR(100) NOT NULL,
                 image VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        # ── Add extra physical book columns safely ──
+        book_extra_columns = [
+            ("isbn", "VARCHAR(100)"),
+            ("publisher", "VARCHAR(255)"),
+            ("year", "VARCHAR(20)"),
+            ("edition", "VARCHAR(100)"),
+            ("pages", "INT DEFAULT 0"),
+            ("description", "TEXT")
+        ]
+
+        for column_name, column_type in book_extra_columns:
+            try:
+                db.execute(f"""
+                    ALTER TABLE books
+                    ADD COLUMN {column_name} {column_type}
+                """)
+                print(f"{column_name} column added successfully.")
+            except Exception:
+                print(f"{column_name} column already exists or could not be added.")
+
+        # ── E-Books Table ───────────────────────────
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS ebooks (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                author VARCHAR(255) NOT NULL,
+                category VARCHAR(100) NOT NULL,
+                pages INT DEFAULT 0,
+                file_size VARCHAR(50),
+                description TEXT,
+                pdf_file VARCHAR(255) NOT NULL,
+                cover_image VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)

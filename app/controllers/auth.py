@@ -11,19 +11,20 @@ from datetime import datetime, timedelta
 from flask import render_template, redirect, url_for, session, flash, request, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-
+from app.models.ebook import EBook
 from app.controllers.base_controller import BaseController
 from app.models.user import User
 from app.models.book import Book
 
 from app.models.reservation import Reservation
-from datetime import datetime, timedelta
+
 
 class AuthController(BaseController):
     def __init__(self):
         self.user_model = User()
         self.book_model = Book()
         self.reservation_model = Reservation()
+        self.ebook_model = EBook()
 
     # ── Book Image Validation ────────────────────────────────
 
@@ -34,69 +35,67 @@ class AuthController(BaseController):
     # ── Add Book ─────────────────────────────────────────────
 
     def add_book(self):
-        if request.method == "POST":
-            title = request.form.get("title", "").strip()
-            author = request.form.get("author", "").strip()
-            genre = request.form.get("genre", "").strip()
-            total = request.form.get("total", "").strip()
-            available_count = request.form.get("available_count", "").strip()
-            location = request.form.get("location", "").strip()
-            image_file = request.files.get("image")
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        genre = request.form.get("genre", "").strip()
+        total = request.form.get("total", "0").strip()
+        location = request.form.get("location", "").strip()
 
-            if not title or not author or not genre or not total or not available_count or not location:
-                flash("All book fields are required.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        isbn = request.form.get("isbn", "").strip()
+        publisher = request.form.get("publisher", "").strip()
+        year = request.form.get("year", "").strip()
+        edition = request.form.get("edition", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
 
-            try:
-                total = int(total)
-                available_count = int(available_count)
-            except ValueError:
-                flash("Total and available count must be numbers.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        image_file = request.files.get("image")
 
-            if total < 1:
-                flash("Total books must be at least 1.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
-
-            if available_count < 0:
-                flash("Available count cannot be negative.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
-
-            if available_count > total:
-                flash("Available count cannot be greater than total books.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
-
-            image_name = None
-
-            if image_file and image_file.filename:
-                if not self.allowed_file(image_file.filename):
-                    flash("Only png, jpg, jpeg, and webp images are allowed.", "danger")
-                    return redirect(url_for("auth.dashboard") + "#books")
-
-                image_name = secure_filename(image_file.filename)
-                image_path = os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    image_name
-                )
-
-                image_file.save(image_path)
-
-            new_book = Book(
-                title=title,
-                author=author,
-                genre=genre,
-                total=total,
-                available_count=available_count,
-                location=location,
-                image=image_name
-            )
-
-            new_book.save()
-
-            flash("Book added successfully.", "success")
+        if not title or not author or not genre or not total or not location:
+            flash("Title, author, genre, total copies, and location are required.", "danger")
             return redirect(url_for("auth.dashboard") + "#books")
 
-        return redirect(url_for("auth.dashboard"))
+        try:
+            total = int(total)
+        except ValueError:
+            total = 0
+
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
+
+        available_count = total
+        image_name = None
+
+        if image_file and image_file.filename:
+            image_name = secure_filename(image_file.filename)
+            image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
+
+            if os.path.exists(image_path):
+                name, ext = os.path.splitext(image_name)
+                image_name = f"{name}_{int(os.path.getmtime(image_path))}{ext}"
+                image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
+
+            image_file.save(image_path)
+
+        self.book_model.save(
+            title,
+            author,
+            genre,
+            total,
+            available_count,
+            location,
+            image_name,
+            isbn,
+            publisher,
+            year,
+            edition,
+            pages,
+            description
+        )
+
+        flash("Book added successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#books")
 
     # ── Delete Book ──────────────────────────────────────────
 
@@ -125,15 +124,36 @@ class AuthController(BaseController):
 
     def home(self):
         user_id = self.get_current_user_id()
-
+        ebooks = self.ebook_model.get_all()
         books = self.book_model.get_all()
         reservations = self.reservation_model.get_user_reservations(user_id)
+
+        active_reservations = []
+        reading_history = []
+        cancelled_reservations = []
+
+        for item in reservations:
+            if item["status"] == "returned":
+                reading_history.append(item)
+            elif item["status"] == "cancelled":
+                cancelled_reservations.append(item)
+            else:
+                active_reservations.append(item)
+
+        reservation_success = session.pop("reservation_success", None)
 
         return render_template(
             "home.html",
             books=books,
-            reservations=reservations
+            reservations=active_reservations,
+            reading_history=reading_history,
+            cancelled_reservations=cancelled_reservations,
+            reservation_success=reservation_success,
+            ebooks=ebooks
+
         )
+
+
 
     # ── Student Login ────────────────────────────────────────
 
@@ -283,9 +303,11 @@ class AuthController(BaseController):
 
     # ── Admin Dashboard ──────────────────────────────────────
     def dashboard(self):
+        overdue_count = 0
         users = self.user_model.find_all()
         books = self.book_model.get_all()
         reservations = self.reservation_model.get_all_reservations()
+        ebooks = self.ebook_model.get_all()
 
         return render_template(
             "dashboard.html",
@@ -293,7 +315,8 @@ class AuthController(BaseController):
             books=books,
             borrowings=reservations,
             reservations=reservations,
-            overdue_count=0
+            overdue_count=overdue_count,
+            ebooks=ebooks
         )
 
     # ── Change Password ──────────────────────────────────────
@@ -579,60 +602,13 @@ class AuthController(BaseController):
 
         self.book_model.decrease_available(book_id)
 
-        flash("Book reserved successfully.", "success")
-        return redirect(url_for("auth.home"))
+        session["reservation_success"] = {
+            "title": book["title"],
+            "location": book["location"]
+        }
 
-
-    def reserve_book(self, book_id):
-        user_id = self.get_current_user_id()
-
-        if not user_id:
-            flash("Please login first.", "warning")
-            return redirect(url_for("auth.login"))
-
-        book = self.book_model.find_by_id(book_id)
-
-        if not book:
-            flash("Book not found.", "danger")
-            return redirect(url_for("auth.home"))
-
-        if book["available_count"] <= 0:
-            flash("This book is not available right now.", "danger")
-            return redirect(url_for("auth.home"))
-
-        if self.reservation_model.already_reserved(user_id, book_id):
-            flash("You already reserved this book.", "warning")
-            return redirect(url_for("auth.home"))
-
-        due_date = datetime.now() + timedelta(days=14)
-
-        self.reservation_model.create(
-            user_id=user_id,
-            book_id=book_id,
-            due_date=due_date.date()
-        )
-
-        self.book_model.decrease_available(book_id)
-
-        flash("Book reserved successfully.", "success")
-        return redirect(url_for("auth.home"))
-
-    def return_book(self, reservation_id):
-        reservation = self.reservation_model.find_by_id(reservation_id)
-
-        if not reservation:
-            flash("Reservation not found.", "danger")
-            return redirect(url_for("auth.dashboard") + "#circulation")
-
-        if reservation["status"] == "returned":
-            flash("Book is already returned.", "warning")
-            return redirect(url_for("auth.dashboard") + "#circulation")
-
-        self.reservation_model.mark_returned(reservation_id)
-        self.book_model.increase_available(reservation["book_id"])
-
-        flash("Book returned successfully.", "success")
-        return redirect(url_for("auth.dashboard") + "#circulation")
+        return redirect(url_for("auth.home") + "#dashboard")
+    # ── Student Request Cancel Reservation ───────────────────
 
     def request_cancel_reservation(self, reservation_id):
         user_id = self.get_current_user_id()
@@ -651,8 +627,8 @@ class AuthController(BaseController):
             flash("You cannot cancel this reservation.", "danger")
             return redirect(url_for("auth.home") + "#dashboard")
 
-        if reservation["status"] != "reserved":
-            flash("Only active reservations can request cancellation.", "warning")
+        if reservation["status"] not in ["reserved", "borrowed"]:
+            flash("Only active reserved or borrowed books can request cancellation.", "warning")
             return redirect(url_for("auth.home") + "#dashboard")
 
         self.reservation_model.request_cancel(reservation_id, user_id)
@@ -660,6 +636,7 @@ class AuthController(BaseController):
         flash("Cancel request sent to admin for approval.", "success")
         return redirect(url_for("auth.home") + "#dashboard")
 
+    # ── Admin Approve Cancel Reservation ─────────────────────
 
     def approve_cancel_reservation(self, reservation_id):
         reservation = self.reservation_model.find_by_id(reservation_id)
@@ -678,6 +655,7 @@ class AuthController(BaseController):
         flash("Cancel request approved. Book is available again.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")
 
+    # ── Admin Reject Cancel Reservation ──────────────────────
 
     def reject_cancel_reservation(self, reservation_id):
         reservation = self.reservation_model.find_by_id(reservation_id)
@@ -694,3 +672,405 @@ class AuthController(BaseController):
 
         flash("Cancel request rejected. Reservation is still active.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Admin Direct Cancel Reservation ──────────────────────
+
+    def admin_cancel_reservation(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] in ["cancelled", "returned"]:
+            flash("This reservation is already closed.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.cancel_reservation(reservation_id)
+        self.book_model.increase_available(reservation["book_id"])
+
+        flash("Reservation cancelled successfully by admin.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Admin Return Book ────────────────────────────────────
+
+    def return_book(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] == "returned":
+            flash("Book is already returned.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] not in ["reserved", "borrowed", "renew_requested"]:
+            flash("Only active borrowed/reserved books can be returned.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.mark_returned(reservation_id)
+        self.book_model.increase_available(reservation["book_id"])
+
+        flash("Book returned successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+        # ── Admin Mark Book Picked Up ────────────────────────────
+
+    def mark_book_picked_up(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "reserved":
+            flash("Only reserved books can be marked as picked up.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        due_date = datetime.now() + timedelta(days=15)
+
+        self.reservation_model.mark_picked_up(
+            reservation_id,
+            due_date.date()
+        )
+
+        flash("Book marked as picked up. Student must return it within 15 days.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Student Request Renew ────────────────────────────────
+
+    def request_renew_book(self, reservation_id):
+        user_id = self.get_current_user_id()
+
+        if not user_id:
+            flash("Please login first.", "warning")
+            return redirect(url_for("auth.login"))
+
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        if reservation["user_id"] != user_id:
+            flash("You cannot renew this book.", "danger")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        if reservation["status"] != "borrowed":
+            flash("Only borrowed books can be renewed.", "warning")
+            return redirect(url_for("auth.home") + "#dashboard")
+
+        self.reservation_model.request_renew(reservation_id, user_id)
+
+        flash("Renew request sent to admin for approval.", "success")
+        return redirect(url_for("auth.home") + "#dashboard")
+
+    # ── Admin Approve Renew ──────────────────────────────────
+
+    def approve_renew_book(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "renew_requested":
+            flash("This book does not have a renew request.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        current_due_date = reservation.get("due_date")
+
+        if current_due_date:
+            if isinstance(current_due_date, str):
+                current_due_date = datetime.strptime(current_due_date, "%Y-%m-%d").date()
+
+            new_due_date = current_due_date + timedelta(days=15)
+        else:
+            new_due_date = datetime.now().date() + timedelta(days=15)
+
+        self.reservation_model.approve_renew(
+            reservation_id,
+            new_due_date
+        )
+
+        flash("Renew request approved. Due date extended by 15 days.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Admin Reject Renew ───────────────────────────────────
+
+    def reject_renew_book(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] != "renew_requested":
+            flash("This book does not have a renew request.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.reject_renew(reservation_id)
+
+        flash("Renew request rejected. Student must return the book by the current due date.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+    
+    # ── Edit Book ────────────────────────────────────────────
+
+    def edit_book(self, id):
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        genre = request.form.get("genre", "").strip()
+        total = request.form.get("total", "0").strip()
+        available_count = request.form.get("available_count", "0").strip()
+        location = request.form.get("location", "").strip()
+
+        isbn = request.form.get("isbn", "").strip()
+        publisher = request.form.get("publisher", "").strip()
+        year = request.form.get("year", "").strip()
+        edition = request.form.get("edition", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
+
+        image_file = request.files.get("image")
+
+        if not title or not author or not genre or not total or not location:
+            flash("Title, author, genre, total copies, and location are required.", "danger")
+            return redirect(url_for("auth.dashboard") + "#books")
+
+        try:
+            total = int(total)
+        except ValueError:
+            total = 0
+
+        try:
+            available_count = int(available_count)
+        except ValueError:
+            available_count = 0
+
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
+
+        image_name = None
+
+        if image_file and image_file.filename:
+            image_name = secure_filename(image_file.filename)
+            image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
+
+            if os.path.exists(image_path):
+                name, ext = os.path.splitext(image_name)
+                image_name = f"{name}_{int(os.path.getmtime(image_path))}{ext}"
+                image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
+
+            image_file.save(image_path)
+
+        self.book_model.update(
+            id,
+            title,
+            author,
+            genre,
+            total,
+            available_count,
+            location,
+            image_name,
+            isbn,
+            publisher,
+            year,
+            edition,
+            pages,
+            description
+        )
+
+        flash("Book updated successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#books")
+
+    # ebooks
+    # ── E-Books ─────────────────────────────────────
+    def allowed_pdf(self, filename):
+        return "." in filename and filename.rsplit(".", 1)[1].lower() == "pdf"
+
+    def allowed_image(self, filename):
+        allowed_extensions = {"png", "jpg", "jpeg", "webp"}
+        return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed_extensions
+
+    def get_file_size_text(self, file_storage):
+        file_storage.seek(0, os.SEEK_END)
+        size_bytes = file_storage.tell()
+        file_storage.seek(0)
+
+        size_mb = size_bytes / (1024 * 1024)
+
+        if size_mb >= 1:
+            return f"{size_mb:.1f} MB"
+
+        size_kb = size_bytes / 1024
+        return f"{size_kb:.1f} KB"
+
+    def add_ebook(self):
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        category = request.form.get("category", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
+
+        pdf_file = request.files.get("pdf_file")
+        cover_file = request.files.get("cover_image")
+
+        if not title or not author or not category or not pdf_file:
+            flash("Title, author, category, and PDF file are required.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        if not pdf_file.filename:
+            flash("Please choose a PDF file.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        if not self.allowed_pdf(pdf_file.filename):
+            flash("Only PDF files are allowed for e-books.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
+
+        pdf_name = secure_filename(pdf_file.filename)
+        pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+
+        if os.path.exists(pdf_path):
+            name, ext = os.path.splitext(pdf_name)
+            pdf_name = f"{name}_{int(os.path.getmtime(pdf_path))}{ext}"
+            pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+
+        file_size = self.get_file_size_text(pdf_file)
+        pdf_file.save(pdf_path)
+
+        cover_name = None
+
+        if cover_file and cover_file.filename:
+            if not self.allowed_image(cover_file.filename):
+                flash("Cover image must be png, jpg, jpeg, or webp.", "danger")
+                return redirect(url_for("auth.dashboard") + "#ebooks")
+
+            cover_name = secure_filename(cover_file.filename)
+            cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+
+            if os.path.exists(cover_path):
+                name, ext = os.path.splitext(cover_name)
+                cover_name = f"{name}_{int(os.path.getmtime(cover_path))}{ext}"
+                cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+
+            cover_file.save(cover_path)
+
+        self.ebook_model.save(
+            title,
+            author,
+            category,
+            pages,
+            file_size,
+            description,
+            pdf_name,
+            cover_name
+        )
+
+        flash("E-book added successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#ebooks")
+
+    def edit_ebook(self, ebook_id):
+        ebook = self.ebook_model.find_by_id(ebook_id)
+
+        if not ebook:
+            flash("E-book not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        category = request.form.get("category", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
+
+        pdf_file = request.files.get("pdf_file")
+        cover_file = request.files.get("cover_image")
+
+        if not title or not author or not category:
+            flash("Title, author, and category are required.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
+
+        pdf_name = None
+        cover_name = None
+        file_size = ebook.get("file_size")
+
+        if pdf_file and pdf_file.filename:
+            if not self.allowed_pdf(pdf_file.filename):
+                flash("Only PDF files are allowed.", "danger")
+                return redirect(url_for("auth.dashboard") + "#ebooks")
+
+            pdf_name = secure_filename(pdf_file.filename)
+            pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+
+            if os.path.exists(pdf_path):
+                name, ext = os.path.splitext(pdf_name)
+                pdf_name = f"{name}_{int(os.path.getmtime(pdf_path))}{ext}"
+                pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+
+            file_size = self.get_file_size_text(pdf_file)
+            pdf_file.save(pdf_path)
+
+        if cover_file and cover_file.filename:
+            if not self.allowed_image(cover_file.filename):
+                flash("Cover image must be png, jpg, jpeg, or webp.", "danger")
+                return redirect(url_for("auth.dashboard") + "#ebooks")
+
+            cover_name = secure_filename(cover_file.filename)
+            cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+
+            if os.path.exists(cover_path):
+                name, ext = os.path.splitext(cover_name)
+                cover_name = f"{name}_{int(os.path.getmtime(cover_path))}{ext}"
+                cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+
+            cover_file.save(cover_path)
+
+        self.ebook_model.update(
+            ebook_id,
+            title,
+            author,
+            category,
+            pages,
+            file_size,
+            description,
+            pdf_name,
+            cover_name
+        )
+
+        flash("E-book updated successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#ebooks")
+
+    def delete_ebook(self, ebook_id):
+        ebook = self.ebook_model.find_by_id(ebook_id)
+
+        if not ebook:
+            flash("E-book not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        pdf_name = ebook.get("pdf_file")
+        if pdf_name:
+            pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+            if os.path.exists(pdf_path):
+                os.remove(pdf_path)
+
+        cover_name = ebook.get("cover_image")
+        if cover_name:
+            cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+            if os.path.exists(cover_path):
+                os.remove(cover_path)
+
+        self.ebook_model.delete(ebook_id)
+
+        flash("E-book deleted successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#ebooks")

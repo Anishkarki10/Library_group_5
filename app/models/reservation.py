@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from app.models.database import Database
 
 
@@ -17,7 +18,7 @@ class Reservation:
             FROM reservations
             WHERE user_id = %s
             AND book_id = %s
-            AND status IN ('reserved', 'cancel_requested')
+            AND status IN ('reserved', 'borrowed', 'cancel_requested', 'renew_requested')
         """, (user_id, book_id))
         db.close()
         return result is not None
@@ -27,6 +28,7 @@ class Reservation:
         reservations = db.fetch_all("""
             SELECT 
                 reservations.id,
+                reservations.user_id,
                 reservations.book_id,
                 reservations.status,
                 reservations.reserved_at,
@@ -59,7 +61,8 @@ class Reservation:
                 users.name AS student_name,
                 users.email AS student_email,
                 books.title AS book_title,
-                books.author AS book_author
+                books.author AS book_author,
+                books.location AS book_location
             FROM reservations
             JOIN users ON reservations.user_id = users.id
             JOIN books ON reservations.book_id = books.id
@@ -71,12 +74,28 @@ class Reservation:
     def find_by_id(self, reservation_id):
         db = Database()
         reservation = db.fetch_one("""
-            SELECT *
+            SELECT 
+                reservations.id,
+                reservations.user_id,
+                reservations.book_id,
+                reservations.status,
+                reservations.reserved_at,
+                reservations.due_date,
+                reservations.returned_at,
+                users.name AS student_name,
+                users.email AS student_email,
+                books.title AS book_title,
+                books.author AS book_author,
+                books.location AS book_location
             FROM reservations
-            WHERE id = %s
+            JOIN users ON reservations.user_id = users.id
+            JOIN books ON reservations.book_id = books.id
+            WHERE reservations.id = %s
         """, (reservation_id,))
         db.close()
         return reservation
+
+    # ── Student Cancel Request ───────────────────────────────
 
     def request_cancel(self, reservation_id, user_id):
         db = Database()
@@ -85,9 +104,11 @@ class Reservation:
             SET status = 'cancel_requested'
             WHERE id = %s
             AND user_id = %s
-            AND status = 'reserved'
+            AND status IN ('reserved', 'borrowed')
         """, (reservation_id, user_id))
         db.close()
+
+    # ── Admin Approve Cancel ────────────────────────────────
 
     def approve_cancel(self, reservation_id):
         db = Database()
@@ -100,6 +121,8 @@ class Reservation:
         """, (reservation_id,))
         db.close()
 
+    # ── Admin Reject Cancel ─────────────────────────────────
+
     def reject_cancel(self, reservation_id):
         db = Database()
         db.execute("""
@@ -110,6 +133,8 @@ class Reservation:
         """, (reservation_id,))
         db.close()
 
+    # ── Return Book ─────────────────────────────────────────
+
     def mark_returned(self, reservation_id):
         db = Database()
         db.execute("""
@@ -117,6 +142,85 @@ class Reservation:
             SET status = 'returned',
                 returned_at = NOW()
             WHERE id = %s
+            AND status IN ('reserved', 'borrowed', 'renew_requested')
+        """, (reservation_id,))
+        db.close()
+
+    # ── Admin Mark Picked Up ────────────────────────────────
+
+    def mark_picked_up(self, reservation_id, due_date):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'borrowed',
+                due_date = %s
+            WHERE id = %s
             AND status = 'reserved'
+        """, (due_date, reservation_id))
+        db.close()
+
+    # ── Student Request Renew / Extend Time ─────────────────
+
+    def request_renew(self, reservation_id, user_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'renew_requested'
+            WHERE id = %s
+            AND user_id = %s
+            AND status = 'borrowed'
+        """, (reservation_id, user_id))
+        db.close()
+
+    # ── Admin Approve Renew / Extend Time By 15 Days ─────────
+
+    def approve_renew(self, reservation_id, new_due_date=None):
+        db = Database()
+
+        if new_due_date is None:
+            reservation = self.find_by_id(reservation_id)
+
+            if reservation and reservation.get("due_date"):
+                current_due_date = reservation["due_date"]
+
+                if isinstance(current_due_date, str):
+                    current_due_date = datetime.strptime(current_due_date, "%Y-%m-%d").date()
+
+                new_due_date = current_due_date + timedelta(days=15)
+            else:
+                new_due_date = datetime.now().date() + timedelta(days=15)
+
+        db.execute("""
+            UPDATE reservations
+            SET status = 'borrowed',
+                due_date = %s
+            WHERE id = %s
+            AND status = 'renew_requested'
+        """, (new_due_date, reservation_id))
+
+        db.close()
+
+    # ── Admin Reject Renew ──────────────────────────────────
+
+    def reject_renew(self, reservation_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'borrowed'
+            WHERE id = %s
+            AND status = 'renew_requested'
+        """, (reservation_id,))
+        db.close()
+
+    # ── Direct Cancel, optional use ─────────────────────────
+
+    def cancel_reservation(self, reservation_id):
+        db = Database()
+        db.execute("""
+            UPDATE reservations
+            SET status = 'cancelled',
+                returned_at = NOW()
+            WHERE id = %s
+            AND status IN ('reserved', 'borrowed', 'cancel_requested', 'renew_requested')
         """, (reservation_id,))
         db.close()

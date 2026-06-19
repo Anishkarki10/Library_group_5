@@ -82,3 +82,49 @@ class Book:
             WHERE id = %s
         """, (book_id,))
         db.close()
+
+    def update(self, book_id, title, author, genre, total, available_count, location, image=None):
+        db = Database()
+
+        if image:
+            db.execute("""
+                UPDATE books
+                SET title = %s,
+                    author = %s,
+                    genre = %s,
+                    total = %s,
+                    available_count = %s,
+                    location = %s,
+                    image = %s
+                WHERE id = %s
+            """, (
+                title,
+                author,
+                genre,
+                total,
+                available_count,
+                location,
+                image,
+                book_id
+            ))
+        else:
+            db.execute("""
+                UPDATE books
+                SET title = %s,
+                    author = %s,
+                    genre = %s,
+                    total = %s,
+                    available_count = %s,
+                    location = %s
+                WHERE id = %s
+            """, (
+                title,
+                author,
+                genre,
+                total,
+                available_count,
+                location,
+                book_id
+            ))
+
+        db.close()
