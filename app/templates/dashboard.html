@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Admin Dashboard - Library Management</title>
+  <title>Student Library Management Dashboard</title>
 
   <link
     rel="icon"
@@ -13,9 +13,6 @@
   />
 
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link
     rel="stylesheet"
@@ -40,32 +37,9 @@
       color: #c9a84c;
     }
 
-    .theme-card {
-      background: #ffffff;
-      border: 1px solid #e8e3da;
-      box-shadow: 0 4px 18px rgba(15, 32, 68, 0.06);
+    .theme-border {
+      border-color: #e8e3da;
     }
-
-    .theme-input {
-      background: #f7f4ef;
-      border: 1.5px solid #e8e3da;
-      color: #1a1a2e;
-    }
-
-    .theme-input:focus {
-      outline: none;
-      border-color: #c9a84c;
-      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.16);
-    }
-
-    .ebook-cover-0 { background: linear-gradient(135deg, #0f2044, #1a3a6e); }
-    .ebook-cover-1 { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
-    .ebook-cover-2 { background: linear-gradient(135deg, #7c2d12, #c2410c); }
-    .ebook-cover-3 { background: linear-gradient(135deg, #064e3b, #059669); }
-    .ebook-cover-4 { background: linear-gradient(135deg, #0c4a6e, #0284c7); }
-    .ebook-cover-5 { background: linear-gradient(135deg, #831843, #db2777); }
-    .ebook-cover-6 { background: linear-gradient(135deg, #78350f, #d97706); }
-    .ebook-cover-7 { background: linear-gradient(135deg, #1e3a5f, #2d6a9f); }
   </style>
 </head>
 
@@ -75,7 +49,7 @@
   <header class="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-50" style="background:#0f2044;border-color:rgba(255,255,255,0.12);">
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
-        <i class="fa-solid fa-user-shield text-xl" style="color:#c9a84c;"></i>
+        <i class="fa-solid fa-book-open text-xl" style="color:#c9a84c;"></i>
       </div>
 
       <h1 class="text-2xl font-bold text-white">
@@ -87,14 +61,13 @@
       <div class="hidden sm:flex items-center gap-2 text-white/80">
         <i class="fa-solid fa-user" style="color:#c9a84c;"></i>
         <span class="text-sm font-medium">
-          {{ session.get("user_name", "Admin") }}
+          {{ session.get("user_name", "Student") }}
         </span>
       </div>
 
       <a
         href="{{ url_for('auth.logout') }}"
-        class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition hover:opacity-90"
-        style="color:#f7f4ef;background:rgba(255,255,255,0.08);"
+        class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition" style="color:#f7f4ef;background:rgba(255,255,255,0.08);"
       >
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
@@ -102,49 +75,24 @@
     </div>
   </header>
 
-  <!-- Admin Top Tabs -->
-  <nav class="bg-white border-b px-8 sticky top-[73px] z-40" style="border-color:#e8e3da;">
+  <!-- Student Top Tabs -->
+  <nav class="bg-white border-b border-gray-200 px-8 sticky top-[73px] z-40">
     <div class="flex gap-1 overflow-x-auto">
-
       <button
         type="button"
-        onclick="showPage('dashboard')"
-        id="nav-dashboard"
-        class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
-        style="border-color:#c9a84c;color:#0f2044;"
+        onclick="showPage('catalog')"
+        id="nav-catalog"
+        class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:#c9a84c;color:#0f2044;"
       >
-        <i class="fa-solid fa-gauge-high"></i>
-        Dashboard
-      </button>
-
-      <button
-        type="button"
-        onclick="showPage('users')"
-        id="nav-users"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
-        style="border-color:transparent;color:#6b6560;"
-      >
-        <i class="fa-solid fa-users"></i>
-        Users
-      </button>
-
-      <button
-        type="button"
-        onclick="showPage('books')"
-        id="nav-books"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
-        style="border-color:transparent;color:#6b6560;"
-      >
-        <i class="fa-solid fa-book-open"></i>
-        Books
+        <i class="fa-solid fa-magnifying-glass"></i>
+        Book Catalog
       </button>
 
       <button
         type="button"
         onclick="showPage('ebooks')"
         id="nav-ebooks"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
-        style="border-color:transparent;color:#6b6560;"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
       >
         <i class="fa-solid fa-file-pdf"></i>
         E-Books
@@ -152,15 +100,23 @@
 
       <button
         type="button"
-        onclick="showPage('circulation')"
-        id="nav-circulation"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
-        style="border-color:transparent;color:#6b6560;"
+        onclick="showPage('dashboard')"
+        id="nav-dashboard"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
       >
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        Circulation
+        <i class="fa-solid fa-gauge"></i>
+        My Dashboard
       </button>
 
+      <button
+        type="button"
+        onclick="showPage('password')"
+        id="nav-password"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
+      >
+        <i class="fa-solid fa-lock"></i>
+        Change Password
+      </button>
     </div>
   </nav>
 
@@ -192,514 +148,331 @@
 
   <main class="min-h-screen">
 
-    <!-- DASHBOARD PAGE -->
-    <section id="page-dashboard" class="page-section">
+    <!-- CATALOG PAGE -->
+    <section id="page-catalog" class="page-section">
 
       <!-- Hero Banner -->
-      <div class="relative h-72 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80"
-          alt="Library admin dashboard"
-          class="w-full h-full object-cover object-center"
-        />
-
-        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.94) 0%, rgba(15,32,68,0.42) 58%, transparent 100%);">
-          <p class="text-sm uppercase tracking-widest mb-2" style="color:#c9a84c;">
-            Admin Dashboard
-          </p>
-
-          <h2 class="text-5xl font-bold text-white mb-2 font-display">
-            Welcome back, {{ session.get("user_name", "Admin") }}!
-          </h2>
-
-          <p class="text-lg" style="color:rgba(255,255,255,0.82);">
-            Manage users, books, circulation activity, and digital resources.
-          </p>
-        </div>
-      </div>
-
-      <div class="p-6">
-
-        <!-- Stats -->
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
-
-          <div class="theme-card rounded-xl p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background:rgba(201,168,76,0.12);">
-              <i class="fa-solid fa-users text-xl" style="color:#c9a84c;"></i>
-            </div>
-
-            <div>
-              <p class="text-sm" style="color:#6b6560;">Total Users</p>
-              <p class="text-2xl font-bold" style="color:#0f2044;">
-                {{ users|length if users else 0 }}
-              </p>
-            </div>
-          </div>
-
-          <div class="theme-card rounded-xl p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style="background:#eef2ff;">
-              <i class="fa-solid fa-book-open text-indigo-600 text-xl"></i>
-            </div>
-
-            <div>
-              <p class="text-sm" style="color:#6b6560;">Total Books</p>
-              <p class="text-2xl font-bold" style="color:#0f2044;">
-                {{ books|length if books else 0 }}
-              </p>
-            </div>
-          </div>
-
-          <div class="theme-card rounded-xl p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
-              <i class="fa-solid fa-clock text-orange-600 text-xl"></i>
-            </div>
-
-            <div>
-              <p class="text-sm" style="color:#6b6560;">Circulation Records</p>
-              <p class="text-2xl font-bold text-orange-600">
-                {{ borrowings|length if borrowings else 0 }}
-              </p>
-            </div>
-          </div>
-
-          <div class="theme-card rounded-xl p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
-              <i class="fa-solid fa-bell text-red-500 text-xl"></i>
-            </div>
-
-            <div>
-              <p class="text-sm" style="color:#6b6560;">Overdue</p>
-              <p class="text-2xl font-bold text-red-600">
-                {{ overdue_count if overdue_count else 0 }}
-              </p>
-            </div>
-          </div>
-
-        </section>
-
-        <!-- Charts -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          <div class="theme-card rounded-xl p-6">
-            <h3 class="text-lg font-bold mb-1" style="color:#0f2044;">
-              Most Popular Books
-            </h3>
-            <p class="text-sm mb-4" style="color:#6b6560;">
-              Based on current circulation records.
-            </p>
-
-            <div class="h-[320px]">
-              <canvas id="popularBooksChart"></canvas>
-            </div>
-          </div>
-
-          <div class="theme-card rounded-xl p-6">
-            <h3 class="text-lg font-bold mb-1" style="color:#0f2044;">
-              Circulation Trends
-            </h3>
-            <p class="text-sm mb-4" style="color:#6b6560;">
-              Monthly reservation and borrowing activity.
-            </p>
-
-            <div class="h-[320px]">
-              <canvas id="circulationTrendChart"></canvas>
-            </div>
-          </div>
-
-        </section>
-
-      </div>
-    </section>
-
-    <!-- USERS PAGE -->
-    <section id="page-users" class="page-section hidden">
-
-      <div class="relative h-72 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
-          alt="Users management"
-          class="w-full h-full object-cover object-center"
-        />
-
-        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.94) 0%, rgba(15,32,68,0.42) 58%, transparent 100%);">
-          <p class="text-sm uppercase tracking-widest mb-2" style="color:#c9a84c;">
-            User Management
-          </p>
-
-          <h2 class="text-5xl font-bold text-white mb-2 font-display">
-            Registered Users
-          </h2>
-
-          <p class="text-lg" style="color:rgba(255,255,255,0.82);">
-            View, edit, and delete library users.
-          </p>
-        </div>
-      </div>
-
-      <div class="p-6">
-
-        <section class="theme-card rounded-xl overflow-hidden">
-
-          <div class="px-6 py-5 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="border-color:#e8e3da;">
-            <div>
-              <h3 class="text-xl font-bold" style="color:#0f2044;">
-                Users
-              </h3>
-              <p class="text-sm" style="color:#6b6560;">
-                Admin can manage all registered users here.
-              </p>
-            </div>
-
-            <a
-              href="{{ url_for('auth.add_user') }}"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition"
-              style="background:#0f2044;color:#c9a84c;"
-            >
-              <i class="fa-solid fa-plus"></i>
-              Add User
-            </a>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-
-              <thead style="background:#f7f4ef;border-bottom:1px solid #e8e3da;">
-                <tr>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">ID</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Name</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Email</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Role</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Actions</th>
-                </tr>
-              </thead>
-
-              <tbody class="divide-y" style="--tw-divide-opacity:1;border-color:#e8e3da;">
-
-                {% if users %}
-                  {% for user in users %}
-                    {% set user_id = user.id if user.id is defined else user["id"] %}
-                    {% set user_name = user.name if user.name is defined else user["name"] %}
-                    {% set user_email = user.email if user.email is defined else user["email"] %}
-                    {% set role = user.role if user.role is defined else user["role"] %}
-
-                    <tr class="hover:bg-[#f7f4ef]">
-
-                      <td class="px-6 py-4">
-                        {{ user_id }}
-                      </td>
-
-                      <td class="px-6 py-4 font-medium" style="color:#0f2044;">
-                        {{ user_name }}
-                      </td>
-
-                      <td class="px-6 py-4" style="color:#6b6560;">
-                        {{ user_email }}
-                      </td>
-
-                      <td class="px-6 py-4">
-                        {% if role == "admin" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">
-                            Admin
-                          </span>
-                        {% else %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            Student
-                          </span>
-                        {% endif %}
-                      </td>
-
-                      <td class="px-6 py-4">
-                        <div class="flex items-center gap-4">
-
-                          <a
-                            href="{{ url_for('auth.editUsers', id=user_id) }}"
-                            class="inline-flex items-center gap-1 font-medium"
-                            style="color:#0f2044;"
-                          >
-                            <i class="fa-solid fa-pen-to-square"></i>
-                            Edit
-                          </a>
-
-                          <button
-                            type="button"
-                            data-action="{{ url_for('auth.deleteUser', id=user_id) }}"
-                            data-title="Delete User?"
-                            data-message="This will permanently delete this user from the system."
-                            data-theme="red"
-                            data-button="Yes, Delete User"
-                            onclick="openActionModalFromButton(this)"
-                            class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
-                          >
-                            <i class="fa-solid fa-trash"></i>
-                            Delete
-                          </button>
-
-                        </div>
-                      </td>
-
-                    </tr>
-                  {% endfor %}
-                {% else %}
-                  <tr>
-                    <td colspan="5" class="px-6 py-10 text-center" style="color:#6b6560;">
-                      No users found.
-                    </td>
-                  </tr>
-                {% endif %}
-
-              </tbody>
-
-            </table>
-          </div>
-
-        </section>
-
-      </div>
-    </section>
-
-    <!-- BOOKS PAGE -->
-    <section id="page-books" class="page-section hidden">
-
-      <div class="relative h-72 overflow-hidden">
+      <div class="relative h-80 overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1600&q=80"
-          alt="Books inventory"
+          alt="Library books"
           class="w-full h-full object-cover object-center"
         />
 
-        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.94) 0%, rgba(15,32,68,0.42) 58%, transparent 100%);">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end px-10 pb-10">
           <p class="text-sm uppercase tracking-widest mb-2" style="color:#c9a84c;">
-            Inventory Management
+            Library Management
           </p>
 
-          <h2 class="text-5xl font-bold text-white mb-2 font-display">
-            Book Inventory
+          <h2 class="text-5xl font-bold text-white mb-3">
+            Explore Our Collection
           </h2>
 
-          <p class="text-lg" style="color:rgba(255,255,255,0.82);">
-            Manage books, covers, stock, availability, and shelf locations.
+          <p class="text-gray-200 text-lg max-w-xl">
+            Search, reserve, and discover books from our library catalog.
           </p>
         </div>
       </div>
 
       <div class="p-6">
 
-        <div class="theme-card rounded-xl overflow-hidden">
+        <!-- Search and Filters -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-          <div class="px-6 py-5 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="border-color:#e8e3da;">
-            <div>
-              <h3 class="text-xl font-bold" style="color:#0f2044;">
-                Book Inventory
-              </h3>
-              <p class="text-sm" style="color:#6b6560;">
-                Add, edit, delete, and track book copies.
-              </p>
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by title or author..."
+                oninput="filterBooks()"
+                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
+              />
             </div>
 
-            <button
-              type="button"
-              onclick="openAddBookModal()"
-              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition"
-              style="background:#0f2044;color:#c9a84c;"
-            >
-              <i class="fa-solid fa-plus"></i>
-              Add Book
-            </button>
-          </div>
+            <div class="relative">
+              <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+              <select
+                id="genreFilter"
+                onchange="filterBooks()"
+                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
+              >
+                <option value="all">All Genres</option>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead style="background:#f7f4ef;border-bottom:1px solid #e8e3da;">
-                <tr>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Cover</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Title</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Author</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Genre</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Total</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Available</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Location</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Action</th>
-                </tr>
-              </thead>
-
-              <tbody class="divide-y">
                 {% if books %}
+                  {% set genres = namespace(list=[]) %}
+
                   {% for book in books %}
-                    {% set book_id = book.id if book.id is defined else book["id"] %}
-                    {% set book_title = book.title if book.title is defined else book["title"] %}
-                    {% set book_author = book.author if book.author is defined else book["author"] %}
-                    {% set book_genre = book.genre if book.genre is defined else book["genre"] %}
-                    {% set book_total = book.total if book.total is defined else book["total"] %}
-                    {% set book_available = book.available_count if book.available_count is defined else book["available_count"] %}
-                    {% set book_location = book.location if book.location is defined else book["location"] %}
-                    {% set book_image = book.image if book.image is defined else book["image"] %}
+                    {% set genre_name = book.genre.strip() %}
 
-                    <tr class="hover:bg-[#f7f4ef]">
-                      <td class="px-6 py-4">
-                        {% if book_image %}
-                          <img
-                            src="{{ url_for('static', filename='uploads/books/' ~ book_image) }}"
-                            alt="{{ book_title }}"
-                            class="w-14 h-20 object-contain bg-white rounded-lg border p-1"
-                          />
-                        {% else %}
-                          <div class="w-14 h-20 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#0f2044,#1a3a6e);">
-                            <i class="fa-solid fa-book-open" style="color:#c9a84c;"></i>
-                          </div>
-                        {% endif %}
-                      </td>
+                    {% if genre_name not in genres.list %}
+                      {% set _ = genres.list.append(genre_name) %}
 
-                      <td class="px-6 py-4 font-semibold" style="color:#0f2044;">
-                        {{ book_title }}
-                      </td>
-
-                      <td class="px-6 py-4" style="color:#6b6560;">
-                        {{ book_author }}
-                      </td>
-
-                      <td class="px-6 py-4" style="color:#6b6560;">
-                        {{ book_genre }}
-                      </td>
-
-                      <td class="px-6 py-4" style="color:#0f2044;">
-                        {{ book_total }}
-                      </td>
-
-                      <td class="px-6 py-4">
-                        {% if book_available > 0 %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            {{ book_available }}
-                          </span>
-                        {% else %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                            0
-                          </span>
-                        {% endif %}
-                      </td>
-
-                      <td class="px-6 py-4" style="color:#6b6560;">
-                        {{ book_location }}
-                      </td>
-
-                      <td class="px-6 py-4">
-                        <div class="flex items-center gap-4">
-                          <button
-                            type="button"
-                            data-book-id="{{ book_id }}"
-                            data-title="{{ book_title|e }}"
-                            data-author="{{ book_author|e }}"
-                            data-genre="{{ book_genre|e }}"
-                            data-total="{{ book_total }}"
-                            data-available="{{ book_available }}"
-                            data-location="{{ book_location|e }}"
-                            onclick="openEditBookModal(this)"
-                            class="inline-flex items-center gap-1 font-medium"
-                            style="color:#0f2044;"
-                          >
-                            <i class="fa-solid fa-pen-to-square"></i>
-                            Edit
-                          </button>
-
-                          <button
-                            type="button"
-                            data-action="{{ url_for('auth.delete_book', id=book_id) }}"
-                            data-title="Delete Book?"
-                            data-message="This will permanently delete this book from the library."
-                            data-theme="red"
-                            data-button="Yes, Delete Book"
-                            onclick="openActionModalFromButton(this)"
-                            class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
-                          >
-                            <i class="fa-solid fa-trash"></i>
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                      <option value="{{ genre_name }}">
+                        {{ genre_name }}
+                      </option>
+                    {% endif %}
                   {% endfor %}
-                {% else %}
-                  <tr>
-                    <td colspan="8" class="px-6 py-10 text-center" style="color:#6b6560;">
-                      No books added yet.
-                    </td>
-                  </tr>
                 {% endif %}
-              </tbody>
-            </table>
+              </select>
+            </div>
+
+            <div>
+              <select
+                id="availabilityFilter"
+                onchange="filterBooks()"
+                class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
+              >
+                <option value="all">All Books</option>
+                <option value="available">Available Only</option>
+                <option value="unavailable">Checked Out</option>
+              </select>
+            </div>
+
           </div>
 
+          <div class="mt-3 text-sm text-gray-500">
+            Showing
+            <span id="shownCount" class="font-medium text-gray-700">
+              {{ books|length if books else 0 }}
+            </span>
+            of
+            <span id="totalCount">
+              {{ books|length if books else 0 }}
+            </span>
+            books
+          </div>
+        </div>
+
+        <!-- Book Grid -->
+        <div id="booksGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+
+          {% if books %}
+            {% for book in books %}
+              <div
+                class="book-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                data-title="{{ book.title|lower }}"
+                data-author="{{ book.author|lower }}"
+                data-genre="{{ book.genre }}"
+                data-available="{% if book.available_count > 0 %}available{% else %}unavailable{% endif %}"
+              >
+
+                <!-- Book Cover -->
+                {% if book.image %}
+                  <div class="relative h-52 bg-gray-100 flex items-center justify-center">
+                    <img
+                      src="{{ url_for('static', filename='uploads/books/' ~ book.image) }}"
+                      alt="{{ book.title }}"
+                      class="w-full h-full object-contain p-3"
+                    />
+
+                    <div class="absolute top-3 right-3 w-3 h-3 rounded-full {% if book.available_count > 0 %}bg-green-400{% else %}bg-red-400{% endif %} shadow"></div>
+                  </div>
+                {% else %}
+                  <div class="relative bg-gradient-to-br from-blue-500 to-indigo-700 h-52 flex flex-col items-center justify-center p-4">
+                    <div class="absolute left-0 top-0 bottom-0 w-3 bg-black/20 rounded-l-2xl"></div>
+                    <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-white/10"></div>
+
+                    <i class="fa-solid fa-book-open text-white/90 text-5xl mb-3"></i>
+
+                    <p class="text-white/90 text-xs text-center leading-tight px-2 line-clamp-3">
+                      {{ book.title }}
+                    </p>
+
+                    <div class="absolute top-3 right-3 w-3 h-3 rounded-full {% if book.available_count > 0 %}bg-green-400{% else %}bg-red-400{% endif %} shadow"></div>
+                  </div>
+                {% endif %}
+
+                <!-- Book Details -->
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="font-semibold text-gray-900 text-sm leading-tight mb-1 line-clamp-2">
+                    {{ book.title }}
+                  </h3>
+
+                  <p class="text-xs text-gray-500 mb-2">
+                    {{ book.author }}
+                  </p>
+
+                  <span class="inline-block self-start px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full mb-2">
+                    {{ book.genre }}
+                  </span>
+
+                  <p class="text-xs text-gray-500 mb-3">
+                    Location: {{ book.location }}
+                  </p>
+
+                  <div class="mt-auto flex flex-col gap-2">
+                    {% if book.available_count > 0 %}
+                      <span class="text-xs font-medium text-green-600">
+                        {{ book.available_count }} copies available
+                      </span>
+
+                      <form
+                        action="{{ url_for('auth.reserve_book', book_id=book.id) }}"
+                        method="POST"
+                      >
+                        <button
+                          type="submit"
+                          class="w-full py-2 rounded-xl text-sm font-medium transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;"
+                        >
+                          Reserve
+                        </button>
+                      </form>
+                    {% else %}
+                      <span class="text-xs font-medium text-red-500">
+                        Checked Out
+                      </span>
+
+                      <button
+                        disabled
+                        class="w-full py-2 rounded-xl text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+                      >
+                        Join Waitlist
+                      </button>
+                    {% endif %}
+                  </div>
+                </div>
+
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="col-span-full bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-500">
+              No books available yet.
+            </div>
+          {% endif %}
+
+        </div>
+
+        <div id="noBooksMessage" class="hidden bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-500 mt-6">
+          No books found matching your filters.
         </div>
 
       </div>
     </section>
+
 
     <!-- E-BOOKS PAGE -->
     <section id="page-ebooks" class="page-section hidden">
 
-      <div class="relative h-72 overflow-hidden">
+      <!-- Hero Banner -->
+      <div class="relative h-64 overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1585779034823-7e9ac8faec70?auto=format&fit=crop&w=1600&q=80"
           alt="E-Books"
           class="w-full h-full object-cover object-center"
         />
 
-        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.94) 0%, rgba(15,32,68,0.42) 58%, transparent 100%);">
-          <p class="text-sm uppercase tracking-widest mb-2" style="color:#c9a84c;">
+        <div
+          class="absolute inset-0 flex flex-col justify-end px-10 pb-10"
+          style="background:linear-gradient(to top, rgba(15,32,68,0.92) 0%, rgba(15,32,68,0.35) 60%, transparent 100%);"
+        >
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">
             Digital Library
           </p>
 
-          <h2 class="text-5xl font-bold text-white mb-2 font-display">
+          <h2 class="text-5xl font-bold text-white mb-2" style="font-family:Playfair Display, Georgia, serif;">
             E-Books
           </h2>
 
           <p class="text-lg" style="color:rgba(255,255,255,0.82);">
-            Manage and view digital library resources.
+            Browse and read free PDF books from our digital collection.
           </p>
         </div>
       </div>
 
       <div class="p-6">
-        <div class="theme-card rounded-xl p-6 mb-6">
-          <h3 class="text-xl font-bold mb-2" style="color:#0f2044;">
-            E-Books Management
-          </h3>
-          <p class="text-sm" style="color:#6b6560;">
-            This section is ready for digital resources. Later, we can connect it to a database so admin can add, edit, and delete e-books.
-          </p>
+
+        <!-- Search and Filter -->
+        <div
+          class="rounded-xl p-4 mb-6 grid grid-cols-1 md:grid-cols-3 gap-3"
+          style="background:#ffffff;border:1px solid #e8e3da;"
+        >
+          <div class="relative md:col-span-2">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2" style="color:#c9a84c;"></i>
+            <input
+              type="text"
+              id="ebookSearch"
+              oninput="filterEbooks()"
+              placeholder="Search e-books by title or author..."
+              class="w-full pl-10 pr-4 py-3 rounded-lg text-sm border outline-none"
+              style="background:#f7f4ef;border:1.5px solid #e8e3da;color:#1a1a2e;"
+            />
+          </div>
+
+          <select
+            id="ebookCategory"
+            onchange="filterEbooks()"
+            class="px-4 py-3 rounded-lg text-sm border outline-none"
+            style="background:#f7f4ef;border:1.5px solid #e8e3da;color:#1a1a2e;"
+          >
+            <option value="all">All Categories</option>
+            <option value="Programming">Programming</option>
+            <option value="AI/ML">AI/ML</option>
+            <option value="Software Engineering">Software Engineering</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Database">Database</option>
+            <option value="Mathematics">Mathematics</option>
+          </select>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- E-Book Grid -->
+        <div id="ebooksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+
           {% set ebooks = [
-            {"title":"Think Python","author":"Allen B. Downey","category":"Programming","pages":"292","size":"3.2 MB","url":"https://greenteapress.com/thinkpython2/thinkpython2.pdf"},
-            {"title":"The Elements of Statistical Learning","author":"Hastie, Tibshirani & Friedman","category":"AI/ML","pages":"745","size":"12.4 MB","url":"https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf"},
-            {"title":"Pro Git","author":"Scott Chacon & Ben Straub","category":"Software Engineering","pages":"574","size":"6.1 MB","url":"https://git-scm.com/book/en/v2"},
-            {"title":"Operating Systems: Three Easy Pieces","author":"Arpaci-Dusseau","category":"Computer Science","pages":"747","size":"11.7 MB","url":"https://pages.cs.wisc.edu/~remzi/OSTEP/"}
+            {"title":"Think Python","author":"Allen B. Downey","category":"Programming","pages":"292","size":"3.2 MB","url":"https://greenteapress.com/thinkpython2/thinkpython2.pdf","from":"#0f2044","to":"#1a3a6e","desc":"An introduction to Python programming for beginners."},
+            {"title":"The Elements of Statistical Learning","author":"Hastie, Tibshirani & Friedman","category":"AI/ML","pages":"745","size":"12.4 MB","url":"https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf","from":"#4c1d95","to":"#7c3aed","desc":"A classic text for statistical learning and machine learning."},
+            {"title":"Pro Git","author":"Scott Chacon & Ben Straub","category":"Software Engineering","pages":"574","size":"6.1 MB","url":"https://git-scm.com/book/en/v2","from":"#7c2d12","to":"#c2410c","desc":"Everything you need to know about Git version control."},
+            {"title":"Automate the Boring Stuff with Python","author":"Al Sweigart","category":"Programming","pages":"505","size":"7.8 MB","url":"https://automatetheboringstuff.com/","from":"#064e3b","to":"#059669","desc":"Use Python to automate everyday tasks."},
+            {"title":"Computer Networks: A Systems Approach","author":"Larry Peterson & Bruce Davie","category":"Computer Science","pages":"920","size":"14.2 MB","url":"https://book.systemsapproach.org/","from":"#0c4a6e","to":"#0284c7","desc":"A systems approach to networking concepts."},
+            {"title":"Database Design for Mere Mortals","author":"Michael J. Hernandez","category":"Database","pages":"672","size":"9.3 MB","url":"https://www.oreilly.com/library/view/database-design-for/9780133122282/","from":"#831843","to":"#db2777","desc":"A practical guide to relational database design."},
+            {"title":"The Art of Problem Solving","author":"Sandor Lehoczky","category":"Mathematics","pages":"288","size":"4.5 MB","url":"https://artofproblemsolving.com/store/","from":"#78350f","to":"#d97706","desc":"Problem-solving in algebra, geometry, and number theory."},
+            {"title":"Operating Systems: Three Easy Pieces","author":"Arpaci-Dusseau","category":"Computer Science","pages":"747","size":"11.7 MB","url":"https://pages.cs.wisc.edu/~remzi/OSTEP/","from":"#1e3a5f","to":"#2d6a9f","desc":"A free operating systems book covering virtualization, concurrency, and persistence."}
           ] %}
 
           {% for ebook in ebooks %}
-            <div class="theme-card rounded-2xl overflow-hidden flex flex-col">
-              <div class="relative h-40 flex flex-col items-center justify-center p-4 ebook-cover-{{ loop.index0 }}">
+            <div
+              class="ebook-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col"
+              data-title="{{ ebook.title|lower }}"
+              data-author="{{ ebook.author|lower }}"
+              data-category="{{ ebook.category }}"
+              style="background:#ffffff;border:1px solid #e8e3da;"
+            >
+              <div
+                class="relative h-40 flex flex-col items-center justify-center p-4"
+                style="background:#0f2044;"
+              >
                 <div class="absolute left-0 top-0 bottom-0 w-3 bg-black/25"></div>
                 <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-white/10"></div>
+
                 <i class="fa-solid fa-file-pdf text-5xl mb-2" style="color:rgba(201,168,76,0.95);"></i>
-                <p class="text-xs text-center leading-tight px-2" style="color:rgba(255,255,255,0.88);">
+
+                <p class="text-xs text-center leading-tight line-clamp-2 px-2" style="color:rgba(255,255,255,0.88);">
                   {{ ebook.title }}
                 </p>
+
                 <div class="absolute top-3 right-3 px-1.5 py-0.5 rounded text-xs font-bold" style="background:#c9a84c;color:#0f2044;">
                   PDF
                 </div>
               </div>
 
               <div class="p-4 flex flex-col flex-1">
-                <h3 class="font-semibold text-sm leading-tight mb-1" style="color:#0f2044;">
+                <h3 class="font-semibold text-sm leading-tight mb-1 line-clamp-2" style="color:#0f2044;">
                   {{ ebook.title }}
                 </h3>
+
                 <p class="text-xs mb-1" style="color:#6b6560;">
                   {{ ebook.author }}
                 </p>
+
                 <span class="inline-block self-start px-2 py-0.5 rounded-full text-xs mb-2" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">
                   {{ ebook.category }}
                 </span>
+
+                <p class="text-xs leading-relaxed mb-3 line-clamp-2" style="color:#6b6560;">
+                  {{ ebook.desc }}
+                </p>
+
                 <div class="flex items-center gap-2 text-xs mb-3" style="color:#6b6560;">
                   <i class="fa-solid fa-book-open"></i>
                   <span>{{ ebook.pages }} pages</span>
@@ -707,6 +480,7 @@
                   <i class="fa-solid fa-download"></i>
                   <span>{{ ebook.size }}</span>
                 </div>
+
                 <div class="mt-auto flex gap-2">
                   <a
                     href="{{ ebook.url }}"
@@ -716,451 +490,549 @@
                     style="background:#0f2044;color:#c9a84c;"
                   >
                     <i class="fa-solid fa-eye"></i>
-                    View
+                    Read
+                  </a>
+
+                  <a
+                    href="{{ ebook.url }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition"
+                    style="background:#f0ebe2;color:#0f2044;border:1.5px solid #e8e3da;"
+                  >
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </a>
                 </div>
               </div>
             </div>
           {% endfor %}
         </div>
+
+        <div id="noEbooksMessage" class="hidden text-center py-16">
+          <i class="fa-solid fa-file-pdf text-5xl mx-auto mb-4" style="color:#e8e3da;"></i>
+          <p class="font-semibold" style="color:#0f2044;">No e-books found</p>
+          <p class="text-sm mt-1" style="color:#6b6560;">Try adjusting your search or category filter.</p>
+        </div>
+
       </div>
     </section>
 
-    <!-- CIRCULATION PAGE -->
-    <section id="page-circulation" class="page-section hidden">
 
+    <!-- STUDENT DASHBOARD PAGE -->
+    <section id="page-dashboard" class="page-section hidden">
+
+      <!-- Hero Banner -->
       <div class="relative h-72 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1600&q=80"
-          alt="Circulation tracking"
+          src="https://images.unsplash.com/photo-1699443817739-cf2f7cbcd18d?auto=format&fit=crop&w=1600&q=80"
+          alt="Library shelves"
           class="w-full h-full object-cover object-center"
         />
 
-        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.94) 0%, rgba(15,32,68,0.42) 58%, transparent 100%);">
-          <p class="text-sm uppercase tracking-widest mb-2" style="color:#c9a84c;">
-            Circulation Tracking
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-indigo-300 text-sm uppercase tracking-widest mb-2">
+            Student Dashboard
           </p>
 
-          <h2 class="text-5xl font-bold text-white mb-2 font-display">
-            Borrowing Records
+          <h2 class="text-5xl font-bold text-white mb-2">
+            Welcome back, {{ session.get("user_name", "Student") }}!
           </h2>
 
-          <p class="text-lg" style="color:rgba(255,255,255,0.82);">
-            Track reserved, borrowed, returned, renew requests, and cancel requests.
+          <p class="text-gray-200 text-lg">
+            Here's your library activity at a glance.
           </p>
         </div>
       </div>
 
       <div class="p-6">
 
-        <div class="theme-card rounded-xl overflow-hidden">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
 
-          <div class="px-6 py-5 border-b" style="border-color:#e8e3da;">
-            <h3 class="text-xl font-bold" style="color:#0f2044;">
-              Circulation Tracking
-            </h3>
-            <p class="text-sm" style="color:#6b6560;">
-              Manage book pickup, return, renew approval, and cancellation requests.
-            </p>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
+            </div>
+
+            <div>
+              <p class="text-sm text-gray-500">Current Books</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ reservations|length if reservations else 0 }}
+              </p>
+            </div>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead style="background:#f7f4ef;border-bottom:1px solid #e8e3da;">
-                <tr>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Student</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Book</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Status</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Reserved At</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Due Date</th>
-                  <th class="px-6 py-4 text-left font-semibold uppercase" style="color:#6b6560;">Action</th>
-                </tr>
-              </thead>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-bell text-red-500 text-xl"></i>
+            </div>
 
-              <tbody class="divide-y">
-                {% if borrowings %}
-                  {% for item in borrowings %}
-                    {% set reservation_id = item.id if item.id is defined else item["id"] %}
-                    {% set status = item.status if item.status is defined else item["status"] %}
+            <div>
+              <p class="text-sm text-gray-500">Overdue Books</p>
+              <p class="text-2xl font-bold text-red-600">0</p>
+            </div>
+          </div>
 
-                    <tr class="hover:bg-[#f7f4ef]">
-                      <td class="px-6 py-4">
-                        <div class="font-medium" style="color:#0f2044;">
-                          {{ item.student_name if item.student_name is defined else item["student_name"] }}
-                        </div>
-                        <div class="text-xs" style="color:#6b6560;">
-                          {{ item.student_email if item.student_email is defined else item["student_email"] }}
-                        </div>
-                      </td>
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-clock text-green-600 text-xl"></i>
+            </div>
 
-                      <td class="px-6 py-4">
-                        <div class="font-medium" style="color:#0f2044;">
-                          {{ item.book_title if item.book_title is defined else item["book_title"] }}
-                        </div>
-                        <div class="text-xs" style="color:#6b6560;">
-                          {{ item.book_author if item.book_author is defined else item["book_author"] }}
-                        </div>
-                      </td>
-
-                      <td class="px-6 py-4">
-                        {% if status == "reserved" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">Reserved</span>
-                        {% elif status == "borrowed" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Borrowed</span>
-                        {% elif status == "renew_requested" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">Renew Requested</span>
-                        {% elif status == "cancel_requested" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">Cancel Requested</span>
-                        {% elif status == "cancelled" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Cancelled</span>
-                        {% elif status == "returned" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Returned</span>
-                        {% else %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">{{ status }}</span>
-                        {% endif %}
-                      </td>
-
-                      <td class="px-6 py-4" style="color:#6b6560;">
-                        {{ item.reserved_at if item.reserved_at is defined else item["reserved_at"] }}
-                      </td>
-
-                      <td class="px-6 py-4" style="color:#6b6560;">
-                        {{ item.due_date if item.due_date is defined else item["due_date"] }}
-                      </td>
-
-                      <td class="px-6 py-4">
-                        {% if status == "reserved" %}
-                          <div class="flex items-center gap-2">
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.mark_book_picked_up', reservation_id=reservation_id) }}"
-                              data-title="Mark Book as Picked Up?"
-                              data-message="This will change the reservation status to Borrowed and set the return due date."
-                              data-theme="blue"
-                              data-button="Yes, Mark Picked Up"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition"
-                              style="background:#0f2044;color:#c9a84c;"
-                            >
-                              Picked Up
-                            </button>
-
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}"
-                              data-title="Mark Book as Returned?"
-                              data-message="This will change the book status to Returned and increase the available book count."
-                              data-theme="green"
-                              data-button="Yes, Mark Returned"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition"
-                            >
-                              Return
-                            </button>
-                          </div>
-
-                        {% elif status == "borrowed" %}
-                          <button
-                            type="button"
-                            data-action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}"
-                            data-title="Mark Book as Returned?"
-                            data-message="This will change the book status to Returned and increase the available book count."
-                            data-theme="green"
-                            data-button="Yes, Mark Returned"
-                            onclick="openActionModalFromButton(this)"
-                            class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition"
-                          >
-                            Return
-                          </button>
-
-                        {% elif status == "renew_requested" %}
-                          <div class="flex items-center gap-2">
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.approve_renew_book', reservation_id=reservation_id) }}"
-                              data-title="Approve Renew Request?"
-                              data-message="This will extend the student's borrowing time for this book."
-                              data-theme="green"
-                              data-button="Yes, Approve"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition"
-                            >
-                              Approve Renew
-                            </button>
-
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.reject_renew_book', reservation_id=reservation_id) }}"
-                              data-title="Reject Renew Request?"
-                              data-message="This will reject the student's renew request."
-                              data-theme="red"
-                              data-button="Yes, Reject"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition"
-                            >
-                              Reject
-                            </button>
-                          </div>
-
-                        {% elif status == "cancel_requested" %}
-                          <div class="flex items-center gap-2">
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.approve_cancel_reservation', reservation_id=reservation_id) }}"
-                              data-title="Approve Cancel Request?"
-                              data-message="This will cancel the reservation and make the book available again."
-                              data-theme="green"
-                              data-button="Yes, Approve"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition"
-                            >
-                              Approve Cancel
-                            </button>
-
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.reject_cancel_reservation', reservation_id=reservation_id) }}"
-                              data-title="Reject Cancel Request?"
-                              data-message="This will reject the student's cancel request and keep the reservation active."
-                              data-theme="red"
-                              data-button="Yes, Reject"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition"
-                            >
-                              Reject
-                            </button>
-                          </div>
-
-                        {% elif status == "cancelled" %}
-                          <span class="text-sm text-red-500 font-medium">Cancelled</span>
-
-                        {% elif status == "returned" %}
-                          <span class="text-sm text-green-600 font-medium">Returned</span>
-
-                        {% else %}
-                          <span class="text-sm text-gray-400">No Action</span>
-                        {% endif %}
-                      </td>
-                    </tr>
-                  {% endfor %}
-                {% else %}
-                  <tr>
-                    <td colspan="6" class="px-6 py-10 text-center" style="color:#6b6560;">
-                      No circulation records yet.
-                    </td>
-                  </tr>
-                {% endif %}
-              </tbody>
-            </table>
+            <div>
+              <p class="text-sm text-gray-500">Reading History</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ reading_history|length if reading_history else 0 }}
+              </p>
+            </div>
           </div>
 
         </div>
 
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <!-- Current Borrowings -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-book-open text-blue-600"></i>
+              Current Borrowings / Reservations
+            </h3>
+
+            {% if reservations %}
+              <div class="space-y-3">
+                {% for item in reservations %}
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+
+                    <div class="flex items-center gap-3">
+                      {% if item.image %}
+                        <img
+                          src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
+                          class="w-10 h-14 object-contain bg-white rounded-lg border flex-shrink-0 p-1"
+                          alt="{{ item.title }}"
+                        />
+                      {% else %}
+                        <div class="w-10 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <i class="fa-solid fa-book-open text-white"></i>
+                        </div>
+                      {% endif %}
+
+                      <div>
+                        <p class="font-medium text-gray-900 text-sm">
+                          {{ item.title }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                          {{ item.author }}
+                        </p>
+
+                        <div class="mt-1">
+                          {% if item.status == "reserved" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
+                              Reserved
+                            </span>
+                          {% elif item.status == "borrowed" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
+                              Borrowed
+                            </span>
+                          {% elif item.status == "renew_requested" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                              Renew Requested
+                            </span>
+                          {% elif item.status == "cancel_requested" %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                              Cancel Requested
+                            </span>
+                          {% else %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                              {{ item.status }}
+                            </span>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="text-right">
+                      <p class="text-xs text-gray-500">
+                        Due Date
+                      </p>
+
+                      <p class="text-sm font-semibold text-gray-700 mb-2">
+                        {{ item.due_date }}
+                      </p>
+
+                      {% if item.status == "reserved" %}
+                        <button
+                          type="button"
+                          data-reservation-id="{{ item.id }}"
+                          data-book-title="{{ item.title }}"
+                          onclick="openCancelModalFromButton(this)"
+                          class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition"
+                        >
+                          Request Cancel
+                        </button>
+
+                      {% elif item.status == "borrowed" %}
+                        <button
+                          type="button"
+                          data-reservation-id="{{ item.id }}"
+                          data-book-title="{{ item.title }}"
+                          onclick="openRenewModalFromButton(this)"
+                          class="px-3 py-2 bg-purple-600 text-white rounded-lg text-xs font-medium hover:bg-purple-700 transition"
+                        >
+                          Request Renew
+                        </button>
+
+                      {% elif item.status == "renew_requested" %}
+                        <span class="text-xs text-purple-600 font-medium">
+                          Waiting Renew Approval
+                        </span>
+
+                      {% elif item.status == "cancel_requested" %}
+                        <span class="text-xs text-yellow-600 font-medium">
+                          Waiting Cancel Approval
+                        </span>
+                      {% endif %}
+                    </div>
+
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-gray-500 text-sm">
+                No current reserved or borrowed books.
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Reading History -->
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-clock text-green-600"></i>
+              Reading History
+            </h3>
+
+            {% if reading_history %}
+              <div class="space-y-3">
+                {% for item in reading_history %}
+                  <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+
+                    <div class="flex items-center gap-3">
+                      {% if item.image %}
+                        <img
+                          src="{{ url_for('static', filename='uploads/books/' ~ item.image) }}"
+                          class="w-10 h-14 object-contain bg-white rounded-lg border flex-shrink-0 p-1"
+                          alt="{{ item.title }}"
+                        />
+                      {% else %}
+                        <div class="w-10 h-14 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <i class="fa-solid fa-book-open text-white"></i>
+                        </div>
+                      {% endif %}
+
+                      <div>
+                        <p class="font-medium text-gray-900 text-sm">
+                          {{ item.title }}
+                        </p>
+
+                        <p class="text-xs text-gray-500">
+                          {{ item.author }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="text-right">
+                      <p class="text-xs text-gray-500">
+                        Returned
+                      </p>
+
+                      <p class="text-sm font-semibold text-gray-700">
+                        {{ item.returned_at if item.returned_at else "Returned" }}
+                      </p>
+                    </div>
+
+                  </div>
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-gray-500 text-sm">
+                No reading history yet.
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    
+
+    <!-- CHANGE PASSWORD PAGE -->
+    <section id="page-password" class="page-section hidden">
+
+      <!-- Hero Banner -->
+      <div class="relative h-64 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1604866830893-c13cafa515d5?auto=format&fit=crop&w=1600&q=80"
+          alt="Library"
+          class="w-full h-full object-cover object-center"
+        />
+
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex flex-col justify-end px-10 pb-10">
+          <p class="text-amber-300 text-sm uppercase tracking-widest mb-2">
+            Account Settings
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-2">
+            Change Password
+          </h2>
+
+          <p class="text-gray-200 text-lg">
+            Keep your account safe and secure.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <div class="max-w-lg">
+          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+
+            <form action="{{ url_for('auth.change_password') }}" method="POST" class="space-y-5">
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Current Password
+                </label>
+
+                <div class="relative">
+                  <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="password"
+                    name="current_password"
+                    placeholder="Enter current password"
+                    required
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  New Password
+                </label>
+
+                <div class="relative">
+                  <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="password"
+                    name="new_password"
+                    placeholder="Enter new password"
+                    required
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm New Password
+                </label>
+
+                <div class="relative">
+                  <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                  <input
+                    type="password"
+                    name="confirm_password"
+                    placeholder="Confirm new password"
+                    required
+                    class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent outline-none"
+                  />
+                </div>
+              </div>
+
+              <div class="flex gap-3">
+                <button
+                  type="submit"
+                  class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+                >
+                  Update Password
+                </button>
+
+                <button
+                  type="button"
+                  onclick="showPage('dashboard')"
+                  class="px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+
+            </form>
+
+            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+              <h4 class="text-sm font-medium text-blue-900 mb-2">
+                Password Requirements:
+              </h4>
+
+              <ul class="text-xs text-blue-700 space-y-1 list-disc list-inside">
+                <li>Minimum 6 characters</li>
+                <li>Must be different from current password</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Hidden borrowing data for charts -->
-  <div id="borrowingData" class="hidden">
-    {% if borrowings %}
-      {% for item in borrowings %}
-        <div
-          class="borrowing-record"
-          data-book-title="{{ (item.book_title if item.book_title is defined else item['book_title'])|e }}"
-          data-reserved-at="{{ (item.reserved_at if item.reserved_at is defined else item['reserved_at']) }}"
-          data-status="{{ (item.status if item.status is defined else item['status'])|e }}"
-        ></div>
-      {% endfor %}
-    {% endif %}
-  </div>
-
-  <!-- Add Book Modal -->
+  <!-- Cancel Reservation Modal -->
   <div
-    id="addBookModal"
+    id="cancelReservationModal"
     class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4"
   >
-    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-
-      <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:#e8e3da;">
-        <div>
-          <h3 class="text-xl font-bold" style="color:#0f2044;">
-            Add New Book
-          </h3>
-          <p class="text-sm" style="color:#6b6560;">
-            Fill in the book details carefully.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onclick="closeAddBookModal()"
-          class="w-10 h-10 rounded-full hover:bg-gray-100"
-          style="color:#6b6560;"
-        >
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <form
-        action="{{ url_for('auth.add_book') }}"
-        method="POST"
-        enctype="multipart/form-data"
-        class="p-6"
-      >
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">
-              Book Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              placeholder="Enter book title"
-              required
-              class="w-full px-4 py-3 rounded-xl theme-input"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">
-              Author
-            </label>
-            <input
-              type="text"
-              name="author"
-              placeholder="Enter author name"
-              required
-              class="w-full px-4 py-3 rounded-xl theme-input"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">
-              Genre
-            </label>
-            <input
-              type="text"
-              name="genre"
-              placeholder="Programming, Novel, Science..."
-              required
-              class="w-full px-4 py-3 rounded-xl theme-input"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              placeholder="Shelf A1"
-              required
-              class="w-full px-4 py-3 rounded-xl theme-input"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Total Copies</label>
-            <input type="number" name="total" min="1" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Available Copies</label>
-            <input type="number" name="available_count" min="0" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Book Cover Image</label>
-            <input type="file" name="image" accept="image/png, image/jpeg, image/jpg, image/webp" class="w-full px-4 py-3 rounded-xl theme-input bg-white" />
-          </div>
-        </div>
-
-        <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
-          <button type="button" onclick="closeAddBookModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition">Cancel</button>
-          <button type="submit" class="px-5 py-3 rounded-xl font-semibold hover:opacity-90 transition" style="background:#0f2044;color:#c9a84c;"><i class="fa-solid fa-plus mr-2"></i>Add Book</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Edit Book Modal -->
-  <div id="editBookModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4">
-    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-      <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:#e8e3da;">
-        <div>
-          <h3 class="text-xl font-bold" style="color:#0f2044;">Edit Book</h3>
-          <p class="text-sm" style="color:#6b6560;">Update book details carefully.</p>
-        </div>
-        <button type="button" onclick="closeEditBookModal()" class="w-10 h-10 rounded-full hover:bg-gray-100" style="color:#6b6560;"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <form id="editBookForm" method="POST" enctype="multipart/form-data" class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Book Title</label>
-            <input type="text" name="title" id="editBookTitle" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Author</label>
-            <input type="text" name="author" id="editBookAuthor" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Genre</label>
-            <input type="text" name="genre" id="editBookGenre" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Location</label>
-            <input type="text" name="location" id="editBookLocation" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Total Copies</label>
-            <input type="number" name="total" id="editBookTotal" min="1" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Available Copies</label>
-            <input type="number" name="available_count" id="editBookAvailable" min="0" required class="w-full px-4 py-3 rounded-xl theme-input" />
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium mb-2" style="color:#6b6560;">Change Book Cover Image</label>
-            <input type="file" name="image" accept="image/png, image/jpeg, image/jpg, image/webp" class="w-full px-4 py-3 rounded-xl theme-input bg-white" />
-            <p class="text-xs mt-2" style="color:#6b6560;">Leave empty if you do not want to change the current image.</p>
-          </div>
-        </div>
-
-        <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
-          <button type="button" onclick="closeEditBookModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition">Cancel</button>
-          <button type="submit" class="px-5 py-3 rounded-xl font-semibold hover:opacity-90 transition" style="background:#0f2044;color:#c9a84c;"><i class="fa-solid fa-floppy-disk mr-2"></i>Update Book</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Universal Action Confirmation Modal -->
-  <div id="actionModal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+
       <div class="p-6 text-center">
-        <div id="actionModalIconBox" class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i id="actionModalIcon" class="fa-solid fa-circle-question text-blue-600 text-2xl"></i>
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
         </div>
-        <h3 id="actionModalTitle" class="text-xl font-bold text-gray-900 mb-2">Are you sure?</h3>
-        <p id="actionModalMessage" class="text-gray-600 text-sm mb-6">Please confirm this action.</p>
-        <form id="actionModalForm" method="POST">
+
+        <h3 class="text-xl font-bold text-gray-900 mb-2">
+          Cancel Reservation?
+        </h3>
+
+        <p class="text-gray-600 text-sm mb-2">
+          Do you want to request admin to cancel your reservation?
+        </p>
+
+        <p class="text-sm font-semibold text-gray-900 mb-6" id="cancelBookTitle">
+          Book name
+        </p>
+
+        <form id="cancelReservationForm" method="POST">
           <div class="flex items-center justify-center gap-3">
-            <button type="button" onclick="closeActionModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition">Cancel</button>
-            <button id="actionModalSubmit" type="submit" class="px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition">Confirm</button>
+            <button
+              type="button"
+              onclick="closeCancelModal()"
+              class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+            >
+              No, Keep It
+            </button>
+
+            <button
+              type="submit"
+              class="px-5 py-3 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition"
+            >
+              Yes, Request Cancel
+            </button>
           </div>
         </form>
       </div>
+
     </div>
   </div>
 
-  <script>
-    let popularBooksChartInstance = null;
-    let circulationTrendChartInstance = null;
+  <!-- Renew Book Modal -->
+  <div
+    id="renewBookModal"
+    class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4"
+  >
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
 
+      <div class="p-6 text-center">
+        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fa-solid fa-rotate-right text-purple-600 text-2xl"></i>
+        </div>
+
+        <h3 class="text-xl font-bold text-gray-900 mb-2">
+          Renew Book?
+        </h3>
+
+        <p class="text-gray-600 text-sm mb-2">
+          Do you want to request admin to renew this borrowed book?
+        </p>
+
+        <p class="text-sm font-semibold text-gray-900 mb-6" id="renewBookTitle">
+          Book name
+        </p>
+
+        <form id="renewBookForm" method="POST">
+          <div class="flex items-center justify-center gap-3">
+            <button
+              type="button"
+              onclick="closeRenewModal()"
+              class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="px-5 py-3 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition"
+            >
+              Yes, Request Renew
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  {% if reservation_success %}
+    <!-- Reservation Success Modal -->
+    <div
+      id="reservationSuccessModal"
+      class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4"
+    >
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+        <div class="p-6 text-center">
+          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-circle-check text-green-600 text-3xl"></i>
+          </div>
+
+          <h3 class="text-xl font-bold text-gray-900 mb-2">
+            Book Reserved Successfully!
+          </h3>
+
+          <p class="text-sm text-gray-600 mb-4">
+            Your reservation for
+            <span class="font-semibold text-gray-900">
+              {{ reservation_success.title }}
+            </span>
+            has been confirmed.
+          </p>
+
+          <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5 text-left">
+            <p class="text-sm text-blue-800">
+              <i class="fa-solid fa-location-dot mr-2"></i>
+              You can grab this book from library shelf
+              <span class="font-bold">
+                {{ reservation_success.location }}
+              </span>
+              within <span class="font-bold">2 days</span>.
+            </p>
+
+            <p class="text-xs text-blue-700 mt-2">
+              If you do not collect it within 2 days, your reservation may be cancelled.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onclick="closeReservationSuccessModal()"
+            class="w-full px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition"
+          >
+            Okay, Got It
+          </button>
+        </div>
+
+      </div>
+    </div>
+  {% endif %}
+
+  <script>
     function showPage(page) {
       if (window.location.hash !== "#" + page) {
         history.replaceState(null, "", "#" + page);
@@ -1169,7 +1041,9 @@
       const sections = document.querySelectorAll(".page-section");
       const navButtons = document.querySelectorAll(".nav-btn");
 
-      sections.forEach(section => section.classList.add("hidden"));
+      sections.forEach(section => {
+        section.classList.add("hidden");
+      });
 
       navButtons.forEach(button => {
         button.classList.remove("active");
@@ -1178,7 +1052,9 @@
       });
 
       const activeSection = document.getElementById("page-" + page);
-      if (activeSection) activeSection.classList.remove("hidden");
+      if (activeSection) {
+        activeSection.classList.remove("hidden");
+      }
 
       const activeButton = document.getElementById("nav-" + page);
       if (activeButton) {
@@ -1186,217 +1062,184 @@
         activeButton.style.borderColor = "#c9a84c";
         activeButton.style.color = "#0f2044";
       }
+    }
 
-      if (page === "dashboard") {
-        setTimeout(renderAdminCharts, 100);
+    function closeReservationSuccessModal() {
+      const modal = document.getElementById("reservationSuccessModal");
+
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
       }
     }
 
-    function getBorrowingRecords() {
-      const records = document.querySelectorAll(".borrowing-record");
-      return Array.from(records).map(record => ({
-        bookTitle: record.dataset.bookTitle || "",
-        reservedAt: record.dataset.reservedAt || "",
-        status: record.dataset.status || ""
-      }));
+    function openCancelModalFromButton(button) {
+      openCancelModal(button.dataset.reservationId, button.dataset.bookTitle);
     }
 
-    function buildPopularBooksData() {
-      const counts = {};
-      getBorrowingRecords().forEach(record => {
-        if (!record.bookTitle) return;
-        counts[record.bookTitle] = (counts[record.bookTitle] || 0) + 1;
-      });
+    function openCancelModal(reservationId, bookTitle) {
+      const modal = document.getElementById("cancelReservationModal");
+      const form = document.getElementById("cancelReservationForm");
+      const title = document.getElementById("cancelBookTitle");
 
-      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
-      if (sorted.length === 0) return { labels: ["No records"], data: [0] };
-      return { labels: sorted.map(item => item[0]), data: sorted.map(item => item[1]) };
-    }
+      form.action = "/request-cancel-reservation/" + reservationId;
+      title.textContent = bookTitle;
 
-    function parseDateValue(value) {
-      if (!value) return null;
-      const raw = String(value).trim();
-      let date = new Date(raw.replace(" ", "T"));
-      if (isNaN(date.getTime())) date = new Date(raw);
-      return isNaN(date.getTime()) ? null : date;
-    }
-
-    function buildCirculationTrendData() {
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const counts = {};
-      getBorrowingRecords().forEach(record => {
-        const date = parseDateValue(record.reservedAt);
-        if (!date) return;
-        const monthName = months[date.getMonth()];
-        counts[monthName] = (counts[monthName] || 0) + 1;
-      });
-      const labels = months.filter(month => counts[month]);
-      if (labels.length === 0) return { labels: ["No records"], data: [0] };
-      return { labels, data: labels.map(month => counts[month]) };
-    }
-
-    function renderAdminCharts() {
-      if (typeof Chart === "undefined") return;
-      const popularCanvas = document.getElementById("popularBooksChart");
-      const trendCanvas = document.getElementById("circulationTrendChart");
-      if (!popularCanvas || !trendCanvas) return;
-
-      const popularData = buildPopularBooksData();
-      const trendData = buildCirculationTrendData();
-
-      if (popularBooksChartInstance) popularBooksChartInstance.destroy();
-      if (circulationTrendChartInstance) circulationTrendChartInstance.destroy();
-
-      popularBooksChartInstance = new Chart(popularCanvas, {
-        type: "bar",
-        data: {
-          labels: popularData.labels,
-          datasets: [{
-            label: "Borrow count",
-            data: popularData.data,
-            backgroundColor: "rgba(15, 32, 68, 0.86)",
-            borderColor: "rgba(201, 168, 76, 1)",
-            borderWidth: 1,
-            borderRadius: 8
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, ticks: { precision: 0 } },
-            x: { ticks: { maxRotation: 45, minRotation: 0 } }
-          }
-        }
-      });
-
-      circulationTrendChartInstance = new Chart(trendCanvas, {
-        type: "line",
-        data: {
-          labels: trendData.labels,
-          datasets: [{
-            label: "Circulation count",
-            data: trendData.data,
-            borderColor: "rgba(201, 168, 76, 1)",
-            backgroundColor: "rgba(201, 168, 76, 0.14)",
-            borderWidth: 3,
-            tension: 0.35,
-            pointRadius: 4,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-        }
-      });
-    }
-
-    function openAddBookModal() {
-      const modal = document.getElementById("addBookModal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
     }
 
-    function closeAddBookModal() {
-      const modal = document.getElementById("addBookModal");
+    function closeCancelModal() {
+      const modal = document.getElementById("cancelReservationModal");
+
       modal.classList.add("hidden");
       modal.classList.remove("flex");
     }
 
-    function openEditBookModal(button) {
-      const modal = document.getElementById("editBookModal");
-      const form = document.getElementById("editBookForm");
-      const bookId = button.dataset.bookId;
-      form.action = "/edit-book/" + bookId;
-      document.getElementById("editBookTitle").value = button.dataset.title || "";
-      document.getElementById("editBookAuthor").value = button.dataset.author || "";
-      document.getElementById("editBookGenre").value = button.dataset.genre || "";
-      document.getElementById("editBookTotal").value = button.dataset.total || "";
-      document.getElementById("editBookAvailable").value = button.dataset.available || "";
-      document.getElementById("editBookLocation").value = button.dataset.location || "";
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
+    function openRenewModalFromButton(button) {
+      openRenewModal(button.dataset.reservationId, button.dataset.bookTitle);
     }
 
-    function closeEditBookModal() {
-      const modal = document.getElementById("editBookModal");
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-    }
+    function openRenewModal(reservationId, bookTitle) {
+      const modal = document.getElementById("renewBookModal");
+      const form = document.getElementById("renewBookForm");
+      const title = document.getElementById("renewBookTitle");
 
-    function openActionModalFromButton(button) {
-      openActionModal(button.dataset.action, button.dataset.title, button.dataset.message, button.dataset.theme, button.dataset.button);
-    }
-
-    function openActionModal(action, title, message, theme, buttonText) {
-      const modal = document.getElementById("actionModal");
-      const form = document.getElementById("actionModalForm");
-      const titleBox = document.getElementById("actionModalTitle");
-      const messageBox = document.getElementById("actionModalMessage");
-      const submitButton = document.getElementById("actionModalSubmit");
-      const iconBox = document.getElementById("actionModalIconBox");
-      const icon = document.getElementById("actionModalIcon");
-
-      form.action = action;
-      titleBox.textContent = title || "Are you sure?";
-      messageBox.textContent = message || "Please confirm this action.";
-      submitButton.textContent = buttonText || "Confirm";
-
-      iconBox.className = "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4";
-      icon.className = "fa-solid text-2xl";
-      submitButton.className = "px-5 py-3 rounded-xl text-white font-medium transition";
-
-      if (theme === "red") {
-        iconBox.classList.add("bg-red-100");
-        icon.classList.add("fa-triangle-exclamation", "text-red-600");
-        submitButton.classList.add("bg-red-600", "hover:bg-red-700");
-      } else if (theme === "green") {
-        iconBox.classList.add("bg-green-100");
-        icon.classList.add("fa-circle-check", "text-green-600");
-        submitButton.classList.add("bg-green-600", "hover:bg-green-700");
-      } else {
-        iconBox.classList.add("bg-blue-100");
-        icon.classList.add("fa-circle-question", "text-blue-600");
-        submitButton.classList.add("bg-blue-600", "hover:bg-blue-700");
-      }
+      form.action = "/request-renew-book/" + reservationId;
+      title.textContent = bookTitle;
 
       modal.classList.remove("hidden");
       modal.classList.add("flex");
     }
 
-    function closeActionModal() {
-      const modal = document.getElementById("actionModal");
+    function closeRenewModal() {
+      const modal = document.getElementById("renewBookModal");
+
       modal.classList.add("hidden");
       modal.classList.remove("flex");
     }
 
     window.addEventListener("click", function (e) {
-      const addModal = document.getElementById("addBookModal");
-      const editModal = document.getElementById("editBookModal");
-      const actionModal = document.getElementById("actionModal");
-      if (e.target === addModal) closeAddBookModal();
-      if (e.target === editModal) closeEditBookModal();
-      if (e.target === actionModal) closeActionModal();
+      const cancelModal = document.getElementById("cancelReservationModal");
+      const renewModal = document.getElementById("renewBookModal");
+
+      if (e.target === cancelModal) {
+        closeCancelModal();
+      }
+
+      if (e.target === renewModal) {
+        closeRenewModal();
+      }
     });
 
     window.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
-        closeAddBookModal();
-        closeEditBookModal();
-        closeActionModal();
+        closeCancelModal();
+        closeRenewModal();
+        closeReservationSuccessModal();
       }
     });
 
+    function filterBooks() {
+      const searchInput = document.getElementById("searchInput");
+      const genreInput = document.getElementById("genreFilter");
+      const availabilityInput = document.getElementById("availabilityFilter");
+      const shownCount = document.getElementById("shownCount");
+      const noBooksMessage = document.getElementById("noBooksMessage");
+
+      if (!searchInput || !genreInput || !availabilityInput) return;
+
+      const searchValue = searchInput.value.toLowerCase();
+      const genreValue = genreInput.value;
+      const availabilityValue = availabilityInput.value;
+
+      const cards = document.querySelectorAll(".book-card");
+      let shown = 0;
+
+      cards.forEach(card => {
+        const title = card.dataset.title || "";
+        const author = card.dataset.author || "";
+        const genre = card.dataset.genre || "";
+        const availability = card.dataset.available || "";
+
+        const matchesSearch = title.includes(searchValue) || author.includes(searchValue);
+        const matchesGenre = genreValue === "all" || genre === genreValue;
+        const matchesAvailability = availabilityValue === "all" || availability === availabilityValue;
+
+        if (matchesSearch && matchesGenre && matchesAvailability) {
+          card.classList.remove("hidden");
+          shown++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      if (shownCount) {
+        shownCount.textContent = shown;
+      }
+
+      if (noBooksMessage) {
+        if (shown === 0 && cards.length > 0) {
+          noBooksMessage.classList.remove("hidden");
+        } else {
+          noBooksMessage.classList.add("hidden");
+        }
+      }
+    }
+
+
+
+    function filterEbooks() {
+      const searchInput = document.getElementById("ebookSearch");
+      const categoryInput = document.getElementById("ebookCategory");
+      const emptyMessage = document.getElementById("noEbooksMessage");
+
+      if (!searchInput || !categoryInput) return;
+
+      const searchValue = searchInput.value.toLowerCase();
+      const categoryValue = categoryInput.value;
+
+      const cards = document.querySelectorAll(".ebook-card");
+      let shown = 0;
+
+      cards.forEach(card => {
+        const title = card.dataset.title || "";
+        const author = card.dataset.author || "";
+        const category = card.dataset.category || "";
+
+        const matchesSearch = title.includes(searchValue) || author.includes(searchValue);
+        const matchesCategory = categoryValue === "all" || category === categoryValue;
+
+        if (matchesSearch && matchesCategory) {
+          card.classList.remove("hidden");
+          shown++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      if (emptyMessage) {
+        if (shown === 0 && cards.length > 0) {
+          emptyMessage.classList.remove("hidden");
+        } else {
+          emptyMessage.classList.add("hidden");
+        }
+      }
+    }
+
     window.addEventListener("DOMContentLoaded", function () {
-      if (window.location.hash === "#users") showPage("users");
-      else if (window.location.hash === "#books") showPage("books");
-      else if (window.location.hash === "#ebooks") showPage("ebooks");
-      else if (window.location.hash === "#circulation") showPage("circulation");
-      else showPage("dashboard");
+      if (window.location.hash === "#ebooks") {
+        showPage("ebooks");
+      } else if (window.location.hash === "#password") {
+        showPage("password");
+      } else if (window.location.hash === "#dashboard") {
+        showPage("dashboard");
+      } else {
+        showPage("catalog");
+      }
+
+      filterBooks();
+      filterEbooks();
     });
   </script>
 

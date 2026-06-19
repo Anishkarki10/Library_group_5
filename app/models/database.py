@@ -99,6 +99,22 @@ class Database:
             )
         """)
 
+        # ── E-Books Table ───────────────────────────
+        db.execute("""
+            CREATE TABLE IF NOT EXISTS ebooks (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                author VARCHAR(255) NOT NULL,
+                category VARCHAR(100) NOT NULL,
+                pages INT DEFAULT 0,
+                file_size VARCHAR(50),
+                description TEXT,
+                pdf_file VARCHAR(255) NOT NULL,
+                cover_image VARCHAR(255),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
         # ── Reservations Table ──────────────────────
         db.execute("""
             CREATE TABLE IF NOT EXISTS reservations (
