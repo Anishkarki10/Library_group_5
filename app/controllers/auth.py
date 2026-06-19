@@ -150,7 +150,7 @@ class AuthController(BaseController):
             reservations=active_reservations,
             reading_history=reading_history,
             cancelled_reservations=cancelled_reservations,
-            reservation_success=reservation_success
+            reservation_success=reservation_success,
             ebooks=ebooks
 
         )
@@ -305,6 +305,7 @@ class AuthController(BaseController):
 
     # ── Admin Dashboard ──────────────────────────────────────
     def dashboard(self):
+        overdue_count = 0
         users = self.user_model.find_all()
         books = self.book_model.get_all()
         reservations = self.reservation_model.get_all_reservations()
@@ -872,7 +873,7 @@ class AuthController(BaseController):
 
     # ebooks
     def allowed_pdf(self, filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() == "pdf"
+        return "." in filename and filename.rsplit(".", 1)[1].lower() == "pdf"
 
 
 def allowed_image(self, filename):

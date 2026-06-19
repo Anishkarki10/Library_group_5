@@ -24,8 +24,6 @@
       font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #f7f4ef;
     }
-    .ebook-cover-0 { background: linear-gradient(135deg, #0f2044, #1a3a6e); }
-.ebook-cover-1 { background: linear-gradient(135deg, #4c1d95, #7c3aed); }
 
     .font-display {
       font-family: "Playfair Display", Georgia, serif;
@@ -69,7 +67,8 @@
 
       <a
         href="{{ url_for('auth.logout') }}"
-        class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition" style="color:#f7f4ef;background:rgba(255,255,255,0.08);"
+        class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition"
+        style="color:#f7f4ef;background:rgba(255,255,255,0.08);"
       >
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
@@ -84,7 +83,8 @@
         type="button"
         onclick="showPage('catalog')"
         id="nav-catalog"
-        class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:#c9a84c;color:#0f2044;"
+        class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
+        style="border-color:#c9a84c;color:#0f2044;"
       >
         <i class="fa-solid fa-magnifying-glass"></i>
         Book Catalog
@@ -94,7 +94,8 @@
         type="button"
         onclick="showPage('ebooks')"
         id="nav-ebooks"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
+        style="border-color:transparent;color:#6b6560;"
       >
         <i class="fa-solid fa-file-pdf"></i>
         E-Books
@@ -104,7 +105,8 @@
         type="button"
         onclick="showPage('dashboard')"
         id="nav-dashboard"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
+        style="border-color:transparent;color:#6b6560;"
       >
         <i class="fa-solid fa-gauge"></i>
         My Dashboard
@@ -114,7 +116,8 @@
         type="button"
         onclick="showPage('password')"
         id="nav-password"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;"
+        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap"
+        style="border-color:transparent;color:#6b6560;"
       >
         <i class="fa-solid fa-lock"></i>
         Change Password
@@ -260,7 +263,6 @@
                 data-available="{% if book.available_count > 0 %}available{% else %}unavailable{% endif %}"
               >
 
-                <!-- Book Cover -->
                 {% if book.image %}
                   <div class="relative h-52 bg-gray-100 flex items-center justify-center">
                     <img
@@ -286,7 +288,6 @@
                   </div>
                 {% endif %}
 
-                <!-- Book Details -->
                 <div class="p-4 flex flex-col flex-1">
                   <h3 class="font-semibold text-gray-900 text-sm leading-tight mb-1 line-clamp-2">
                     {{ book.title }}
@@ -316,7 +317,8 @@
                       >
                         <button
                           type="submit"
-                          class="w-full py-2 rounded-xl text-sm font-medium transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;"
+                          class="w-full py-2 rounded-xl text-sm font-medium transition hover:opacity-90"
+                          style="background:#0f2044;color:#c9a84c;"
                         >
                           Reserve
                         </button>
@@ -353,7 +355,6 @@
       </div>
     </section>
 
-
     <!-- E-BOOKS PAGE -->
     <section id="page-ebooks" class="page-section hidden">
 
@@ -378,7 +379,7 @@
           </h2>
 
           <p class="text-lg" style="color:rgba(255,255,255,0.82);">
-            Browse and read free PDF books from our digital collection.
+            Browse and read uploaded PDF books from our digital collection.
           </p>
         </div>
       </div>
@@ -409,105 +410,114 @@
             style="background:#f7f4ef;border:1.5px solid #e8e3da;color:#1a1a2e;"
           >
             <option value="all">All Categories</option>
-            <option value="Programming">Programming</option>
-            <option value="AI/ML">AI/ML</option>
-            <option value="Software Engineering">Software Engineering</option>
-            <option value="Computer Science">Computer Science</option>
-            <option value="Database">Database</option>
-            <option value="Mathematics">Mathematics</option>
+
+            {% if ebooks %}
+              {% set ebook_categories = namespace(list=[]) %}
+              {% for ebook in ebooks %}
+                {% if ebook.category not in ebook_categories.list %}
+                  {% set _ = ebook_categories.list.append(ebook.category) %}
+                  <option value="{{ ebook.category }}">{{ ebook.category }}</option>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
           </select>
         </div>
 
         <!-- E-Book Grid -->
         <div id="ebooksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
 
-          {% set ebooks = [
-            {"title":"Think Python","author":"Allen B. Downey","category":"Programming","pages":"292","size":"3.2 MB","url":"https://greenteapress.com/thinkpython2/thinkpython2.pdf","from":"#0f2044","to":"#1a3a6e","desc":"An introduction to Python programming for beginners."},
-            {"title":"The Elements of Statistical Learning","author":"Hastie, Tibshirani & Friedman","category":"AI/ML","pages":"745","size":"12.4 MB","url":"https://web.stanford.edu/~hastie/ElemStatLearn/printings/ESLII_print12_toc.pdf","from":"#4c1d95","to":"#7c3aed","desc":"A classic text for statistical learning and machine learning."},
-            {"title":"Pro Git","author":"Scott Chacon & Ben Straub","category":"Software Engineering","pages":"574","size":"6.1 MB","url":"https://git-scm.com/book/en/v2","from":"#7c2d12","to":"#c2410c","desc":"Everything you need to know about Git version control."},
-            {"title":"Automate the Boring Stuff with Python","author":"Al Sweigart","category":"Programming","pages":"505","size":"7.8 MB","url":"https://automatetheboringstuff.com/","from":"#064e3b","to":"#059669","desc":"Use Python to automate everyday tasks."},
-            {"title":"Computer Networks: A Systems Approach","author":"Larry Peterson & Bruce Davie","category":"Computer Science","pages":"920","size":"14.2 MB","url":"https://book.systemsapproach.org/","from":"#0c4a6e","to":"#0284c7","desc":"A systems approach to networking concepts."},
-            {"title":"Database Design for Mere Mortals","author":"Michael J. Hernandez","category":"Database","pages":"672","size":"9.3 MB","url":"https://www.oreilly.com/library/view/database-design-for/9780133122282/","from":"#831843","to":"#db2777","desc":"A practical guide to relational database design."},
-            {"title":"The Art of Problem Solving","author":"Sandor Lehoczky","category":"Mathematics","pages":"288","size":"4.5 MB","url":"https://artofproblemsolving.com/store/","from":"#78350f","to":"#d97706","desc":"Problem-solving in algebra, geometry, and number theory."},
-            {"title":"Operating Systems: Three Easy Pieces","author":"Arpaci-Dusseau","category":"Computer Science","pages":"747","size":"11.7 MB","url":"https://pages.cs.wisc.edu/~remzi/OSTEP/","from":"#1e3a5f","to":"#2d6a9f","desc":"A free operating systems book covering virtualization, concurrency, and persistence."}
-          ] %}
-
-          {% for ebook in ebooks %}
-            <div
-              class="ebook-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col"
-              data-title="{{ ebook.title|lower }}"
-              data-author="{{ ebook.author|lower }}"
-              data-category="{{ ebook.category }}"
-              style="background:#ffffff;border:1px solid #e8e3da;"
-            >
+          {% if ebooks %}
+            {% for ebook in ebooks %}
               <div
-                class="relative h-40 flex flex-col items-center justify-center p-4"
-                class="relative h-40 flex flex-col items-center justify-center p-4 ebook-cover-{{ loop.index0 }};"
+                class="ebook-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col"
+                data-title="{{ ebook.title|lower }}"
+                data-author="{{ ebook.author|lower }}"
+                data-category="{{ ebook.category }}"
+                style="background:#ffffff;border:1px solid #e8e3da;"
               >
-                <div class="absolute left-0 top-0 bottom-0 w-3 bg-black/25"></div>
-                <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-white/10"></div>
+                <div
+                  class="relative h-40 flex flex-col items-center justify-center p-4 overflow-hidden"
+                  style="background:#0f2044;"
+                >
+                  {% if ebook.cover_image %}
+                    <img
+                      src="{{ url_for('static', filename='uploads/ebooks/covers/' ~ ebook.cover_image) }}"
+                      alt="{{ ebook.title }}"
+                      class="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div class="absolute inset-0 bg-black/50"></div>
+                  {% else %}
+                    <div class="absolute left-0 top-0 bottom-0 w-3 bg-black/25"></div>
+                    <div class="absolute left-3 top-0 bottom-0 w-0.5 bg-white/10"></div>
+                  {% endif %}
 
-                <i class="fa-solid fa-file-pdf text-5xl mb-2" style="color:rgba(201,168,76,0.95);"></i>
+                  <i class="fa-solid fa-file-pdf text-5xl mb-2 relative z-10" style="color:rgba(201,168,76,0.95);"></i>
 
-                <p class="text-xs text-center leading-tight line-clamp-2 px-2" style="color:rgba(255,255,255,0.88);">
-                  {{ ebook.title }}
-                </p>
+                  <p class="text-xs text-center leading-tight line-clamp-2 px-2 relative z-10" style="color:rgba(255,255,255,0.88);">
+                    {{ ebook.title }}
+                  </p>
 
-                <div class="absolute top-3 right-3 px-1.5 py-0.5 rounded text-xs font-bold" style="background:#c9a84c;color:#0f2044;">
-                  PDF
+                  <div class="absolute top-3 right-3 px-1.5 py-0.5 rounded text-xs font-bold z-10" style="background:#c9a84c;color:#0f2044;">
+                    PDF
+                  </div>
+                </div>
+
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="font-semibold text-sm leading-tight mb-1 line-clamp-2" style="color:#0f2044;">
+                    {{ ebook.title }}
+                  </h3>
+
+                  <p class="text-xs mb-1" style="color:#6b6560;">
+                    {{ ebook.author }}
+                  </p>
+
+                  <span class="inline-block self-start px-2 py-0.5 rounded-full text-xs mb-2" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">
+                    {{ ebook.category }}
+                  </span>
+
+                  <p class="text-xs leading-relaxed mb-3 line-clamp-2" style="color:#6b6560;">
+                    {{ ebook.description if ebook.description else "No description available." }}
+                  </p>
+
+                  <div class="flex items-center gap-2 text-xs mb-3" style="color:#6b6560;">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>{{ ebook.pages if ebook.pages else 0 }} pages</span>
+                    <span>·</span>
+                    <i class="fa-solid fa-download"></i>
+                    <span>{{ ebook.file_size if ebook.file_size else "PDF" }}</span>
+                  </div>
+
+                  <div class="mt-auto flex gap-2">
+                    <a
+                      href="{{ url_for('static', filename='uploads/ebooks/' ~ ebook.pdf_file) }}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition hover:opacity-90"
+                      style="background:#0f2044;color:#c9a84c;"
+                    >
+                      <i class="fa-solid fa-eye"></i>
+                      Read
+                    </a>
+
+                    <a
+                      href="{{ url_for('static', filename='uploads/ebooks/' ~ ebook.pdf_file) }}"
+                      download
+                      class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition"
+                      style="background:#f0ebe2;color:#0f2044;border:1.5px solid #e8e3da;"
+                    >
+                      <i class="fa-solid fa-download"></i>
+                    </a>
+                  </div>
                 </div>
               </div>
-
-              <div class="p-4 flex flex-col flex-1">
-                <h3 class="font-semibold text-sm leading-tight mb-1 line-clamp-2" style="color:#0f2044;">
-                  {{ ebook.title }}
-                </h3>
-
-                <p class="text-xs mb-1" style="color:#6b6560;">
-                  {{ ebook.author }}
-                </p>
-
-                <span class="inline-block self-start px-2 py-0.5 rounded-full text-xs mb-2" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">
-                  {{ ebook.category }}
-                </span>
-
-                <p class="text-xs leading-relaxed mb-3 line-clamp-2" style="color:#6b6560;">
-                  {{ ebook.desc }}
-                </p>
-
-                <div class="flex items-center gap-2 text-xs mb-3" style="color:#6b6560;">
-                  <i class="fa-solid fa-book-open"></i>
-                  <span>{{ ebook.pages }} pages</span>
-                  <span>·</span>
-                  <i class="fa-solid fa-download"></i>
-                  <span>{{ ebook.size }}</span>
-                </div>
-
-                <div class="mt-auto flex gap-2">
-                  <a
-                    href="{{ ebook.url }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition hover:opacity-90"
-                    style="background:#0f2044;color:#c9a84c;"
-                  >
-                    <i class="fa-solid fa-eye"></i>
-                    Read
-                  </a>
-
-                  <a
-                    href="{{ ebook.url }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition"
-                    style="background:#f0ebe2;color:#0f2044;border:1.5px solid #e8e3da;"
-                  >
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                  </a>
-                </div>
-              </div>
+            {% endfor %}
+          {% else %}
+            <div class="col-span-full bg-white border rounded-xl p-10 text-center text-gray-500">
+              <i class="fa-solid fa-file-pdf text-4xl mb-3" style="color:#c9a84c;"></i>
+              <p class="font-semibold" style="color:#0f2044;">No e-books uploaded yet</p>
+              <p class="text-sm mt-1" style="color:#6b6560;">Admin can upload PDF e-books from the dashboard.</p>
             </div>
-          {% endfor %}
+          {% endif %}
         </div>
 
         <div id="noEbooksMessage" class="hidden text-center py-16">
@@ -518,7 +528,6 @@
 
       </div>
     </section>
-
 
     <!-- STUDENT DASHBOARD PAGE -->
     <section id="page-dashboard" class="page-section hidden">
@@ -765,8 +774,6 @@
       </div>
     </section>
 
-    
-
     <!-- CHANGE PASSWORD PAGE -->
     <section id="page-password" class="page-section hidden">
 
@@ -853,7 +860,8 @@
               <div class="flex gap-3">
                 <button
                   type="submit"
-                  class="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+                  class="px-6 py-3 rounded-lg font-medium transition hover:opacity-90"
+                  style="background:#0f2044;color:#c9a84c;"
                 >
                   Update Password
                 </button>
@@ -869,12 +877,12 @@
 
             </form>
 
-            <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-              <h4 class="text-sm font-medium text-blue-900 mb-2">
+            <div class="mt-6 p-4 rounded-lg" style="background:#f7f4ef;">
+              <h4 class="text-sm font-medium mb-2" style="color:#0f2044;">
                 Password Requirements:
               </h4>
 
-              <ul class="text-xs text-blue-700 space-y-1 list-disc list-inside">
+              <ul class="text-xs space-y-1 list-disc list-inside" style="color:#6b6560;">
                 <li>Minimum 6 characters</li>
                 <li>Must be different from current password</li>
               </ul>
@@ -1188,8 +1196,6 @@
         }
       }
     }
-
-
 
     function filterEbooks() {
       const searchInput = document.getElementById("ebookSearch");
