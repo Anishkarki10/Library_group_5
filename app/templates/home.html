@@ -555,7 +555,12 @@
         </div>
 
         <div class="bg-white rounded-xl border shadow-sm p-6" style="border-color:#e8e3da;">
-          <h3 class="text-xl font-bold mb-4" style="color:#0f2044;">Current Reservations</h3>
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-xl font-bold" style="color:#0f2044;">Current Reservations</h3>
+              <p class="text-sm mt-1" style="color:#6b6560;">You can request cancellation anytime. After admin marks a book as picked up, you can request a 15-day extension.</p>
+            </div>
+          </div>
 
           {% if reservations %}
             <div class="space-y-3">
@@ -566,15 +571,88 @@
                 {% set item_status = item.status if item.status is defined else item.get("status", "") %}
                 {% set item_due_date = item.due_date if item.due_date is defined else item.get("due_date", "") %}
 
-                <div class="flex items-center justify-between p-4 rounded-xl" style="background:#f7f4ef;border:1px solid #e8e3da;">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-4 rounded-xl" style="background:#f7f4ef;border:1px solid #e8e3da;">
                   <div>
                     <p class="font-semibold" style="color:#0f2044;">{{ item_title }}</p>
                     <p class="text-xs" style="color:#6b6560;">{{ item_author }}</p>
+
+                    {% if item_status == "reserved" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold" style="background:rgba(201,168,76,0.14);color:#8a6a1a;">
+                        Reserved - Waiting for pickup
+                      </span>
+                    {% elif item_status == "borrowed" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                        Borrowed
+                      </span>
+                    {% elif item_status == "renew_requested" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700">
+                        Renew request pending
+                      </span>
+                    {% elif item_status == "cancel_requested" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700">
+                        Cancel request pending
+                      </span>
+                    {% else %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold" style="background:#e8e3da;color:#6b6560;">
+                        {{ item_status }}
+                      </span>
+                    {% endif %}
                   </div>
 
-                  <div class="text-right">
-                    <p class="text-sm font-semibold" style="color:#0f2044;">{{ item_due_date }}</p>
-                    <p class="text-xs" style="color:#6b6560;">{{ item_status }}</p>
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div class="text-left sm:text-right min-w-[120px]">
+                      <p class="text-xs" style="color:#6b6560;">Due Date</p>
+                      <p class="text-sm font-semibold" style="color:#0f2044;">{{ item_due_date if item_due_date else "Not picked up yet" }}</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 justify-start sm:justify-end">
+                      {% if item_status == "borrowed" %}
+                        <form
+                          action="{{ url_for('auth.request_renew_book', reservation_id=reservation_id) }}"
+                          method="POST"
+                          class="inline-block"
+                          onsubmit="return confirm('Request 15 more days for this book?');"
+                        >
+                          <button
+                            type="submit"
+                            class="px-3 py-2 rounded-lg text-xs font-semibold transition hover:opacity-90"
+                            style="background:#0f2044;color:#c9a84c;"
+                          >
+                            <i class="fa-solid fa-clock mr-1"></i>
+                            Request 15 Days
+                          </button>
+                        </form>
+                      {% elif item_status == "renew_requested" %}
+                        <span class="px-3 py-2 rounded-lg text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">
+                          Waiting Admin Approval
+                        </span>
+                      {% elif item_status == "reserved" %}
+                        <span class="px-3 py-2 rounded-lg text-xs font-semibold" style="background:#f0ebe2;color:#0f2044;border:1px solid #e8e3da;">
+                          Pick up first to renew
+                        </span>
+                      {% endif %}
+
+                      {% if item_status in ["reserved", "borrowed"] %}
+                        <form
+                          action="{{ url_for('auth.request_cancel_reservation', reservation_id=reservation_id) }}"
+                          method="POST"
+                          class="inline-block"
+                          onsubmit="return confirm('Send cancel request to admin?');"
+                        >
+                          <button
+                            type="submit"
+                            class="px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-600 border border-red-200 transition hover:bg-red-100"
+                          >
+                            <i class="fa-solid fa-xmark mr-1"></i>
+                            Request Cancel
+                          </button>
+                        </form>
+                      {% elif item_status == "cancel_requested" %}
+                        <span class="px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                          Waiting Cancel Approval
+                        </span>
+                      {% endif %}
+                    </div>
                   </div>
                 </div>
               {% endfor %}
@@ -625,56 +703,356 @@
 
     <!-- ABOUT PAGE -->
     <section id="page-about" class="page-section hidden">
+
+      <!-- HERO SECTION -->
       <div class="relative h-80 overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1770910328301-f8ef39aee441?auto=format&fit=crop&w=1600&q=80" alt="Library interior" class="w-full h-full object-cover object-center" />
-        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.35), transparent);">
-          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">Our Story</p>
-          <h2 class="text-5xl font-bold text-white mb-3">About Our Library</h2>
-          <p class="text-lg max-w-2xl" style="color:rgba(255,255,255,0.82);">Empowering students with physical and digital resources.</p>
+        <img
+          src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1600&q=80"
+          alt="Library interior"
+          class="w-full h-full object-cover object-center"
+        />
+
+        <div
+          class="absolute inset-0 flex flex-col justify-end px-10 pb-10"
+          style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.45), transparent);"
+        >
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">
+            About Library Management
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-3">
+            Your Gateway to Knowledge
+          </h2>
+
+          <p class="text-lg max-w-2xl" style="color:rgba(255,255,255,0.82);">
+            A modern library system built to help students discover books, reserve resources, read e-books, and manage their learning journey easily.
+          </p>
         </div>
       </div>
 
-      <div class="p-8 max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <div class="p-8 max-w-7xl mx-auto">
+
+        <!-- INTRO SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center mb-14">
+
           <div>
-            <span class="text-sm font-semibold uppercase tracking-widest" style="color:#c9a84c;">Our Mission</span>
-            <h3 class="text-3xl font-bold mt-2 mb-4" style="color:#0f2044;">Knowledge for Everyone, Always</h3>
-            <p class="leading-relaxed mb-4" style="color:#6b6560;">
-              Our library provides students with access to physical books, digital e-books, reservations, and reading history in one simple portal.
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Who We Are
             </p>
-            <p class="leading-relaxed" style="color:#6b6560;">
-              This system helps students find resources quickly and helps admins manage the library more efficiently.
+
+            <h3 class="text-4xl font-bold mb-5" style="color:#0f2044;">
+              A Smarter Way to Manage Library Resources
+            </h3>
+
+            <p class="leading-relaxed mb-4" style="color:#6b6560;">
+              Library Management is designed to make library access simple for students and easy for administrators. Students can search physical books, check availability, reserve books, view reading history, and access uploaded PDF e-books from one clean portal.
+            </p>
+
+            <p class="leading-relaxed mb-6" style="color:#6b6560;">
+              Our goal is to combine the value of traditional libraries with the convenience of modern digital learning.
+            </p>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl" style="background:#ffffff;border:1px solid #e8e3da;">
+                <p class="text-2xl font-bold" style="color:#0f2044;">
+                  {{ books|length if books else 0 }}+
+                </p>
+                <p class="text-sm" style="color:#6b6560;">Physical Books</p>
+              </div>
+
+              <div class="p-4 rounded-xl" style="background:#ffffff;border:1px solid #e8e3da;">
+                <p class="text-2xl font-bold" style="color:#0f2044;">
+                  {{ ebooks|length if ebooks else 0 }}+
+                </p>
+                <p class="text-sm" style="color:#6b6560;">E-Books</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="rounded-3xl overflow-hidden shadow-xl">
+              <img
+                src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80"
+                alt="Students reading"
+                class="w-full h-[420px] object-cover"
+              />
+            </div>
+
+            <div
+              class="absolute -bottom-6 -left-6 bg-white rounded-2xl p-5 shadow-xl border hidden md:block"
+              style="border-color:#e8e3da;"
+            >
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:#0f2044;">
+                  <i class="fa-solid fa-book-open text-xl" style="color:#c9a84c;"></i>
+                </div>
+
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Digital + Physical</p>
+                  <p class="text-sm" style="color:#6b6560;">One complete learning system</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- FEATURES SECTION -->
+        <div class="mb-14">
+          <div class="text-center mb-8">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              What Students Can Do
+            </p>
+
+            <h3 class="text-3xl font-bold" style="color:#0f2044;">
+              Built for Better Learning
+            </h3>
+
+            <p class="mt-2 max-w-2xl mx-auto" style="color:#6b6560;">
+              Everything is organized so students can find resources faster and admins can manage the library more easily.
             </p>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-white rounded-xl border p-5 text-center" style="border-color:#e8e3da;">
-              <i class="fa-solid fa-book-open text-3xl mb-3" style="color:#c9a84c;"></i>
-              <p class="text-2xl font-bold" style="color:#0f2044;">{{ books|length if books else 0 }}</p>
-              <p class="text-sm" style="color:#6b6560;">Physical Books</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div class="bg-white rounded-2xl border shadow-sm p-6 hover:shadow-lg transition" style="border-color:#e8e3da;">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style="background:#0f2044;">
+                <i class="fa-solid fa-magnifying-glass text-xl" style="color:#c9a84c;"></i>
+              </div>
+
+              <h4 class="text-lg font-bold mb-2" style="color:#0f2044;">
+                Search Books
+              </h4>
+
+              <p class="text-sm leading-relaxed" style="color:#6b6560;">
+                Students can search books by title, author, genre, and availability before visiting the library.
+              </p>
             </div>
 
-            <div class="bg-white rounded-xl border p-5 text-center" style="border-color:#e8e3da;">
-              <i class="fa-solid fa-file-pdf text-3xl mb-3" style="color:#c9a84c;"></i>
-              <p class="text-2xl font-bold" style="color:#0f2044;">{{ ebooks|length if ebooks else 0 }}</p>
-              <p class="text-sm" style="color:#6b6560;">E-Books</p>
+            <div class="bg-white rounded-2xl border shadow-sm p-6 hover:shadow-lg transition" style="border-color:#e8e3da;">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style="background:#0f2044;">
+                <i class="fa-solid fa-bookmark text-xl" style="color:#c9a84c;"></i>
+              </div>
+
+              <h4 class="text-lg font-bold mb-2" style="color:#0f2044;">
+                Reserve Books
+              </h4>
+
+              <p class="text-sm leading-relaxed" style="color:#6b6560;">
+                Students can reserve available books and track their active reservations from their dashboard.
+              </p>
             </div>
 
-            <div class="bg-white rounded-xl border p-5 text-center" style="border-color:#e8e3da;">
-              <i class="fa-solid fa-users text-3xl mb-3" style="color:#c9a84c;"></i>
-              <p class="text-2xl font-bold" style="color:#0f2044;">Students</p>
-              <p class="text-sm" style="color:#6b6560;">Community</p>
+            <div class="bg-white rounded-2xl border shadow-sm p-6 hover:shadow-lg transition" style="border-color:#e8e3da;">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style="background:#0f2044;">
+                <i class="fa-solid fa-file-pdf text-xl" style="color:#c9a84c;"></i>
+              </div>
+
+              <h4 class="text-lg font-bold mb-2" style="color:#0f2044;">
+                Read E-Books
+              </h4>
+
+              <p class="text-sm leading-relaxed" style="color:#6b6560;">
+                Students can read and download uploaded PDF e-books anytime from the digital library section.
+              </p>
             </div>
 
-            <div class="bg-white rounded-xl border p-5 text-center" style="border-color:#e8e3da;">
-              <i class="fa-solid fa-clock text-3xl mb-3" style="color:#c9a84c;"></i>
-              <p class="text-2xl font-bold" style="color:#0f2044;">24/7</p>
-              <p class="text-sm" style="color:#6b6560;">Digital Access</p>
-            </div>
           </div>
         </div>
+
+        <!-- WHY THIS SYSTEM SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+
+          <div class="bg-white rounded-3xl border shadow-sm p-8" style="border-color:#e8e3da;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Why It Matters
+            </p>
+
+            <h3 class="text-3xl font-bold mb-5" style="color:#0f2044;">
+              Simple for Students, Powerful for Admins
+            </h3>
+
+            <div class="space-y-5">
+
+              <div class="flex gap-4">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:rgba(201,168,76,0.14);">
+                  <i class="fa-solid fa-check" style="color:#0f2044;"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-bold" style="color:#0f2044;">Easy Access</h4>
+                  <p class="text-sm" style="color:#6b6560;">
+                    Students do not need to manually ask for every book. They can check availability instantly.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:rgba(201,168,76,0.14);">
+                  <i class="fa-solid fa-clock" style="color:#0f2044;"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-bold" style="color:#0f2044;">Time Saving</h4>
+                  <p class="text-sm" style="color:#6b6560;">
+                    Admins can manage books, reservations, e-books, users, returns, and renew requests faster.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:rgba(201,168,76,0.14);">
+                  <i class="fa-solid fa-chart-line" style="color:#0f2044;"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-bold" style="color:#0f2044;">Better Tracking</h4>
+                  <p class="text-sm" style="color:#6b6560;">
+                    The system keeps records of reservations, returns, cancellations, reading history, and digital resources.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="rounded-3xl border shadow-sm p-8" style="background:#0f2044;border-color:#0f2044;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Library Services
+            </p>
+
+            <h3 class="text-3xl font-bold text-white mb-6">
+              Available Services
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-book text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">Book Reservation</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  Reserve available books online.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-rotate text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">Renew Request</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  Request extra time for borrowed books.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-clock-rotate-left text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">Reading History</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  See returned and previously read books.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-file-pdf text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">E-Book Access</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  Read and download digital materials.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CONTACT AND HOURS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <div class="lg:col-span-2 bg-white rounded-3xl border shadow-sm p-8" style="border-color:#e8e3da;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Contact Information
+            </p>
+
+            <h3 class="text-3xl font-bold mb-6" style="color:#0f2044;">
+              Get in Touch
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-location-dot" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Address</p>
+                  <p class="text-sm" style="color:#6b6560;">Main Campus Library Building</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-phone" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Phone</p>
+                  <p class="text-sm" style="color:#6b6560;">+977-01-5555555</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-envelope" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Email</p>
+                  <p class="text-sm" style="color:#6b6560;">library@college.edu.np</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-globe" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Website</p>
+                  <p class="text-sm" style="color:#6b6560;">www.librarymanagement.edu.np</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="rounded-3xl border shadow-sm p-8" style="background:#ffffff;border-color:#e8e3da;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Opening Hours
+            </p>
+
+            <h3 class="text-2xl font-bold mb-5" style="color:#0f2044;">
+              Library Time
+            </h3>
+
+            <div class="space-y-4">
+              <div class="flex justify-between border-b pb-3" style="border-color:#e8e3da;">
+                <span class="text-sm" style="color:#6b6560;">Sunday - Friday</span>
+                <span class="text-sm font-bold" style="color:#0f2044;">7 AM - 6 PM</span>
+              </div>
+
+              <div class="flex justify-between border-b pb-3" style="border-color:#e8e3da;">
+                <span class="text-sm" style="color:#6b6560;">Saturday</span>
+                <span class="text-sm font-bold text-red-600">Closed</span>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(201,168,76,0.12);">
+                <p class="text-sm font-bold" style="color:#0f2044;">Digital Library</p>
+                <p class="text-sm" style="color:#6b6560;">E-books available 24/7</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
+
 
   </main>
 

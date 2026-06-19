@@ -627,8 +627,8 @@ class AuthController(BaseController):
             flash("You cannot cancel this reservation.", "danger")
             return redirect(url_for("auth.home") + "#dashboard")
 
-        if reservation["status"] != "reserved":
-            flash("Only active reservations can request cancellation.", "warning")
+        if reservation["status"] not in ["reserved", "borrowed"]:
+            flash("Only active reserved or borrowed books can request cancellation.", "warning")
             return redirect(url_for("auth.home") + "#dashboard")
 
         self.reservation_model.request_cancel(reservation_id, user_id)
@@ -671,6 +671,25 @@ class AuthController(BaseController):
         self.reservation_model.reject_cancel(reservation_id)
 
         flash("Cancel request rejected. Reservation is still active.", "success")
+        return redirect(url_for("auth.dashboard") + "#circulation")
+
+    # ── Admin Direct Cancel Reservation ──────────────────────
+
+    def admin_cancel_reservation(self, reservation_id):
+        reservation = self.reservation_model.find_by_id(reservation_id)
+
+        if not reservation:
+            flash("Reservation not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        if reservation["status"] in ["cancelled", "returned"]:
+            flash("This reservation is already closed.", "warning")
+            return redirect(url_for("auth.dashboard") + "#circulation")
+
+        self.reservation_model.cancel_reservation(reservation_id)
+        self.book_model.increase_available(reservation["book_id"])
+
+        flash("Reservation cancelled successfully by admin.", "success")
         return redirect(url_for("auth.dashboard") + "#circulation")
 
     # ── Admin Return Book ────────────────────────────────────
@@ -759,11 +778,19 @@ class AuthController(BaseController):
             flash("This book does not have a renew request.", "warning")
             return redirect(url_for("auth.dashboard") + "#circulation")
 
-        new_due_date = datetime.now() + timedelta(days=15)
+        current_due_date = reservation.get("due_date")
+
+        if current_due_date:
+            if isinstance(current_due_date, str):
+                current_due_date = datetime.strptime(current_due_date, "%Y-%m-%d").date()
+
+            new_due_date = current_due_date + timedelta(days=15)
+        else:
+            new_due_date = datetime.now().date() + timedelta(days=15)
 
         self.reservation_model.approve_renew(
             reservation_id,
-            new_due_date.date()
+            new_due_date
         )
 
         flash("Renew request approved. Due date extended by 15 days.", "success")

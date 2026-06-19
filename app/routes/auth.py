@@ -89,11 +89,6 @@ class AuthRoutes:
             login_required(self.controller.reserve_book)
         )
 
-        # ── Admin Return Book ────────────────────────────────
-        self.bp.route("/return-book/<int:reservation_id>", methods=["POST"])(
-            admin_required(self.controller.return_book)
-        )
-
         # ── Student Request Cancel Reservation ───────────────
         self.bp.route("/request-cancel-reservation/<int:reservation_id>", methods=["POST"])(
             login_required(self.controller.request_cancel_reservation)
@@ -109,17 +104,27 @@ class AuthRoutes:
             admin_required(self.controller.reject_cancel_reservation)
         )
 
+        # ── Admin Direct Cancel Reservation ──────────────────
+        self.bp.route("/admin-cancel-reservation/<int:reservation_id>", methods=["POST"])(
+            admin_required(self.controller.admin_cancel_reservation)
+        )
+
+        # ── Admin Return Book ────────────────────────────────
+        self.bp.route("/return-book/<int:reservation_id>", methods=["POST"])(
+            admin_required(self.controller.return_book)
+        )
+
         # ── Admin Mark Book Picked Up ────────────────────────
         self.bp.route("/mark-picked-up/<int:reservation_id>", methods=["POST"])(
             admin_required(self.controller.mark_book_picked_up)
         )
 
-        # ── Student Request Renew Book ───────────────────────
+        # ── Student Request Renew Book / Extend Time ─────────
         self.bp.route("/request-renew-book/<int:reservation_id>", methods=["POST"])(
             login_required(self.controller.request_renew_book)
         )
 
-        # ── Admin Approve Renew Book ─────────────────────────
+        # ── Admin Approve Renew Book / Add 15 Days ───────────
         self.bp.route("/approve-renew-book/<int:reservation_id>", methods=["POST"])(
             admin_required(self.controller.approve_renew_book)
         )

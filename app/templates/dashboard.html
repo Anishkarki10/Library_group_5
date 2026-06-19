@@ -690,7 +690,7 @@
         <div class="bg-white rounded-xl border shadow-sm overflow-hidden" style="border-color:#e8e3da;">
           <div class="px-6 py-5 border-b" style="border-color:#e8e3da;">
             <h3 class="text-xl font-bold" style="color:#0f2044;">Circulation</h3>
-            <p class="text-sm" style="color:#6b6560;">Reservations, borrowed books, renew requests, and cancel requests.</p>
+            <p class="text-sm" style="color:#6b6560;">Reservations, borrowed books, renew requests, and cancel requests. Renew approval adds 15 days to the current due date.</p>
           </div>
 
           <div class="overflow-x-auto">
@@ -709,11 +709,11 @@
                 {% if reservations %}
                   {% for item in reservations %}
                     {% set reservation_id = item.id if item.id is defined else item["id"] %}
-                    {% set item_title = item.title if item.title is defined else item.get("title", "Book") %}
-                    {% set item_author = item.author if item.author is defined else item.get("author", "") %}
+                    {% set item_title = item.book_title if item.book_title is defined else item.get("book_title", item.get("title", "Book")) %}
+                    {% set item_author = item.book_author if item.book_author is defined else item.get("book_author", item.get("author", "")) %}
                     {% set item_status = item.status if item.status is defined else item.get("status", "") %}
                     {% set item_due_date = item.due_date if item.due_date is defined else item.get("due_date", "") %}
-                    {% set item_user = item.name if item.name is defined else item.get("name", item.get("student", "Student")) %}
+                    {% set item_user = item.student_name if item.student_name is defined else item.get("student_name", item.get("name", item.get("student", "Student"))) %}
 
                     <tr class="hover:bg-gray-50">
                       <td class="px-6 py-4 font-semibold" style="color:#0f2044;">{{ item_user }}</td>
@@ -738,15 +738,27 @@
                       <td class="px-6 py-4">
                         <div class="flex flex-wrap gap-2">
                           {% if item_status == "reserved" %}
-                            <button type="button" data-action="{{ url_for('auth.mark_book_picked_up', reservation_id=reservation_id) }}" data-title="Mark Picked Up?" data-message="This will change the reservation to borrowed." data-theme="green" data-button="Yes, Picked Up" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Picked Up</button>
+                            <button type="button" data-action="{{ url_for('auth.mark_book_picked_up', reservation_id=reservation_id) }}" data-title="Mark Picked Up?" data-message="This will change the reservation to borrowed and set a 15-day due date." data-theme="green" data-button="Yes, Picked Up" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Picked Up</button>
+
+                            <button type="button" data-action="{{ url_for('auth.admin_cancel_reservation', reservation_id=reservation_id) }}" data-title="Cancel Reservation?" data-message="This will cancel the reservation immediately and increase available book count." data-theme="red" data-button="Cancel Reservation" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Cancel</button>
+
                           {% elif item_status == "borrowed" %}
                             <button type="button" data-action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}" data-title="Mark Returned?" data-message="This will return the book and increase available count." data-theme="green" data-button="Yes, Return" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Return</button>
+
+                            <button type="button" data-action="{{ url_for('auth.admin_cancel_reservation', reservation_id=reservation_id) }}" data-title="Cancel Borrowing?" data-message="This will cancel this borrowing immediately and increase available book count." data-theme="red" data-button="Cancel Borrowing" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Cancel</button>
+
                           {% elif item_status == "renew_requested" %}
-                            <button type="button" data-action="{{ url_for('auth.approve_renew_book', reservation_id=reservation_id) }}" data-title="Approve Renew?" data-message="This will extend the borrowing period." data-theme="green" data-button="Approve Renew" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Approve</button>
+                            <button type="button" data-action="{{ url_for('auth.approve_renew_book', reservation_id=reservation_id) }}" data-title="Approve 15-Day Extension?" data-message="This will add 15 days to the current due date." data-theme="green" data-button="Approve 15 Days" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Approve 15 Days</button>
+
                             <button type="button" data-action="{{ url_for('auth.reject_renew_book', reservation_id=reservation_id) }}" data-title="Reject Renew?" data-message="This will reject the renew request." data-theme="red" data-button="Reject Renew" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Reject</button>
+
+                            <button type="button" data-action="{{ url_for('auth.admin_cancel_reservation', reservation_id=reservation_id) }}" data-title="Cancel Reservation?" data-message="This will cancel the reservation immediately and increase available book count." data-theme="red" data-button="Cancel Reservation" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Cancel</button>
+
                           {% elif item_status == "cancel_requested" %}
                             <button type="button" data-action="{{ url_for('auth.approve_cancel_reservation', reservation_id=reservation_id) }}" data-title="Approve Cancel?" data-message="This will cancel the reservation and increase available count." data-theme="green" data-button="Approve Cancel" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Approve</button>
+
                             <button type="button" data-action="{{ url_for('auth.reject_cancel_reservation', reservation_id=reservation_id) }}" data-title="Reject Cancel?" data-message="This will reject the cancel request." data-theme="red" data-button="Reject Cancel" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Reject</button>
+
                           {% else %}
                             <span class="text-xs text-gray-500">No action</span>
                           {% endif %}
