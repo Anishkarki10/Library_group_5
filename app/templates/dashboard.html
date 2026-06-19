@@ -4,105 +4,79 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Admin Dashboard - Library Resource Management</title>
+  <title>Admin Dashboard - Library Management</title>
 
-  <link
-    rel="icon"
-    type="image/png"
-    href="{{ url_for('static', filename='images/fav.ico') }}"
-  />
-
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/fav.ico') }}" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
+  <style>
+    body {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f7f4ef;
+    }
+  </style>
 </head>
 
-<body class="min-h-screen bg-gray-50">
+<body class="min-h-screen" style="background:#f7f4ef;">
 
-  <!-- Top Navbar -->
-  <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+  <!-- TOP NAVBAR -->
+  <header class="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-50" style="background:#0f2044;border-color:rgba(255,255,255,0.12);">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-        <i class="fa-solid fa-user-shield text-indigo-600 text-xl"></i>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+        <i class="fa-solid fa-book-open text-xl" style="color:#c9a84c;"></i>
       </div>
 
-      <h1 class="text-2xl font-bold text-gray-900">
-        Library Resource Management
-      </h1>
+      <div>
+        <h1 class="text-2xl font-bold text-white">Library Management</h1>
+        <p class="text-xs" style="color:rgba(247,244,239,0.65);">Admin Dashboard</p>
+      </div>
     </div>
 
     <div class="flex items-center gap-4">
-      <div class="hidden sm:flex items-center gap-2 text-gray-700">
-        <i class="fa-solid fa-user text-gray-500"></i>
-        <span class="text-sm font-medium">
-          {{ session.get("user_name", "Admin") }}
-        </span>
+      <div class="hidden sm:flex items-center gap-2 text-white/80">
+        <i class="fa-solid fa-user-shield" style="color:#c9a84c;"></i>
+        <span class="text-sm font-medium">{{ session.get("user_name", "Admin") }}</span>
       </div>
 
-      <a
-        href="{{ url_for('auth.logout') }}"
-        class="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition"
-      >
+      <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition hover:opacity-90" style="color:#f7f4ef;background:rgba(255,255,255,0.08);">
         <i class="fa-solid fa-right-from-bracket"></i>
         Logout
       </a>
     </div>
   </header>
 
-  <!-- Admin Top Tabs -->
+  <!-- TABS -->
   <nav class="bg-white border-b border-gray-200 px-8 sticky top-[73px] z-40">
     <div class="flex gap-1 overflow-x-auto">
-
-      <button
-        type="button"
-        onclick="showPage('dashboard')"
-        id="nav-dashboard"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-indigo-600 text-indigo-600 whitespace-nowrap"
-      >
-        <i class="fa-solid fa-gauge-high"></i>
-        Dashboard
+      <button type="button" onclick="showPage('overview')" id="nav-overview" class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:#c9a84c;color:#0f2044;">
+        <i class="fa-solid fa-chart-line"></i>
+        Overview
       </button>
 
-      <button
-        type="button"
-        onclick="showPage('users')"
-        id="nav-users"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
-      >
+      <button type="button" onclick="showPage('users')" id="nav-users" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
         <i class="fa-solid fa-users"></i>
         Users
       </button>
 
-      <button
-        type="button"
-        onclick="showPage('books')"
-        id="nav-books"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
-      >
-        <i class="fa-solid fa-book-open"></i>
+      <button type="button" onclick="showPage('books')" id="nav-books" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
+        <i class="fa-solid fa-book"></i>
         Books
       </button>
 
-      <button
-        type="button"
-        onclick="showPage('circulation')"
-        id="nav-circulation"
-        class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap"
-      >
-        <i class="fa-solid fa-clock-rotate-left"></i>
-        Circulation
+      <button type="button" onclick="showPage('ebooks')" id="nav-ebooks" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
+        <i class="fa-solid fa-file-pdf"></i>
+        E-Books
       </button>
 
+      <button type="button" onclick="showPage('circulation')" id="nav-circulation" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
+        <i class="fa-solid fa-rotate"></i>
+        Circulation
+      </button>
     </div>
   </nav>
 
-  <!-- Flash Messages -->
+  <!-- FLASH MESSAGES -->
   <div class="px-6 pt-6">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -130,313 +104,357 @@
 
   <main class="min-h-screen">
 
-    <!-- DASHBOARD PAGE -->
-    <section id="page-dashboard" class="page-section">
-
-      <!-- Hero Banner -->
+    <!-- OVERVIEW PAGE -->
+    <section id="page-overview" class="page-section">
       <div class="relative h-72 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1600&q=80"
-          alt="Library admin dashboard"
-          class="w-full h-full object-cover object-center"
-        />
-
-        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
-          <p class="text-indigo-300 text-sm uppercase tracking-widest mb-2">
-            Admin Dashboard
-          </p>
-
-          <h2 class="text-5xl font-bold text-white mb-2">
-            Welcome back, {{ session.get("user_name", "Admin") }}!
-          </h2>
-
-          <p class="text-gray-200 text-lg">
-            View library performance, circulation activity, and important records.
-          </p>
+        <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1600&q=80" alt="Library" class="w-full h-full object-cover object-center" />
+        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.35), transparent);">
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">Admin Control Panel</p>
+          <h2 class="text-5xl font-bold text-white mb-2">Dashboard Overview</h2>
+          <p class="text-lg" style="color:rgba(255,255,255,0.82);">Manage users, books, e-books, and circulation.</p>
         </div>
       </div>
 
       <div class="p-6">
-
-        <!-- Stats -->
-        <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
-
-          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
-              <i class="fa-solid fa-users text-green-600 text-xl"></i>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">
+          <div class="bg-white rounded-xl border shadow-sm p-5 flex items-center gap-4" style="border-color:#e8e3da;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+              <i class="fa-solid fa-users text-xl" style="color:#0f2044;"></i>
             </div>
-
             <div>
-              <p class="text-sm text-gray-500">Total Users</p>
-              <p class="text-2xl font-bold text-gray-900">
-                {{ users|length if users else 0 }}
-              </p>
+              <p class="text-sm" style="color:#6b6560;">Users</p>
+              <p class="text-2xl font-bold" style="color:#0f2044;">{{ users|length if users else 0 }}</p>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
-              <i class="fa-solid fa-book-open text-blue-600 text-xl"></i>
+          <div class="bg-white rounded-xl border shadow-sm p-5 flex items-center gap-4" style="border-color:#e8e3da;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+              <i class="fa-solid fa-book text-xl" style="color:#0f2044;"></i>
             </div>
-
             <div>
-              <p class="text-sm text-gray-500">Total Books</p>
-              <p class="text-2xl font-bold text-gray-900">
-                {{ books|length if books else 0 }}
-              </p>
+              <p class="text-sm" style="color:#6b6560;">Books</p>
+              <p class="text-2xl font-bold" style="color:#0f2044;">{{ books|length if books else 0 }}</p>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
-              <i class="fa-solid fa-clock text-orange-600 text-xl"></i>
+          <div class="bg-white rounded-xl border shadow-sm p-5 flex items-center gap-4" style="border-color:#e8e3da;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+              <i class="fa-solid fa-file-pdf text-xl" style="color:#0f2044;"></i>
             </div>
-
             <div>
-              <p class="text-sm text-gray-500">Circulation Records</p>
-              <p class="text-2xl font-bold text-orange-600">
-                {{ borrowings|length if borrowings else 0 }}
-              </p>
+              <p class="text-sm" style="color:#6b6560;">E-Books</p>
+              <p class="text-2xl font-bold" style="color:#0f2044;">{{ ebooks|length if ebooks else 0 }}</p>
             </div>
           </div>
 
-          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+          <div class="bg-white rounded-xl border shadow-sm p-5 flex items-center gap-4" style="border-color:#e8e3da;">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
               <i class="fa-solid fa-bell text-red-500 text-xl"></i>
             </div>
-
             <div>
-              <p class="text-sm text-gray-500">Overdue</p>
-              <p class="text-2xl font-bold text-red-600">
-                {{ overdue_count if overdue_count else 0 }}
-              </p>
+              <p class="text-sm" style="color:#6b6560;">Overdue</p>
+              <p class="text-2xl font-bold text-red-600">{{ overdue_count if overdue_count is defined else 0 }}</p>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- DASHBOARD CHARTS - JINJA VERSION WITHOUT CSS ERRORS -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+          {% set user_count = users|length if users else 0 %}
+          {% set book_count = books|length if books else 0 %}
+          {% set ebook_count = ebooks|length if ebooks else 0 %}
+          {% set overdue_total = overdue_count if overdue_count is defined else 0 %}
+
+          <!-- Library Summary Bar Chart -->
+          <div class="bg-white rounded-xl border shadow-sm p-6" style="border-color:#e8e3da;">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold" style="color:#0f2044;">Library Summary</h3>
+                <p class="text-sm" style="color:#6b6560;">Users, books, e-books, and overdue books.</p>
+              </div>
+
+              <div class="w-11 h-11 rounded-full flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+                <i class="fa-solid fa-chart-column" style="color:#0f2044;"></i>
+              </div>
+            </div>
+
+            <div class="space-y-5">
+
+              <!-- Users -->
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="font-medium" style="color:#0f2044;">Users</span>
+                  <span style="color:#6b6560;">{{ user_count }}</span>
+                </div>
+
+                <div class="w-full h-4 rounded-full overflow-hidden" style="background:#f0ece5;">
+                  <div
+                    class="h-full rounded-full
+                    {% if user_count == 0 %}w-0
+                    {% elif user_count == 1 %}w-[10%]
+                    {% elif user_count == 2 %}w-[20%]
+                    {% elif user_count == 3 %}w-[30%]
+                    {% elif user_count == 4 %}w-[40%]
+                    {% elif user_count == 5 %}w-[50%]
+                    {% elif user_count == 6 %}w-[60%]
+                    {% elif user_count == 7 %}w-[70%]
+                    {% elif user_count == 8 %}w-[80%]
+                    {% elif user_count == 9 %}w-[90%]
+                    {% else %}w-full{% endif %}"
+                    style="background:#0f2044;"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Books -->
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="font-medium" style="color:#0f2044;">Books</span>
+                  <span style="color:#6b6560;">{{ book_count }}</span>
+                </div>
+
+                <div class="w-full h-4 rounded-full overflow-hidden" style="background:#f0ece5;">
+                  <div
+                    class="h-full rounded-full
+                    {% if book_count == 0 %}w-0
+                    {% elif book_count == 1 %}w-[10%]
+                    {% elif book_count == 2 %}w-[20%]
+                    {% elif book_count == 3 %}w-[30%]
+                    {% elif book_count == 4 %}w-[40%]
+                    {% elif book_count == 5 %}w-[50%]
+                    {% elif book_count == 6 %}w-[60%]
+                    {% elif book_count == 7 %}w-[70%]
+                    {% elif book_count == 8 %}w-[80%]
+                    {% elif book_count == 9 %}w-[90%]
+                    {% else %}w-full{% endif %}"
+                    style="background:#c9a84c;"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- E-Books -->
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="font-medium" style="color:#0f2044;">E-Books</span>
+                  <span style="color:#6b6560;">{{ ebook_count }}</span>
+                </div>
+
+                <div class="w-full h-4 rounded-full overflow-hidden" style="background:#f0ece5;">
+                  <div
+                    class="h-full rounded-full
+                    {% if ebook_count == 0 %}w-0
+                    {% elif ebook_count == 1 %}w-[10%]
+                    {% elif ebook_count == 2 %}w-[20%]
+                    {% elif ebook_count == 3 %}w-[30%]
+                    {% elif ebook_count == 4 %}w-[40%]
+                    {% elif ebook_count == 5 %}w-[50%]
+                    {% elif ebook_count == 6 %}w-[60%]
+                    {% elif ebook_count == 7 %}w-[70%]
+                    {% elif ebook_count == 8 %}w-[80%]
+                    {% elif ebook_count == 9 %}w-[90%]
+                    {% else %}w-full{% endif %}"
+                    style="background:#8a6a1a;"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Overdue -->
+              <div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="font-medium" style="color:#0f2044;">Overdue</span>
+                  <span style="color:#6b6560;">{{ overdue_total }}</span>
+                </div>
+
+                <div class="w-full h-4 rounded-full overflow-hidden" style="background:#f0ece5;">
+                  <div
+                    class="h-full rounded-full bg-red-500
+                    {% if overdue_total == 0 %}w-0
+                    {% elif overdue_total == 1 %}w-[10%]
+                    {% elif overdue_total == 2 %}w-[20%]
+                    {% elif overdue_total == 3 %}w-[30%]
+                    {% elif overdue_total == 4 %}w-[40%]
+                    {% elif overdue_total == 5 %}w-[50%]
+                    {% elif overdue_total == 6 %}w-[60%]
+                    {% elif overdue_total == 7 %}w-[70%]
+                    {% elif overdue_total == 8 %}w-[80%]
+                    {% elif overdue_total == 9 %}w-[90%]
+                    {% else %}w-full{% endif %}"
+                  ></div>
+                </div>
+              </div>
+
             </div>
           </div>
 
-        </section>
+          <!-- Donut Style Chart -->
+          <div class="bg-white rounded-xl border shadow-sm p-6" style="border-color:#e8e3da;">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-xl font-bold" style="color:#0f2044;">Collection Overview</h3>
+                <p class="text-sm" style="color:#6b6560;">Physical and digital resources.</p>
+              </div>
 
-        <!-- Charts -->
-        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div class="w-11 h-11 rounded-full flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+                <i class="fa-solid fa-chart-pie" style="color:#0f2044;"></i>
+              </div>
+            </div>
 
-          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-1">
-              Most Popular Books
-            </h3>
-            <p class="text-sm text-gray-500 mb-4">
-              Based on current circulation records.
-            </p>
+            <div class="flex flex-col items-center justify-center">
 
-            <div class="h-[320px]">
-              <canvas id="popularBooksChart"></canvas>
+              <div
+                class="relative w-48 h-48 rounded-full flex items-center justify-center"
+                style="background:conic-gradient(#0f2044 0deg 180deg, #c9a84c 180deg 300deg, #ef4444 300deg 360deg);"
+              >
+                <div class="w-32 h-32 bg-white rounded-full flex flex-col items-center justify-center">
+                  <p class="text-3xl font-bold" style="color:#0f2044;">
+                    {{ book_count + ebook_count }}
+                  </p>
+                  <p class="text-xs" style="color:#6b6560;">Resources</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 gap-3 mt-6 w-full">
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full" style="background:#0f2044;"></span>
+                    <span style="color:#6b6560;">Physical Books</span>
+                  </div>
+                  <span class="font-semibold" style="color:#0f2044;">{{ book_count }}</span>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full" style="background:#c9a84c;"></span>
+                    <span style="color:#6b6560;">E-Books</span>
+                  </div>
+                  <span class="font-semibold" style="color:#0f2044;">{{ ebook_count }}</span>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                  <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span style="color:#6b6560;">Overdue</span>
+                  </div>
+                  <span class="font-semibold text-red-600">{{ overdue_total }}</span>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <h3 class="text-lg font-bold text-gray-900 mb-1">
-              Circulation Trends
-            </h3>
-            <p class="text-sm text-gray-500 mb-4">
-              Monthly reservation and borrowing activity.
-            </p>
+        </div>
 
-            <div class="h-[320px]">
-              <canvas id="circulationTrendChart"></canvas>
-            </div>
+        <div class="bg-white rounded-xl border shadow-sm p-6" style="border-color:#e8e3da;">
+          <h3 class="text-xl font-bold mb-2" style="color:#0f2044;">Quick Actions</h3>
+          <p class="text-sm mb-5" style="color:#6b6560;">Use the tabs above to manage your library system.</p>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button onclick="showPage('books')" class="p-5 rounded-xl text-left transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;">
+              <i class="fa-solid fa-plus text-xl mb-3"></i>
+              <p class="font-bold">Manage Books</p>
+              <p class="text-xs opacity-80">Add, edit, and delete physical books.</p>
+            </button>
+
+            <button onclick="showPage('ebooks')" class="p-5 rounded-xl text-left transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;">
+              <i class="fa-solid fa-file-arrow-up text-xl mb-3"></i>
+              <p class="font-bold">Manage E-Books</p>
+              <p class="text-xs opacity-80">Upload PDFs and cover images.</p>
+            </button>
+
+            <button onclick="showPage('circulation')" class="p-5 rounded-xl text-left transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;">
+              <i class="fa-solid fa-rotate text-xl mb-3"></i>
+              <p class="font-bold">Circulation</p>
+              <p class="text-xs opacity-80">Approve reservations and returns.</p>
+            </button>
           </div>
-
-        </section>
-
+        </div>
       </div>
     </section>
 
     <!-- USERS PAGE -->
     <section id="page-users" class="page-section hidden">
-
-      <div class="relative h-72 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
-          alt="Users management"
-          class="w-full h-full object-cover object-center"
-        />
-
-        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
-          <p class="text-green-300 text-sm uppercase tracking-widest mb-2">
-            User Management
-          </p>
-
-          <h2 class="text-5xl font-bold text-white mb-2">
-            Registered Users
-          </h2>
-
-          <p class="text-gray-200 text-lg">
-            View, edit, and delete library users.
-          </p>
-        </div>
-      </div>
-
       <div class="p-6">
-
-        <section class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-
-          <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden" style="border-color:#e8e3da;">
+          <div class="px-6 py-5 border-b flex items-center justify-between" style="border-color:#e8e3da;">
             <div>
-              <h3 class="text-xl font-bold text-gray-900">
-                Users
-              </h3>
-              <p class="text-sm text-gray-500">
-                Admin can manage all registered users here.
-              </p>
+              <h3 class="text-xl font-bold" style="color:#0f2044;">Users</h3>
+              <p class="text-sm" style="color:#6b6560;">Registered library users.</p>
             </div>
 
-            <a
-              href="{{ url_for('auth.add_user') }}"
-              class="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-medium hover:bg-indigo-700 transition"
-            >
-              <i class="fa-solid fa-plus"></i>
-              Add User
-            </a>
+            {% if url_for is defined %}
+            <a href="{{ url_for('auth.add_user') if false else '#' }}" class="hidden"></a>
+            {% endif %}
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-
-              <thead class="bg-gray-50 border-b border-gray-200">
+              <thead style="background:#f7f4ef;border-bottom:1px solid #e8e3da;">
                 <tr>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">ID</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Name</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Email</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Role</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Actions</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">ID</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Name</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Email</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Role</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Action</th>
                 </tr>
               </thead>
-
               <tbody class="divide-y divide-gray-200 bg-white">
-
                 {% if users %}
                   {% for user in users %}
                     {% set user_id = user.id if user.id is defined else user["id"] %}
                     {% set user_name = user.name if user.name is defined else user["name"] %}
                     {% set user_email = user.email if user.email is defined else user["email"] %}
-                    {% set role = user.role if user.role is defined else user["role"] %}
-
+                    {% set user_role = user.role if user.role is defined else user["role"] %}
                     <tr class="hover:bg-gray-50">
-
+                      <td class="px-6 py-4">{{ user_id }}</td>
+                      <td class="px-6 py-4 font-semibold" style="color:#0f2044;">{{ user_name }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ user_email }}</td>
                       <td class="px-6 py-4">
-                        {{ user_id }}
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">{{ user_role }}</span>
                       </td>
-
-                      <td class="px-6 py-4 font-medium text-gray-900">
-                        {{ user_name }}
-                      </td>
-
-                      <td class="px-6 py-4 text-gray-600">
-                        {{ user_email }}
-                      </td>
-
-                      <td class="px-6 py-4">
-                        {% if role == "admin" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
-                            Admin
-                          </span>
-                        {% else %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            Student
-                          </span>
-                        {% endif %}
-                      </td>
-
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-4">
-
-                          <a
-                            href="{{ url_for('auth.editUsers', id=user_id) }}"
-                            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
-                          >
-                            <i class="fa-solid fa-pen-to-square"></i>
-                            Edit
-                          </a>
-
+                          <a href="{{ url_for('auth.editUsers', id=user_id) }}" class="font-semibold hover:underline" style="color:#0f2044;">Edit</a>
                           <button
                             type="button"
                             data-action="{{ url_for('auth.deleteUser', id=user_id) }}"
                             data-title="Delete User?"
-                            data-message="This will permanently delete {{ user_name|e }} from the system."
+                            data-message="This will permanently delete {{ user_name|e }}."
                             data-theme="red"
                             data-button="Yes, Delete User"
                             onclick="openActionModalFromButton(this)"
-                            class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
+                            class="font-semibold hover:underline text-red-600"
                           >
-                            <i class="fa-solid fa-trash"></i>
                             Delete
                           </button>
-
                         </div>
                       </td>
-
                     </tr>
                   {% endfor %}
                 {% else %}
                   <tr>
-                    <td colspan="5" class="px-6 py-10 text-center text-gray-500">
-                      No users found.
-                    </td>
+                    <td colspan="5" class="px-6 py-10 text-center text-gray-500">No users found.</td>
                   </tr>
                 {% endif %}
-
               </tbody>
-
             </table>
           </div>
-
-        </section>
-
+        </div>
       </div>
     </section>
 
     <!-- BOOKS PAGE -->
     <section id="page-books" class="page-section hidden">
-
-      <div class="relative h-72 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1600&q=80"
-          alt="Books inventory"
-          class="w-full h-full object-cover object-center"
-        />
-
-        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
-          <p class="text-green-300 text-sm uppercase tracking-widest mb-2">
-            Inventory Management
-          </p>
-
-          <h2 class="text-5xl font-bold text-white mb-2">
-            Book Inventory
-          </h2>
-
-          <p class="text-gray-200 text-lg">
-            Manage books, covers, stock, availability, and shelf locations.
-          </p>
-        </div>
-      </div>
-
       <div class="p-6">
-
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-
-          <div class="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden" style="border-color:#e8e3da;">
+          <div class="px-6 py-5 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="border-color:#e8e3da;">
             <div>
-              <h3 class="text-xl font-bold text-gray-900">
-                Book Inventory
-              </h3>
-              <p class="text-sm text-gray-500">
-                Add, edit, delete, and track book copies.
-              </p>
+              <h3 class="text-xl font-bold" style="color:#0f2044;">Books Inventory</h3>
+              <p class="text-sm" style="color:#6b6560;">Add, edit, and delete physical books.</p>
             </div>
 
-            <button
-              type="button"
-              onclick="openAddBookModal()"
-              class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl text-sm font-medium hover:bg-green-700 transition"
-            >
+            <button type="button" onclick="openAddBookModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;">
               <i class="fa-solid fa-plus"></i>
               Add Book
             </button>
@@ -444,16 +462,16 @@
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-              <thead class="bg-gray-50 border-b border-gray-200">
+              <thead style="background:#f7f4ef;border-bottom:1px solid #e8e3da;">
                 <tr>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Cover</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Title</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Author</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Genre</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Total</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Available</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Location</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Action</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Image</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Title</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Author</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Genre</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Total</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Available</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Location</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Action</th>
                 </tr>
               </thead>
 
@@ -467,55 +485,30 @@
                     {% set book_total = book.total if book.total is defined else book["total"] %}
                     {% set book_available = book.available_count if book.available_count is defined else book["available_count"] %}
                     {% set book_location = book.location if book.location is defined else book["location"] %}
-                    {% set book_image = book.image if book.image is defined else book["image"] %}
+                    {% set book_image = book.image if book.image is defined else book.get("image", None) %}
+                    {% set book_isbn = book.isbn if book.isbn is defined else book.get("isbn", "") %}
+                    {% set book_publisher = book.publisher if book.publisher is defined else book.get("publisher", "") %}
+                    {% set book_year = book.year if book.year is defined else book.get("year", "") %}
+                    {% set book_edition = book.edition if book.edition is defined else book.get("edition", "") %}
+                    {% set book_pages = book.pages if book.pages is defined else book.get("pages", "") %}
+                    {% set book_description = book.description if book.description is defined else book.get("description", "") %}
 
                     <tr class="hover:bg-gray-50">
                       <td class="px-6 py-4">
                         {% if book_image %}
-                          <img
-                            src="{{ url_for('static', filename='uploads/books/' ~ book_image) }}"
-                            alt="{{ book_title }}"
-                            class="w-14 h-20 object-contain bg-white rounded-lg border p-1"
-                          />
+                          <img src="{{ url_for('static', filename='uploads/books/' ~ book_image) }}" alt="{{ book_title }}" class="w-12 h-16 object-contain bg-gray-50 rounded border p-1" />
                         {% else %}
-                          <div class="w-14 h-20 bg-gradient-to-br from-blue-500 to-indigo-700 rounded-lg flex items-center justify-center">
-                            <i class="fa-solid fa-book-open text-white"></i>
+                          <div class="w-12 h-16 rounded flex items-center justify-center" style="background:#0f2044;">
+                            <i class="fa-solid fa-book" style="color:#c9a84c;"></i>
                           </div>
                         {% endif %}
                       </td>
-
-                      <td class="px-6 py-4 font-semibold text-gray-900">
-                        {{ book_title }}
-                      </td>
-
-                      <td class="px-6 py-4 text-gray-600">
-                        {{ book_author }}
-                      </td>
-
-                      <td class="px-6 py-4 text-gray-600">
-                        {{ book_genre }}
-                      </td>
-
-                      <td class="px-6 py-4 text-gray-900">
-                        {{ book_total }}
-                      </td>
-
-                      <td class="px-6 py-4">
-                        {% if book_available > 0 %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            {{ book_available }}
-                          </span>
-                        {% else %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                            0
-                          </span>
-                        {% endif %}
-                      </td>
-
-                      <td class="px-6 py-4 text-gray-600">
-                        {{ book_location }}
-                      </td>
-
+                      <td class="px-6 py-4 font-semibold" style="color:#0f2044;">{{ book_title }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ book_author }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ book_genre }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ book_total }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ book_available }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ book_location }}</td>
                       <td class="px-6 py-4">
                         <div class="flex items-center gap-4">
                           <button
@@ -527,24 +520,29 @@
                             data-total="{{ book_total }}"
                             data-available="{{ book_available }}"
                             data-location="{{ book_location|e }}"
+                            data-isbn="{{ book_isbn|e }}"
+                            data-publisher="{{ book_publisher|e }}"
+                            data-year="{{ book_year|e }}"
+                            data-edition="{{ book_edition|e }}"
+                            data-pages="{{ book_pages|e }}"
+                            data-description="{{ book_description|e }}"
                             onclick="openEditBookModal(this)"
-                            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium"
+                            class="font-semibold hover:underline"
+                            style="color:#0f2044;"
                           >
-                            <i class="fa-solid fa-pen-to-square"></i>
                             Edit
                           </button>
 
                           <button
                             type="button"
-                            data-action="{{ url_for('auth.delete_book', id=book_id) }}"
+                            data-action="{{ url_for('auth.delete_book', id=book_id) if false else url_for('auth.delete_book', id=book_id) }}"
                             data-title="Delete Book?"
-                            data-message="This will permanently delete {{ book_title|e }} from the library."
+                            data-message="This will permanently delete {{ book_title|e }}."
                             data-theme="red"
                             data-button="Yes, Delete Book"
                             onclick="openActionModalFromButton(this)"
-                            class="inline-flex items-center gap-1 text-red-600 hover:text-red-800 font-medium"
+                            class="font-semibold hover:underline text-red-600"
                           >
-                            <i class="fa-solid fa-trash"></i>
                             Delete
                           </button>
                         </div>
@@ -553,263 +551,129 @@
                   {% endfor %}
                 {% else %}
                   <tr>
-                    <td colspan="8" class="px-6 py-10 text-center text-gray-500">
-                      No books added yet.
-                    </td>
+                    <td colspan="8" class="px-6 py-10 text-center text-gray-500">No books added yet.</td>
                   </tr>
                 {% endif %}
               </tbody>
             </table>
           </div>
-
         </div>
-
       </div>
     </section>
 
-    <!-- CIRCULATION PAGE -->
-    <section id="page-circulation" class="page-section hidden">
+    <!-- E-BOOKS MANAGEMENT PAGE -->
+    <section id="page-ebooks" class="page-section hidden">
 
       <div class="relative h-72 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1600&q=80"
-          alt="Circulation tracking"
-          class="w-full h-full object-cover object-center"
-        />
+        <img src="https://images.unsplash.com/photo-1585779034823-7e9ac8faec70?auto=format&fit=crop&w=1600&q=80" alt="E-Books management" class="w-full h-full object-cover object-center" />
 
-        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent flex flex-col justify-end px-10 pb-10">
-          <p class="text-orange-300 text-sm uppercase tracking-widest mb-2">
-            Circulation Tracking
-          </p>
-
-          <h2 class="text-5xl font-bold text-white mb-2">
-            Borrowing Records
-          </h2>
-
-          <p class="text-gray-200 text-lg">
-            Track reserved, borrowed, returned, renew requests, and cancel requests.
-          </p>
+        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.35), transparent);">
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">Digital Library</p>
+          <h2 class="text-5xl font-bold text-white mb-2">E-Books Management</h2>
+          <p class="text-lg" style="color:rgba(255,255,255,0.82);">Upload and manage PDF e-books for students.</p>
         </div>
       </div>
 
       <div class="p-6">
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden" style="border-color:#e8e3da;">
 
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div class="px-6 py-5 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-4" style="border-color:#e8e3da;">
+            <div>
+              <h3 class="text-xl font-bold" style="color:#0f2044;">E-Books</h3>
+              <p class="text-sm" style="color:#6b6560;">Add, edit, delete, and upload PDF books.</p>
+            </div>
 
-          <div class="px-6 py-5 border-b border-gray-100">
-            <h3 class="text-xl font-bold text-gray-900">
-              Circulation Tracking
-            </h3>
-            <p class="text-sm text-gray-500">
-              Manage book pickup, return, renew approval, and cancellation requests.
-            </p>
+            <button type="button" onclick="openAddEbookModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition hover:opacity-90" style="background:#0f2044;color:#c9a84c;">
+              <i class="fa-solid fa-plus"></i>
+              Add E-Book
+            </button>
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-sm">
-              <thead class="bg-gray-50 border-b border-gray-200">
+              <thead style="background:#f7f4ef;border-bottom:1px solid #e8e3da;">
                 <tr>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Student</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Book</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Status</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Reserved At</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Due Date</th>
-                  <th class="px-6 py-4 text-left font-semibold text-gray-600 uppercase">Action</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Cover</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Title</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Author</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Category</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Pages</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Size</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">PDF</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Action</th>
                 </tr>
               </thead>
 
               <tbody class="divide-y divide-gray-200 bg-white">
-                {% if borrowings %}
-                  {% for item in borrowings %}
-                    {% set reservation_id = item.id if item.id is defined else item["id"] %}
-                    {% set status = item.status if item.status is defined else item["status"] %}
+                {% if ebooks %}
+                  {% for ebook in ebooks %}
+                    {% set ebook_id = ebook.id if ebook.id is defined else ebook["id"] %}
+                    {% set ebook_title = ebook.title if ebook.title is defined else ebook["title"] %}
+                    {% set ebook_author = ebook.author if ebook.author is defined else ebook["author"] %}
+                    {% set ebook_category = ebook.category if ebook.category is defined else ebook["category"] %}
+                    {% set ebook_pages = ebook.pages if ebook.pages is defined else ebook["pages"] %}
+                    {% set ebook_size = ebook.file_size if ebook.file_size is defined else ebook["file_size"] %}
+                    {% set ebook_description = ebook.description if ebook.description is defined else ebook["description"] %}
+                    {% set ebook_pdf = ebook.pdf_file if ebook.pdf_file is defined else ebook["pdf_file"] %}
+                    {% set ebook_cover = ebook.cover_image if ebook.cover_image is defined else ebook["cover_image"] %}
 
                     <tr class="hover:bg-gray-50">
                       <td class="px-6 py-4">
-                        <div class="font-medium text-gray-900">
-                          {{ item.student_name if item.student_name is defined else item["student_name"] }}
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          {{ item.student_email if item.student_email is defined else item["student_email"] }}
-                        </div>
-                      </td>
-
-                      <td class="px-6 py-4">
-                        <div class="font-medium text-gray-900">
-                          {{ item.book_title if item.book_title is defined else item["book_title"] }}
-                        </div>
-                        <div class="text-xs text-gray-500">
-                          {{ item.book_author if item.book_author is defined else item["book_author"] }}
-                        </div>
-                      </td>
-
-                      <td class="px-6 py-4">
-                        {% if status == "reserved" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-700">
-                            Reserved
-                          </span>
-                        {% elif status == "borrowed" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">
-                            Borrowed
-                          </span>
-                        {% elif status == "renew_requested" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
-                            Renew Requested
-                          </span>
-                        {% elif status == "cancel_requested" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
-                            Cancel Requested
-                          </span>
-                        {% elif status == "cancelled" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
-                            Cancelled
-                          </span>
-                        {% elif status == "returned" %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
-                            Returned
-                          </span>
+                        {% if ebook_cover %}
+                          <img src="{{ url_for('static', filename='uploads/ebooks/covers/' ~ ebook_cover) }}" alt="{{ ebook_title }}" class="w-14 h-20 object-cover rounded-lg border" />
                         {% else %}
-                          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
-                            {{ status }}
-                          </span>
+                          <div class="w-14 h-20 rounded-lg flex items-center justify-center" style="background:#0f2044;">
+                            <i class="fa-solid fa-file-pdf text-2xl" style="color:#c9a84c;"></i>
+                          </div>
                         {% endif %}
                       </td>
 
-                      <td class="px-6 py-4 text-gray-600">
-                        {{ item.reserved_at if item.reserved_at is defined else item["reserved_at"] }}
-                      </td>
+                      <td class="px-6 py-4 font-semibold" style="color:#0f2044;">{{ ebook_title }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ ebook_author }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ ebook_category }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ ebook_pages }}</td>
+                      <td class="px-6 py-4 text-gray-600">{{ ebook_size }}</td>
 
-                      <td class="px-6 py-4 text-gray-600">
-                        {{ item.due_date if item.due_date is defined else item["due_date"] }}
+                      <td class="px-6 py-4">
+                        <a href="{{ url_for('static', filename='uploads/ebooks/' ~ ebook_pdf) }}" target="_blank" class="font-semibold hover:underline" style="color:#0f2044;">View PDF</a>
                       </td>
 
                       <td class="px-6 py-4">
-                        {% if status == "reserved" %}
-                          <div class="flex items-center gap-2">
-
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.mark_book_picked_up', reservation_id=reservation_id) }}"
-                              data-title="Mark Book as Picked Up?"
-                              data-message="This will change the reservation status to Borrowed and set the return due date."
-                              data-theme="blue"
-                              data-button="Yes, Mark Picked Up"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
-                            >
-                              Picked Up
-                            </button>
-
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}"
-                              data-title="Mark Book as Returned?"
-                              data-message="This will change the book status to Returned and increase the available book count."
-                              data-theme="green"
-                              data-button="Yes, Mark Returned"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
-                            >
-                              Return
-                            </button>
-
-                          </div>
-
-                        {% elif status == "borrowed" %}
+                        <div class="flex items-center gap-4">
                           <button
                             type="button"
-                            data-action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}"
-                            data-title="Mark Book as Returned?"
-                            data-message="This will change the book status to Returned and increase the available book count."
-                            data-theme="green"
-                            data-button="Yes, Mark Returned"
-                            onclick="openActionModalFromButton(this)"
-                            class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
+                            data-ebook-id="{{ ebook_id }}"
+                            data-title="{{ ebook_title|e }}"
+                            data-author="{{ ebook_author|e }}"
+                            data-category="{{ ebook_category|e }}"
+                            data-pages="{{ ebook_pages }}"
+                            data-description="{{ ebook_description|e }}"
+                            onclick="openEditEbookModal(this)"
+                            class="font-semibold hover:underline"
+                            style="color:#0f2044;"
                           >
-                            Return
+                            Edit
                           </button>
 
-                        {% elif status == "renew_requested" %}
-                          <div class="flex items-center gap-2">
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.approve_renew_book', reservation_id=reservation_id) }}"
-                              data-title="Approve Renew Request?"
-                              data-message="This will extend the student's borrowing time for this book."
-                              data-theme="green"
-                              data-button="Yes, Approve"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
-                            >
-                              Approve Renew
-                            </button>
-
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.reject_renew_book', reservation_id=reservation_id) }}"
-                              data-title="Reject Renew Request?"
-                              data-message="This will reject the student's renew request."
-                              data-theme="red"
-                              data-button="Yes, Reject"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
-                            >
-                              Reject
-                            </button>
-                          </div>
-
-                        {% elif status == "cancel_requested" %}
-                          <div class="flex items-center gap-2">
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.approve_cancel_reservation', reservation_id=reservation_id) }}"
-                              data-title="Approve Cancel Request?"
-                              data-message="This will cancel the reservation and make the book available again."
-                              data-theme="green"
-                              data-button="Yes, Approve"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
-                            >
-                              Approve Cancel
-                            </button>
-
-                            <button
-                              type="button"
-                              data-action="{{ url_for('auth.reject_cancel_reservation', reservation_id=reservation_id) }}"
-                              data-title="Reject Cancel Request?"
-                              data-message="This will reject the student's cancel request and keep the reservation active."
-                              data-theme="red"
-                              data-button="Yes, Reject"
-                              onclick="openActionModalFromButton(this)"
-                              class="px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition"
-                            >
-                              Reject
-                            </button>
-                          </div>
-
-                        {% elif status == "cancelled" %}
-                          <span class="text-sm text-red-500 font-medium">
-                            Cancelled
-                          </span>
-
-                        {% elif status == "returned" %}
-                          <span class="text-sm text-green-600 font-medium">
-                            Returned
-                          </span>
-
-                        {% else %}
-                          <span class="text-sm text-gray-400">
-                            No Action
-                          </span>
-                        {% endif %}
+                          <button
+                            type="button"
+                            data-action="{{ url_for('auth.delete_ebook', ebook_id=ebook_id) }}"
+                            data-title="Delete E-Book?"
+                            data-message="This will permanently delete {{ ebook_title|e }} and its uploaded PDF."
+                            data-theme="red"
+                            data-button="Yes, Delete E-Book"
+                            onclick="openActionModalFromButton(this)"
+                            class="font-semibold hover:underline text-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   {% endfor %}
                 {% else %}
                   <tr>
-                    <td colspan="6" class="px-6 py-10 text-center text-gray-500">
-                      No circulation records yet.
-                    </td>
+                    <td colspan="8" class="px-6 py-10 text-center text-gray-500">No e-books uploaded yet.</td>
                   </tr>
                 {% endif %}
               </tbody>
@@ -817,380 +681,428 @@
           </div>
 
         </div>
+      </div>
+    </section>
 
+    <!-- CIRCULATION PAGE -->
+    <section id="page-circulation" class="page-section hidden">
+      <div class="p-6">
+        <div class="bg-white rounded-xl border shadow-sm overflow-hidden" style="border-color:#e8e3da;">
+          <div class="px-6 py-5 border-b" style="border-color:#e8e3da;">
+            <h3 class="text-xl font-bold" style="color:#0f2044;">Circulation</h3>
+            <p class="text-sm" style="color:#6b6560;">Reservations, borrowed books, renew requests, and cancel requests. Renew approval adds 15 days to the current due date.</p>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead style="background:#f7f4ef;border-bottom:1px solid #e8e3da;">
+                <tr>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Student</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Book</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Status</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Due Date</th>
+                  <th class="px-6 py-4 text-left font-semibold uppercase">Action</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-gray-200 bg-white">
+                {% if reservations %}
+                  {% for item in reservations %}
+                    {% set reservation_id = item.id if item.id is defined else item["id"] %}
+                    {% set item_title = item.book_title if item.book_title is defined else item.get("book_title", item.get("title", "Book")) %}
+                    {% set item_author = item.book_author if item.book_author is defined else item.get("book_author", item.get("author", "")) %}
+                    {% set item_status = item.status if item.status is defined else item.get("status", "") %}
+                    {% set item_due_date = item.due_date if item.due_date is defined else item.get("due_date", "") %}
+                    {% set item_user = item.student_name if item.student_name is defined else item.get("student_name", item.get("name", item.get("student", "Student"))) %}
+
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-6 py-4 font-semibold" style="color:#0f2044;">{{ item_user }}</td>
+                      <td class="px-6 py-4">
+                        <p class="font-semibold text-gray-800">{{ item_title }}</p>
+                        <p class="text-xs text-gray-500">{{ item_author }}</p>
+                      </td>
+                      <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold
+                          {% if item_status == 'reserved' %} bg-orange-100 text-orange-700
+                          {% elif item_status == 'borrowed' %} bg-blue-100 text-blue-700
+                          {% elif item_status == 'renew_requested' %} bg-purple-100 text-purple-700
+                          {% elif item_status == 'cancel_requested' %} bg-yellow-100 text-yellow-700
+                          {% elif item_status == 'returned' %} bg-green-100 text-green-700
+                          {% else %} bg-gray-100 text-gray-700
+                          {% endif %}
+                        ">
+                          {{ item_status }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-4 text-gray-600">{{ item_due_date }}</td>
+                      <td class="px-6 py-4">
+                        <div class="flex flex-wrap gap-2">
+                          {% if item_status == "reserved" %}
+                            <button type="button" data-action="{{ url_for('auth.mark_book_picked_up', reservation_id=reservation_id) }}" data-title="Mark Picked Up?" data-message="This will change the reservation to borrowed and set a 15-day due date." data-theme="green" data-button="Yes, Picked Up" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Picked Up</button>
+
+                            <button type="button" data-action="{{ url_for('auth.admin_cancel_reservation', reservation_id=reservation_id) }}" data-title="Cancel Reservation?" data-message="This will cancel the reservation immediately and increase available book count." data-theme="red" data-button="Cancel Reservation" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Cancel</button>
+
+                          {% elif item_status == "borrowed" %}
+                            <button type="button" data-action="{{ url_for('auth.return_book', reservation_id=reservation_id) }}" data-title="Mark Returned?" data-message="This will return the book and increase available count." data-theme="green" data-button="Yes, Return" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Return</button>
+
+                            <button type="button" data-action="{{ url_for('auth.admin_cancel_reservation', reservation_id=reservation_id) }}" data-title="Cancel Borrowing?" data-message="This will cancel this borrowing immediately and increase available book count." data-theme="red" data-button="Cancel Borrowing" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Cancel</button>
+
+                          {% elif item_status == "renew_requested" %}
+                            <button type="button" data-action="{{ url_for('auth.approve_renew_book', reservation_id=reservation_id) }}" data-title="Approve 15-Day Extension?" data-message="This will add 15 days to the current due date." data-theme="green" data-button="Approve 15 Days" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Approve 15 Days</button>
+
+                            <button type="button" data-action="{{ url_for('auth.reject_renew_book', reservation_id=reservation_id) }}" data-title="Reject Renew?" data-message="This will reject the renew request." data-theme="red" data-button="Reject Renew" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Reject</button>
+
+                            <button type="button" data-action="{{ url_for('auth.admin_cancel_reservation', reservation_id=reservation_id) }}" data-title="Cancel Reservation?" data-message="This will cancel the reservation immediately and increase available book count." data-theme="red" data-button="Cancel Reservation" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Cancel</button>
+
+                          {% elif item_status == "cancel_requested" %}
+                            <button type="button" data-action="{{ url_for('auth.approve_cancel_reservation', reservation_id=reservation_id) }}" data-title="Approve Cancel?" data-message="This will cancel the reservation and increase available count." data-theme="green" data-button="Approve Cancel" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition">Approve</button>
+
+                            <button type="button" data-action="{{ url_for('auth.reject_cancel_reservation', reservation_id=reservation_id) }}" data-title="Reject Cancel?" data-message="This will reject the cancel request." data-theme="red" data-button="Reject Cancel" onclick="openActionModalFromButton(this)" class="px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Reject</button>
+
+                          {% else %}
+                            <span class="text-xs text-gray-500">No action</span>
+                          {% endif %}
+                        </div>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="5" class="px-6 py-10 text-center text-gray-500">No circulation records found.</td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Hidden borrowing data for charts -->
-  <div id="borrowingData" class="hidden">
-    {% if borrowings %}
-      {% for item in borrowings %}
-        <div
-          class="borrowing-record"
-          data-book-title="{{ (item.book_title if item.book_title is defined else item['book_title'])|e }}"
-          data-reserved-at="{{ (item.reserved_at if item.reserved_at is defined else item['reserved_at']) }}"
-          data-status="{{ (item.status if item.status is defined else item['status'])|e }}"
-        ></div>
-      {% endfor %}
-    {% endif %}
-  </div>
-
-  <!-- Add Book Modal -->
-  <div
-    id="addBookModal"
-    class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4"
-  >
+  <!-- ADD BOOK MODAL -->
+  <div id="addBookModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:#e8e3da;">
         <div>
-          <h3 class="text-xl font-bold text-gray-900">
-            Add New Book
-          </h3>
-          <p class="text-sm text-gray-500">
-            Fill in the book details carefully.
-          </p>
+          <h3 class="text-xl font-bold" style="color:#0f2044;">Add New Book</h3>
+          <p class="text-sm" style="color:#6b6560;">Add a physical book to inventory.</p>
         </div>
-
-        <button
-          type="button"
-          onclick="closeAddBookModal()"
-          class="w-10 h-10 rounded-full hover:bg-gray-100 text-gray-500"
-        >
-          <i class="fa-solid fa-xmark text-lg"></i>
+        <button type="button" onclick="closeAddBookModal()" class="w-10 h-10 rounded-full hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <form
-        action="{{ url_for('auth.add_book') }}"
-        method="POST"
-        enctype="multipart/form-data"
-        class="p-6"
-      >
+      <form action="{{ url_for('auth.add_book') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Book Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              placeholder="Enter book title"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
-            />
+            <label class="block text-sm font-medium mb-2">Title</label>
+            <input type="text" name="title" required class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Author
-            </label>
-            <input
-              type="text"
-              name="author"
-              placeholder="Enter author name"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
-            />
+            <label class="block text-sm font-medium mb-2">Author</label>
+            <input type="text" name="author" required class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Genre
-            </label>
-            <input
-              type="text"
-              name="genre"
-              placeholder="Programming, Novel, Science..."
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
-            />
+            <label class="block text-sm font-medium mb-2">Genre</label>
+            <input type="text" name="genre" required class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              placeholder="Shelf A1"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
-            />
+            <label class="block text-sm font-medium mb-2">Location / Shelf Number</label>
+            <input type="text" name="location" required placeholder="Shelf A-12" class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Total Copies
-            </label>
-            <input
-              type="number"
-              name="total"
-              min="1"
-              placeholder="Total copies"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
-            />
+            <label class="block text-sm font-medium mb-2">Total Copies</label>
+            <input type="number" name="total" min="1" required class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Available Copies
-            </label>
-            <input
-              type="number"
-              name="available_count"
-              min="0"
-              placeholder="Available copies"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-green-500"
-            />
+            <label class="block text-sm font-medium mb-2">ISBN</label>
+            <input type="text" name="isbn" placeholder="978-0-262-03384-8" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Publisher</label>
+            <input type="text" name="publisher" placeholder="MIT Press" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Year Published</label>
+            <input type="number" name="year" placeholder="2009" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Edition</label>
+            <input type="text" name="edition" placeholder="3rd Edition" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Pages</label>
+            <input type="number" name="pages" min="0" placeholder="1292" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Book Image Optional</label>
+            <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/webp" class="w-full px-4 py-3 border rounded-xl bg-white" />
           </div>
 
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Book Cover Image
-            </label>
-            <input
-              type="file"
-              name="image"
-              accept="image/png, image/jpeg, image/jpg, image/webp"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white"
-            />
+            <label class="block text-sm font-medium mb-2">Description</label>
+            <textarea name="description" rows="4" placeholder="Write a short description about this book..." class="w-full px-4 py-3 border rounded-xl"></textarea>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeAddBookModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-3 rounded-xl font-semibold" style="background:#0f2044;color:#c9a84c;">Add Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT BOOK MODAL -->
+  <div id="editBookModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:#e8e3da;">
+        <div>
+          <h3 class="text-xl font-bold" style="color:#0f2044;">Edit Book</h3>
+          <p class="text-sm" style="color:#6b6560;">Update physical book details.</p>
+        </div>
+        <button type="button" onclick="closeEditBookModal()" class="w-10 h-10 rounded-full hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="editBookForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-medium mb-2">Title</label>
+            <input type="text" name="title" id="editBookTitle" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Author</label>
+            <input type="text" name="author" id="editBookAuthor" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Genre</label>
+            <input type="text" name="genre" id="editBookGenre" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Location</label>
+            <input type="text" name="location" id="editBookLocation" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Total Copies</label>
+            <input type="number" name="total" id="editBookTotal" min="1" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Available Copies</label>
+            <input type="number" name="available_count" id="editBookAvailable" min="0" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">ISBN</label>
+            <input type="text" name="isbn" id="editBookIsbn" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Publisher</label>
+            <input type="text" name="publisher" id="editBookPublisher" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Year Published</label>
+            <input type="number" name="year" id="editBookYear" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Edition</label>
+            <input type="text" name="edition" id="editBookEdition" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Pages</label>
+            <input type="number" name="pages" id="editBookPages" min="0" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Description</label>
+            <textarea name="description" id="editBookDescription" rows="4" class="w-full px-4 py-3 border rounded-xl"></textarea>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Replace Image Optional</label>
+            <input type="file" name="image" accept="image/png,image/jpeg,image/jpg,image/webp" class="w-full px-4 py-3 border rounded-xl bg-white" />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeEditBookModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-3 rounded-xl font-semibold" style="background:#0f2044;color:#c9a84c;">Update Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADD E-BOOK MODAL -->
+  <div id="addEbookModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
+
+      <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:#e8e3da;">
+        <div>
+          <h3 class="text-xl font-bold" style="color:#0f2044;">Add New E-Book</h3>
+          <p class="text-sm" style="color:#6b6560;">Upload PDF and e-book details.</p>
+        </div>
+
+        <button type="button" onclick="closeAddEbookModal()" class="w-10 h-10 rounded-full hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form action="{{ url_for('auth.add_ebook') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Title</label>
+            <input type="text" name="title" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Author</label>
+            <input type="text" name="author" required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Category</label>
+            <input type="text" name="category" placeholder="Programming, AI/ML..." required class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Pages</label>
+            <input type="number" name="pages" min="0" class="w-full px-4 py-3 border rounded-xl" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Description</label>
+            <textarea name="description" rows="3" class="w-full px-4 py-3 border rounded-xl"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">PDF File</label>
+            <input type="file" name="pdf_file" accept="application/pdf,.pdf" required class="w-full px-4 py-3 border rounded-xl bg-white" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Cover Image Optional</label>
+            <input type="file" name="cover_image" accept="image/png,image/jpeg,image/jpg,image/webp" class="w-full px-4 py-3 border rounded-xl bg-white" />
           </div>
 
         </div>
 
-        <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
-          <button
-            type="button"
-            onclick="closeAddBookModal()"
-            class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            class="px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 transition"
-          >
-            <i class="fa-solid fa-plus mr-2"></i>
-            Add Book
-          </button>
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeAddEbookModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-3 rounded-xl font-semibold" style="background:#0f2044;color:#c9a84c;">Add E-Book</button>
         </div>
       </form>
 
     </div>
   </div>
 
-  <!-- Edit Book Modal -->
-  <div
-    id="editBookModal"
-    class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/50 p-4"
-  >
+  <!-- EDIT E-BOOK MODAL -->
+  <div id="editEbookModal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
 
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:#e8e3da;">
         <div>
-          <h3 class="text-xl font-bold text-gray-900">
-            Edit Book
-          </h3>
-          <p class="text-sm text-gray-500">
-            Update book details carefully.
-          </p>
+          <h3 class="text-xl font-bold" style="color:#0f2044;">Edit E-Book</h3>
+          <p class="text-sm" style="color:#6b6560;">Update details or replace files.</p>
         </div>
 
-        <button
-          type="button"
-          onclick="closeEditBookModal()"
-          class="w-10 h-10 rounded-full hover:bg-gray-100 text-gray-500"
-        >
-          <i class="fa-solid fa-xmark text-lg"></i>
+        <button type="button" onclick="closeEditEbookModal()" class="w-10 h-10 rounded-full hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <form
-        id="editBookForm"
-        method="POST"
-        enctype="multipart/form-data"
-        class="p-6"
-      >
+      <form id="editEbookForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-5">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Book Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              id="editBookTitle"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label class="block text-sm font-medium mb-2">Title</label>
+            <input type="text" name="title" id="editEbookTitle" required class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Author
-            </label>
-            <input
-              type="text"
-              name="author"
-              id="editBookAuthor"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label class="block text-sm font-medium mb-2">Author</label>
+            <input type="text" name="author" id="editEbookAuthor" required class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Genre
-            </label>
-            <input
-              type="text"
-              name="genre"
-              id="editBookGenre"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label class="block text-sm font-medium mb-2">Category</label>
+            <input type="text" name="category" id="editEbookCategory" required class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Location
-            </label>
-            <input
-              type="text"
-              name="location"
-              id="editBookLocation"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Total Copies
-            </label>
-            <input
-              type="number"
-              name="total"
-              id="editBookTotal"
-              min="1"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Available Copies
-            </label>
-            <input
-              type="number"
-              name="available_count"
-              id="editBookAvailable"
-              min="0"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label class="block text-sm font-medium mb-2">Pages</label>
+            <input type="number" name="pages" id="editEbookPages" min="0" class="w-full px-4 py-3 border rounded-xl" />
           </div>
 
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Change Book Cover Image
-            </label>
-            <input
-              type="file"
-              name="image"
-              accept="image/png, image/jpeg, image/jpg, image/webp"
-              class="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white"
-            />
-            <p class="text-xs text-gray-500 mt-2">
-              Leave empty if you do not want to change the current image.
-            </p>
+            <label class="block text-sm font-medium mb-2">Description</label>
+            <textarea name="description" id="editEbookDescription" rows="3" class="w-full px-4 py-3 border rounded-xl"></textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Replace PDF Optional</label>
+            <input type="file" name="pdf_file" accept="application/pdf,.pdf" class="w-full px-4 py-3 border rounded-xl bg-white" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-2">Replace Cover Optional</label>
+            <input type="file" name="cover_image" accept="image/png,image/jpeg,image/jpg,image/webp" class="w-full px-4 py-3 border rounded-xl bg-white" />
           </div>
 
         </div>
 
-        <div class="mt-6 flex flex-col sm:flex-row justify-end gap-3">
-          <button
-            type="button"
-            onclick="closeEditBookModal()"
-            class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            class="px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-          >
-            <i class="fa-solid fa-floppy-disk mr-2"></i>
-            Update Book
-          </button>
+        <div class="flex justify-end gap-3">
+          <button type="button" onclick="closeEditEbookModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium">Cancel</button>
+          <button type="submit" class="px-5 py-3 rounded-xl font-semibold" style="background:#0f2044;color:#c9a84c;">Update E-Book</button>
         </div>
       </form>
 
     </div>
   </div>
 
-  <!-- Universal Action Confirmation Modal -->
-  <div
-    id="actionModal"
-    class="fixed inset-0 z-[130] hidden items-center justify-center bg-black/50 p-4"
-  >
+  <!-- UNIVERSAL CONFIRM MODAL -->
+  <div id="actionModal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-black/50 p-4">
     <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
-
       <div class="p-6 text-center">
-        <div
-          id="actionModalIconBox"
-          class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4"
-        >
+        <div id="actionModalIconBox" class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <i id="actionModalIcon" class="fa-solid fa-circle-question text-blue-600 text-2xl"></i>
         </div>
 
-        <h3 id="actionModalTitle" class="text-xl font-bold text-gray-900 mb-2">
-          Are you sure?
-        </h3>
-
-        <p id="actionModalMessage" class="text-gray-600 text-sm mb-6">
-          Please confirm this action.
-        </p>
+        <h3 id="actionModalTitle" class="text-xl font-bold text-gray-900 mb-2">Are you sure?</h3>
+        <p id="actionModalMessage" class="text-gray-600 text-sm mb-6">Please confirm this action.</p>
 
         <form id="actionModalForm" method="POST">
           <div class="flex items-center justify-center gap-3">
-            <button
-              type="button"
-              onclick="closeActionModal()"
-              class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition"
-            >
-              Cancel
-            </button>
-
-            <button
-              id="actionModalSubmit"
-              type="submit"
-              class="px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-            >
-              Confirm
-            </button>
+            <button type="button" onclick="closeActionModal()" class="px-5 py-3 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition">Cancel</button>
+            <button id="actionModalSubmit" type="submit" class="px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 transition">Confirm</button>
           </div>
         </form>
       </div>
-
     </div>
   </div>
 
   <script>
-    let popularBooksChartInstance = null;
-    let circulationTrendChartInstance = null;
-
     function showPage(page) {
       if (window.location.hash !== "#" + page) {
         history.replaceState(null, "", "#" + page);
@@ -1199,207 +1111,23 @@
       const sections = document.querySelectorAll(".page-section");
       const navButtons = document.querySelectorAll(".nav-btn");
 
-      sections.forEach(section => {
-        section.classList.add("hidden");
-      });
+      sections.forEach(section => section.classList.add("hidden"));
 
       navButtons.forEach(button => {
-        button.classList.remove("border-indigo-600", "text-indigo-600");
-        button.classList.add("border-transparent", "text-gray-500");
+        button.classList.remove("active");
+        button.style.borderColor = "transparent";
+        button.style.color = "#6b6560";
       });
 
       const activeSection = document.getElementById("page-" + page);
-      if (activeSection) {
-        activeSection.classList.remove("hidden");
-      }
+      if (activeSection) activeSection.classList.remove("hidden");
 
       const activeButton = document.getElementById("nav-" + page);
       if (activeButton) {
-        activeButton.classList.remove("border-transparent", "text-gray-500");
-        activeButton.classList.add("border-indigo-600", "text-indigo-600");
+        activeButton.classList.add("active");
+        activeButton.style.borderColor = "#c9a84c";
+        activeButton.style.color = "#0f2044";
       }
-
-      if (page === "dashboard") {
-        setTimeout(renderAdminCharts, 100);
-      }
-    }
-
-    function getBorrowingRecords() {
-      const records = document.querySelectorAll(".borrowing-record");
-
-      return Array.from(records).map(record => {
-        return {
-          bookTitle: record.dataset.bookTitle || "",
-          reservedAt: record.dataset.reservedAt || "",
-          status: record.dataset.status || ""
-        };
-      });
-    }
-
-    function buildPopularBooksData() {
-      const counts = {};
-
-      getBorrowingRecords().forEach(record => {
-        if (!record.bookTitle) return;
-
-        counts[record.bookTitle] = (counts[record.bookTitle] || 0) + 1;
-      });
-
-      const sorted = Object.entries(counts)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5);
-
-      if (sorted.length === 0) {
-        return {
-          labels: ["No records"],
-          data: [0]
-        };
-      }
-
-      return {
-        labels: sorted.map(item => item[0]),
-        data: sorted.map(item => item[1])
-      };
-    }
-
-    function parseDateValue(value) {
-      if (!value) return null;
-
-      const raw = String(value).trim();
-      let date = new Date(raw.replace(" ", "T"));
-
-      if (isNaN(date.getTime())) {
-        date = new Date(raw);
-      }
-
-      return isNaN(date.getTime()) ? null : date;
-    }
-
-    function buildCirculationTrendData() {
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const counts = {};
-
-      getBorrowingRecords().forEach(record => {
-        const date = parseDateValue(record.reservedAt);
-
-        if (!date) return;
-
-        const monthName = months[date.getMonth()];
-        counts[monthName] = (counts[monthName] || 0) + 1;
-      });
-
-      const labels = months.filter(month => counts[month]);
-
-      if (labels.length === 0) {
-        return {
-          labels: ["No records"],
-          data: [0]
-        };
-      }
-
-      return {
-        labels: labels,
-        data: labels.map(month => counts[month])
-      };
-    }
-
-    function renderAdminCharts() {
-      if (typeof Chart === "undefined") {
-        console.warn("Chart.js is not loaded. Check your internet connection or CDN access.");
-        return;
-      }
-
-      const popularCanvas = document.getElementById("popularBooksChart");
-      const trendCanvas = document.getElementById("circulationTrendChart");
-
-      if (!popularCanvas || !trendCanvas) return;
-
-      const popularData = buildPopularBooksData();
-      const trendData = buildCirculationTrendData();
-
-      if (popularBooksChartInstance) {
-        popularBooksChartInstance.destroy();
-      }
-
-      if (circulationTrendChartInstance) {
-        circulationTrendChartInstance.destroy();
-      }
-
-      popularBooksChartInstance = new Chart(popularCanvas, {
-        type: "bar",
-        data: {
-          labels: popularData.labels,
-          datasets: [
-            {
-              label: "Borrow count",
-              data: popularData.data,
-              backgroundColor: "rgba(59, 130, 246, 0.8)",
-              borderColor: "rgba(37, 99, 235, 1)",
-              borderWidth: 1,
-              borderRadius: 8
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                precision: 0
-              }
-            },
-            x: {
-              ticks: {
-                maxRotation: 45,
-                minRotation: 0
-              }
-            }
-          }
-        }
-      });
-
-      circulationTrendChartInstance = new Chart(trendCanvas, {
-        type: "line",
-        data: {
-          labels: trendData.labels,
-          datasets: [
-            {
-              label: "Circulation count",
-              data: trendData.data,
-              borderColor: "rgba(16, 185, 129, 1)",
-              backgroundColor: "rgba(16, 185, 129, 0.12)",
-              borderWidth: 3,
-              tension: 0.35,
-              pointRadius: 4,
-              fill: true
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                precision: 0
-              }
-            }
-          }
-        }
-      });
     }
 
     function openAddBookModal() {
@@ -1419,7 +1147,6 @@
       const form = document.getElementById("editBookForm");
 
       const bookId = button.dataset.bookId;
-
       form.action = "/edit-book/" + bookId;
 
       document.getElementById("editBookTitle").value = button.dataset.title || "";
@@ -1428,6 +1155,12 @@
       document.getElementById("editBookTotal").value = button.dataset.total || "";
       document.getElementById("editBookAvailable").value = button.dataset.available || "";
       document.getElementById("editBookLocation").value = button.dataset.location || "";
+      document.getElementById("editBookIsbn").value = button.dataset.isbn || "";
+      document.getElementById("editBookPublisher").value = button.dataset.publisher || "";
+      document.getElementById("editBookYear").value = button.dataset.year || "";
+      document.getElementById("editBookEdition").value = button.dataset.edition || "";
+      document.getElementById("editBookPages").value = button.dataset.pages || "";
+      document.getElementById("editBookDescription").value = button.dataset.description || "";
 
       modal.classList.remove("hidden");
       modal.classList.add("flex");
@@ -1435,6 +1168,41 @@
 
     function closeEditBookModal() {
       const modal = document.getElementById("editBookModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function openAddEbookModal() {
+      const modal = document.getElementById("addEbookModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeAddEbookModal() {
+      const modal = document.getElementById("addEbookModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function openEditEbookModal(button) {
+      const modal = document.getElementById("editEbookModal");
+      const form = document.getElementById("editEbookForm");
+
+      const ebookId = button.dataset.ebookId;
+      form.action = "/edit-ebook/" + ebookId;
+
+      document.getElementById("editEbookTitle").value = button.dataset.title || "";
+      document.getElementById("editEbookAuthor").value = button.dataset.author || "";
+      document.getElementById("editEbookCategory").value = button.dataset.category || "";
+      document.getElementById("editEbookPages").value = button.dataset.pages || "";
+      document.getElementById("editEbookDescription").value = button.dataset.description || "";
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeEditEbookModal() {
+      const modal = document.getElementById("editEbookModal");
       modal.classList.add("hidden");
       modal.classList.remove("flex");
     }
@@ -1492,27 +1260,29 @@
     }
 
     window.addEventListener("click", function (e) {
-      const addModal = document.getElementById("addBookModal");
-      const editModal = document.getElementById("editBookModal");
-      const actionModal = document.getElementById("actionModal");
+      const modals = [
+        "addBookModal",
+        "editBookModal",
+        "addEbookModal",
+        "editEbookModal",
+        "actionModal"
+      ];
 
-      if (e.target === addModal) {
-        closeAddBookModal();
-      }
-
-      if (e.target === editModal) {
-        closeEditBookModal();
-      }
-
-      if (e.target === actionModal) {
-        closeActionModal();
-      }
+      modals.forEach(id => {
+        const modal = document.getElementById(id);
+        if (e.target === modal) {
+          modal.classList.add("hidden");
+          modal.classList.remove("flex");
+        }
+      });
     });
 
     window.addEventListener("keydown", function (e) {
       if (e.key === "Escape") {
         closeAddBookModal();
         closeEditBookModal();
+        closeAddEbookModal();
+        closeEditEbookModal();
         closeActionModal();
       }
     });
@@ -1522,13 +1292,14 @@
         showPage("users");
       } else if (window.location.hash === "#books") {
         showPage("books");
+      } else if (window.location.hash === "#ebooks") {
+        showPage("ebooks");
       } else if (window.location.hash === "#circulation") {
         showPage("circulation");
       } else {
-        showPage("dashboard");
+        showPage("overview");
       }
     });
   </script>
-
 </body>
 </html>
