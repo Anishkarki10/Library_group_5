@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cancel Book Reservations</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-6 font-sans">
+
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">My Active Reservations</h1>
+        <p class="text-xs text-slate-500 mt-1">Review your holds or cancel pending reservations before they pick up.</p>
+      </div>
+      <div class="bg-rose-50 text-rose-700 border border-rose-200 font-semibold px-4 py-1.5 text-sm rounded-lg">
+        Pending Holds: <span id="reservationCount">3</span>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-3 items-center justify-between">
+      <input 
+        type="text" 
+        id="reservationSearch" 
+        onkeyup="filterReservations()" 
+        placeholder="Search holds by book title or author details..." 
+        class="w-full md:w-1/2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      >
+      <div class="text-xs text-slate-400 font-medium" id="resultsCounter">Showing 3 holds</div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm" id="reservationsTable">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+            <th class="p-4">Reserved Book Details</th>
+            <th class="p-4">Genre Classification</th>
+            <th class="p-4">Hold Expiry Target</th>
+            <th class="p-4 text-center w-40">Queue Status</th>
+            <th class="p-4 text-center w-36">Management Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          
+          <tr class="hover:bg-slate-50 hold-row">
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 data-title">Introduction to Algorithms</div>
+              <div class="text-xs text-slate-400 mt-0.5 data-author">Thomas Cormen</div>
+            </td>
+            <td class="p-4 text-slate-500">Computer Science</td>
+            <td class="p-4 text-slate-600 font-medium">Jun 25, 2026</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 hold-badge">Ready for Pickup</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="triggerCancellation(this)" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs cancel-btn">Cancel Hold</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 hold-row">
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 data-title">Design Patterns</div>
+              <div class="text-xs text-slate-400 mt-0.5 data-author">Gang of Four</div>
+            </td>
+            <td class="p-4 text-slate-500">Software Engineering</td>
+            <td class="p-4 text-slate-600 font-medium">Jul 02, 2026</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 hold-badge">Position #1 in Queue</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="triggerCancellation(this)" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs cancel-btn">Cancel Hold</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 hold-row">
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 data-title">The Pragmatic Programmer</div>
+              <div class="text-xs text-slate-400 mt-0.5 data-author">Andy Hunt</div>
+            </td>
+            <td class="p-4 text-slate-500">Programming</td>
+            <td class="p-4 text-slate-600 font-medium">Jul 05, 2026</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 hold-badge">Position #2 in Queue</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="triggerCancellation(this)" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs cancel-btn">Cancel Hold</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="cancel.js"></script>
+</body>
+</html>
