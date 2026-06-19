@@ -35,69 +35,67 @@ class AuthController(BaseController):
     # ── Add Book ─────────────────────────────────────────────
 
     def add_book(self):
-        if request.method == "POST":
-            title = request.form.get("title", "").strip()
-            author = request.form.get("author", "").strip()
-            genre = request.form.get("genre", "").strip()
-            total = request.form.get("total", "").strip()
-            available_count = request.form.get("available_count", "").strip()
-            location = request.form.get("location", "").strip()
-            image_file = request.files.get("image")
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        genre = request.form.get("genre", "").strip()
+        total = request.form.get("total", "0").strip()
+        location = request.form.get("location", "").strip()
 
-            if not title or not author or not genre or not total or not available_count or not location:
-                flash("All book fields are required.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        isbn = request.form.get("isbn", "").strip()
+        publisher = request.form.get("publisher", "").strip()
+        year = request.form.get("year", "").strip()
+        edition = request.form.get("edition", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
 
-            try:
-                total = int(total)
-                available_count = int(available_count)
-            except ValueError:
-                flash("Total and available count must be numbers.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        image_file = request.files.get("image")
 
-            if total < 1:
-                flash("Total books must be at least 1.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
-
-            if available_count < 0:
-                flash("Available count cannot be negative.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
-
-            if available_count > total:
-                flash("Available count cannot be greater than total books.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
-
-            image_name = None
-
-            if image_file and image_file.filename:
-                if not self.allowed_file(image_file.filename):
-                    flash("Only png, jpg, jpeg, and webp images are allowed.", "danger")
-                    return redirect(url_for("auth.dashboard") + "#books")
-
-                image_name = secure_filename(image_file.filename)
-                image_path = os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    image_name
-                )
-
-                image_file.save(image_path)
-
-            new_book = Book(
-                title=title,
-                author=author,
-                genre=genre,
-                total=total,
-                available_count=available_count,
-                location=location,
-                image=image_name
-            )
-
-            new_book.save()
-
-            flash("Book added successfully.", "success")
+        if not title or not author or not genre or not total or not location:
+            flash("Title, author, genre, total copies, and location are required.", "danger")
             return redirect(url_for("auth.dashboard") + "#books")
 
-        return redirect(url_for("auth.dashboard"))
+        try:
+            total = int(total)
+        except ValueError:
+            total = 0
+
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
+
+        available_count = total
+        image_name = None
+
+        if image_file and image_file.filename:
+            image_name = secure_filename(image_file.filename)
+            image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
+
+            if os.path.exists(image_path):
+                name, ext = os.path.splitext(image_name)
+                image_name = f"{name}_{int(os.path.getmtime(image_path))}{ext}"
+                image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
+
+            image_file.save(image_path)
+
+        self.book_model.save(
+            title,
+            author,
+            genre,
+            total,
+            available_count,
+            location,
+            image_name,
+            isbn,
+            publisher,
+            year,
+            edition,
+            pages,
+            description
+        )
+
+        flash("Book added successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#books")
 
     # ── Delete Book ──────────────────────────────────────────
 
@@ -792,208 +790,122 @@ class AuthController(BaseController):
     # ── Edit Book ────────────────────────────────────────────
 
     def edit_book(self, id):
-        book = self.book_model.find_by_id(id)
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        genre = request.form.get("genre", "").strip()
+        total = request.form.get("total", "0").strip()
+        available_count = request.form.get("available_count", "0").strip()
+        location = request.form.get("location", "").strip()
 
-        if not book:
-            flash("Book not found.", "danger")
+        isbn = request.form.get("isbn", "").strip()
+        publisher = request.form.get("publisher", "").strip()
+        year = request.form.get("year", "").strip()
+        edition = request.form.get("edition", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
+
+        image_file = request.files.get("image")
+
+        if not title or not author or not genre or not total or not location:
+            flash("Title, author, genre, total copies, and location are required.", "danger")
             return redirect(url_for("auth.dashboard") + "#books")
 
-        if request.method == "POST":
-            title = request.form.get("title", "").strip()
-            author = request.form.get("author", "").strip()
-            genre = request.form.get("genre", "").strip()
-            total = request.form.get("total", "").strip()
-            available_count = request.form.get("available_count", "").strip()
-            location = request.form.get("location", "").strip()
-            image_file = request.files.get("image")
+        try:
+            total = int(total)
+        except ValueError:
+            total = 0
 
-            if not title or not author or not genre or not total or not available_count or not location:
-                flash("All book fields are required.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        try:
+            available_count = int(available_count)
+        except ValueError:
+            available_count = 0
 
-            try:
-                total = int(total)
-                available_count = int(available_count)
-            except ValueError:
-                flash("Total and available count must be numbers.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
 
-            if total < 1:
-                flash("Total books must be at least 1.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        image_name = None
 
-            if available_count < 0:
-                flash("Available count cannot be negative.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+        if image_file and image_file.filename:
+            image_name = secure_filename(image_file.filename)
+            image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
 
-            if available_count > total:
-                flash("Available count cannot be greater than total books.", "danger")
-                return redirect(url_for("auth.dashboard") + "#books")
+            if os.path.exists(image_path):
+                name, ext = os.path.splitext(image_name)
+                image_name = f"{name}_{int(os.path.getmtime(image_path))}{ext}"
+                image_path = os.path.join(current_app.config["UPLOAD_FOLDER"], image_name)
 
-            image_name = None
+            image_file.save(image_path)
 
-            if image_file and image_file.filename:
-                if not self.allowed_file(image_file.filename):
-                    flash("Only png, jpg, jpeg, and webp images are allowed.", "danger")
-                    return redirect(url_for("auth.dashboard") + "#books")
+        self.book_model.update(
+            id,
+            title,
+            author,
+            genre,
+            total,
+            available_count,
+            location,
+            image_name,
+            isbn,
+            publisher,
+            year,
+            edition,
+            pages,
+            description
+        )
 
-                image_name = secure_filename(image_file.filename)
-
-                image_path = os.path.join(
-                    current_app.config["UPLOAD_FOLDER"],
-                    image_name
-                )
-
-                image_file.save(image_path)
-
-                if book.get("image"):
-                    old_image_path = os.path.join(
-                        current_app.config["UPLOAD_FOLDER"],
-                        book["image"]
-                    )
-
-                    if os.path.exists(old_image_path):
-                        os.remove(old_image_path)
-
-            self.book_model.update(
-                book_id=id,
-                title=title,
-                author=author,
-                genre=genre,
-                total=total,
-                available_count=available_count,
-                location=location,
-                image=image_name
-            )
-
-            flash("Book updated successfully.", "success")
-            return redirect(url_for("auth.dashboard") + "#books")
-
+        flash("Book updated successfully.", "success")
         return redirect(url_for("auth.dashboard") + "#books")
 
     # ebooks
+    # ── E-Books ─────────────────────────────────────
     def allowed_pdf(self, filename):
         return "." in filename and filename.rsplit(".", 1)[1].lower() == "pdf"
 
+    def allowed_image(self, filename):
+        allowed_extensions = {"png", "jpg", "jpeg", "webp"}
+        return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed_extensions
 
-def allowed_image(self, filename):
-    allowed_extensions = {"png", "jpg", "jpeg", "webp"}
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed_extensions
+    def get_file_size_text(self, file_storage):
+        file_storage.seek(0, os.SEEK_END)
+        size_bytes = file_storage.tell()
+        file_storage.seek(0)
 
+        size_mb = size_bytes / (1024 * 1024)
 
-def get_file_size_text(self, file_storage):
-    file_storage.seek(0, os.SEEK_END)
-    size_bytes = file_storage.tell()
-    file_storage.seek(0)
+        if size_mb >= 1:
+            return f"{size_mb:.1f} MB"
 
-    size_mb = size_bytes / (1024 * 1024)
+        size_kb = size_bytes / 1024
+        return f"{size_kb:.1f} KB"
 
-    if size_mb >= 1:
-        return f"{size_mb:.1f} MB"
+    def add_ebook(self):
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        category = request.form.get("category", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
 
-    size_kb = size_bytes / 1024
-    return f"{size_kb:.1f} KB"
+        pdf_file = request.files.get("pdf_file")
+        cover_file = request.files.get("cover_image")
 
-
-def add_ebook(self):
-    title = request.form.get("title", "").strip()
-    author = request.form.get("author", "").strip()
-    category = request.form.get("category", "").strip()
-    pages = request.form.get("pages", "0").strip()
-    description = request.form.get("description", "").strip()
-
-    pdf_file = request.files.get("pdf_file")
-    cover_file = request.files.get("cover_image")
-
-    if not title or not author or not category or not pdf_file:
-        flash("Title, author, category, and PDF file are required.", "danger")
-        return redirect(url_for("auth.dashboard") + "#ebooks")
-
-    if not self.allowed_pdf(pdf_file.filename):
-        flash("Only PDF files are allowed for e-books.", "danger")
-        return redirect(url_for("auth.dashboard") + "#ebooks")
-
-    try:
-        pages = int(pages) if pages else 0
-    except ValueError:
-        pages = 0
-
-    pdf_name = secure_filename(pdf_file.filename)
-    pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
-
-    if os.path.exists(pdf_path):
-        name, ext = os.path.splitext(pdf_name)
-        pdf_name = f"{name}_{int(os.path.getmtime(pdf_path))}{ext}"
-        pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
-
-    file_size = self.get_file_size_text(pdf_file)
-    pdf_file.save(pdf_path)
-
-    cover_name = None
-
-    if cover_file and cover_file.filename:
-        if not self.allowed_image(cover_file.filename):
-            flash("Cover image must be png, jpg, jpeg, or webp.", "danger")
+        if not title or not author or not category or not pdf_file:
+            flash("Title, author, category, and PDF file are required.", "danger")
             return redirect(url_for("auth.dashboard") + "#ebooks")
 
-        cover_name = secure_filename(cover_file.filename)
-        cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+        if not pdf_file.filename:
+            flash("Please choose a PDF file.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
 
-        if os.path.exists(cover_path):
-            name, ext = os.path.splitext(cover_name)
-            cover_name = f"{name}_{int(os.path.getmtime(cover_path))}{ext}"
-            cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
-
-        cover_file.save(cover_path)
-
-    self.ebook_model.save(
-        title=title,
-        author=author,
-        category=category,
-        pages=pages,
-        file_size=file_size,
-        description=description,
-        pdf_file=pdf_name,
-        cover_image=cover_name
-    )
-
-    flash("E-book added successfully.", "success")
-    return redirect(url_for("auth.dashboard") + "#ebooks")
-
-
-def edit_ebook(self, ebook_id):
-    ebook = self.ebook_model.find_by_id(ebook_id)
-
-    if not ebook:
-        flash("E-book not found.", "danger")
-        return redirect(url_for("auth.dashboard") + "#ebooks")
-
-    title = request.form.get("title", "").strip()
-    author = request.form.get("author", "").strip()
-    category = request.form.get("category", "").strip()
-    pages = request.form.get("pages", "0").strip()
-    description = request.form.get("description", "").strip()
-
-    pdf_file = request.files.get("pdf_file")
-    cover_file = request.files.get("cover_image")
-
-    if not title or not author or not category:
-        flash("Title, author, and category are required.", "danger")
-        return redirect(url_for("auth.dashboard") + "#ebooks")
-
-    try:
-        pages = int(pages) if pages else 0
-    except ValueError:
-        pages = 0
-
-    pdf_name = None
-    cover_name = None
-    file_size = ebook["file_size"] if ebook["file_size"] else None
-
-    if pdf_file and pdf_file.filename:
         if not self.allowed_pdf(pdf_file.filename):
-            flash("Only PDF files are allowed.", "danger")
+            flash("Only PDF files are allowed for e-books.", "danger")
             return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
 
         pdf_name = secure_filename(pdf_file.filename)
         pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
@@ -1006,65 +918,132 @@ def edit_ebook(self, ebook_id):
         file_size = self.get_file_size_text(pdf_file)
         pdf_file.save(pdf_path)
 
-        if ebook.get("pdf_file"):
-            old_pdf = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], ebook["pdf_file"])
-            if os.path.exists(old_pdf):
-                os.remove(old_pdf)
+        cover_name = None
 
-    if cover_file and cover_file.filename:
-        if not self.allowed_image(cover_file.filename):
-            flash("Cover image must be png, jpg, jpeg, or webp.", "danger")
-            return redirect(url_for("auth.dashboard") + "#ebooks")
+        if cover_file and cover_file.filename:
+            if not self.allowed_image(cover_file.filename):
+                flash("Cover image must be png, jpg, jpeg, or webp.", "danger")
+                return redirect(url_for("auth.dashboard") + "#ebooks")
 
-        cover_name = secure_filename(cover_file.filename)
-        cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
-
-        if os.path.exists(cover_path):
-            name, ext = os.path.splitext(cover_name)
-            cover_name = f"{name}_{int(os.path.getmtime(cover_path))}{ext}"
+            cover_name = secure_filename(cover_file.filename)
             cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
 
-        cover_file.save(cover_path)
+            if os.path.exists(cover_path):
+                name, ext = os.path.splitext(cover_name)
+                cover_name = f"{name}_{int(os.path.getmtime(cover_path))}{ext}"
+                cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
 
-        if ebook.get("cover_image"):
-            old_cover = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], ebook["cover_image"])
-            if os.path.exists(old_cover):
-                os.remove(old_cover)
+            cover_file.save(cover_path)
 
-    self.ebook_model.update(
-        ebook_id=ebook_id,
-        title=title,
-        author=author,
-        category=category,
-        pages=pages,
-        file_size=file_size,
-        description=description,
-        pdf_file=pdf_name,
-        cover_image=cover_name
-    )
+        self.ebook_model.save(
+            title,
+            author,
+            category,
+            pages,
+            file_size,
+            description,
+            pdf_name,
+            cover_name
+        )
 
-    flash("E-book updated successfully.", "success")
-    return redirect(url_for("auth.dashboard") + "#ebooks")
-
-
-def delete_ebook(self, ebook_id):
-    ebook = self.ebook_model.find_by_id(ebook_id)
-
-    if not ebook:
-        flash("E-book not found.", "danger")
+        flash("E-book added successfully.", "success")
         return redirect(url_for("auth.dashboard") + "#ebooks")
 
-    if ebook.get("pdf_file"):
-        pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], ebook["pdf_file"])
-        if os.path.exists(pdf_path):
-            os.remove(pdf_path)
+    def edit_ebook(self, ebook_id):
+        ebook = self.ebook_model.find_by_id(ebook_id)
 
-    if ebook.get("cover_image"):
-        cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], ebook["cover_image"])
-        if os.path.exists(cover_path):
-            os.remove(cover_path)
+        if not ebook:
+            flash("E-book not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
 
-    self.ebook_model.delete(ebook_id)
+        title = request.form.get("title", "").strip()
+        author = request.form.get("author", "").strip()
+        category = request.form.get("category", "").strip()
+        pages = request.form.get("pages", "0").strip()
+        description = request.form.get("description", "").strip()
 
-    flash("E-book deleted successfully.", "success")
-    return redirect(url_for("auth.dashboard") + "#ebooks")
+        pdf_file = request.files.get("pdf_file")
+        cover_file = request.files.get("cover_image")
+
+        if not title or not author or not category:
+            flash("Title, author, and category are required.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        try:
+            pages = int(pages) if pages else 0
+        except ValueError:
+            pages = 0
+
+        pdf_name = None
+        cover_name = None
+        file_size = ebook.get("file_size")
+
+        if pdf_file and pdf_file.filename:
+            if not self.allowed_pdf(pdf_file.filename):
+                flash("Only PDF files are allowed.", "danger")
+                return redirect(url_for("auth.dashboard") + "#ebooks")
+
+            pdf_name = secure_filename(pdf_file.filename)
+            pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+
+            if os.path.exists(pdf_path):
+                name, ext = os.path.splitext(pdf_name)
+                pdf_name = f"{name}_{int(os.path.getmtime(pdf_path))}{ext}"
+                pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+
+            file_size = self.get_file_size_text(pdf_file)
+            pdf_file.save(pdf_path)
+
+        if cover_file and cover_file.filename:
+            if not self.allowed_image(cover_file.filename):
+                flash("Cover image must be png, jpg, jpeg, or webp.", "danger")
+                return redirect(url_for("auth.dashboard") + "#ebooks")
+
+            cover_name = secure_filename(cover_file.filename)
+            cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+
+            if os.path.exists(cover_path):
+                name, ext = os.path.splitext(cover_name)
+                cover_name = f"{name}_{int(os.path.getmtime(cover_path))}{ext}"
+                cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+
+            cover_file.save(cover_path)
+
+        self.ebook_model.update(
+            ebook_id,
+            title,
+            author,
+            category,
+            pages,
+            file_size,
+            description,
+            pdf_name,
+            cover_name
+        )
+
+        flash("E-book updated successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#ebooks")
+
+    def delete_ebook(self, ebook_id):
+        ebook = self.ebook_model.find_by_id(ebook_id)
+
+        if not ebook:
+            flash("E-book not found.", "danger")
+            return redirect(url_for("auth.dashboard") + "#ebooks")
+
+        pdf_name = ebook.get("pdf_file")
+        if pdf_name:
+            pdf_path = os.path.join(current_app.config["EBOOK_UPLOAD_FOLDER"], pdf_name)
+            if os.path.exists(pdf_path):
+                os.remove(pdf_path)
+
+        cover_name = ebook.get("cover_image")
+        if cover_name:
+            cover_path = os.path.join(current_app.config["EBOOK_COVER_UPLOAD_FOLDER"], cover_name)
+            if os.path.exists(cover_path):
+                os.remove(cover_path)
+
+        self.ebook_model.delete(ebook_id)
+
+        flash("E-book deleted successfully.", "success")
+        return redirect(url_for("auth.dashboard") + "#ebooks")

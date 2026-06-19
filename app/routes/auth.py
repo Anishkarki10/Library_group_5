@@ -74,13 +74,14 @@ class AuthRoutes:
             admin_required(self.controller.add_book)
         )
 
-        # ── Delete Book From Admin Dashboard ─────────────────
-        self.bp.route("/delete-book/<int:id>", methods=["POST"])(
-            admin_required(self.controller.delete_book)
-        )
         # ── Edit Book From Admin Dashboard ───────────────────
         self.bp.route("/edit-book/<int:id>", methods=["POST"])(
             admin_required(self.controller.edit_book)
+        )
+
+        # ── Delete Book From Admin Dashboard ─────────────────
+        self.bp.route("/delete-book/<int:id>", methods=["POST"])(
+            admin_required(self.controller.delete_book)
         )
 
         # ── Student Reserve Book ─────────────────────────────
@@ -126,6 +127,21 @@ class AuthRoutes:
         # ── Admin Reject Renew Book ──────────────────────────
         self.bp.route("/reject-renew-book/<int:reservation_id>", methods=["POST"])(
             admin_required(self.controller.reject_renew_book)
+        )
+
+        # ── Add E-Book From Admin Dashboard ──────────────────
+        self.bp.route("/add-ebook", methods=["POST"])(
+            admin_required(self.controller.add_ebook)
+        )
+
+        # ── Edit E-Book From Admin Dashboard ─────────────────
+        self.bp.route("/edit-ebook/<int:ebook_id>", methods=["POST"])(
+            admin_required(self.controller.edit_ebook)
+        )
+
+        # ── Delete E-Book From Admin Dashboard ───────────────
+        self.bp.route("/delete-ebook/<int:ebook_id>", methods=["POST"])(
+            admin_required(self.controller.delete_ebook)
         )
 
         return self.bp
