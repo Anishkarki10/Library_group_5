@@ -1,0 +1,215 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Delete Book Records</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-6 font-sans">
+
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Manage Catalog Inventory</h1>
+        <p class="text-xs text-slate-500 mt-1">Permanently remove book records or titles from the collection database.</p>
+      </div>
+      <div class="bg-slate-100 text-slate-700 border border-slate-200 font-semibold px-4 py-1.5 text-sm rounded-lg">
+        Total Inventory: <span id="inventoryCount">4</span>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col gap-3">
+      <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+        <input 
+          type="text" 
+          id="inventorySearch" 
+          onkeyup="filterInventoryTable()" 
+          placeholder="Search inventory items by title, author, or ISBN key..." 
+          class="w-full md:w-1/2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+        >
+        <div class="text-xs text-slate-400 font-medium" id="tableStateCounter">Showing 4 catalog listings</div>
+      </div>
+      
+      <div id="matchIndicators" class="flex gap-2 items-center hidden">
+        <span class="text-[11px] font-medium text-slate-400">Search matching fields:</span>
+        <span id="titleMatchBadge" class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-100">Title Matches</span>
+        <span id="authorMatchBadge" class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-600 border border-purple-100">Author Matches</span>
+        <span id="isbnMatchBadge" class="hidden px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-100">ISBN Matches</span>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm" id="inventoryTable">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+            <th class="p-4 w-28">ISBN Code</th>
+            <th class="p-4">Book Identity Profile</th>
+            <th class="p-4">Genre</th>
+            <th class="p-4 text-center w-36">Stock Status</th>
+            <th class="p-4 text-center w-32">Destructive Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0131103627</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">The C Programming Language</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Brian Kernighan</div>
+            </td>
+            <td class="p-4 text-slate-500">Programming</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">In Stock</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0321356680</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">Effective C++</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Scott Meyers</div>
+            </td>
+            <td class="p-4 text-slate-500">Programming</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">In Stock</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0132350884</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">Clean Code</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Robert Martin</div>
+            </td>
+            <td class="p-4 text-slate-500">Software Engineering</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">On Loan</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0262033848</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">Introduction to Algorithms</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Thomas Cormen</div>
+            </td>
+            <td class="p-4 text-slate-500">Computer Science</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100">Out of Stock</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Direct real-time evaluation engine with upgraded data-attribute classification telemetry
+     */
+    function filterInventoryTable() {
+      const userQuery = document.getElementById('inventorySearch').value.toLowerCase().trim();
+      const catalogRows = document.querySelectorAll('#inventoryTable tbody .catalog-row');
+      
+      let itemsCountTracker = 0;
+      let foundTitleMatch = false;
+      let foundAuthorMatch = false;
+      let foundIsbnMatch = false;
+
+      catalogRows.forEach(row => {
+        const titleText = row.querySelector('.lookup-title').textContent.toLowerCase();
+        const authorText = row.querySelector('.lookup-author').textContent.toLowerCase();
+        const isbnCode = row.querySelector('.data-isbn').textContent.toLowerCase();
+        
+        const matchesTitle = titleText.includes(userQuery);
+        const matchesAuthor = authorText.includes(userQuery);
+        const matchesIsbn = isbnCode.includes(userQuery);
+
+        if (userQuery === "") {
+          row.style.display = "";
+          itemsCountTracker++;
+        } else if (matchesTitle || matchesAuthor || matchesIsbn) {
+          row.style.display = "";
+          itemsCountTracker++;
+          
+          // Flag types encountered to populate upgraded badge components
+          if (matchesTitle) foundTitleMatch = true;
+          if (matchesAuthor) foundAuthorMatch = true;
+          if (matchesIsbn) foundIsbnMatch = true;
+        } else {
+          row.style.display = "none";
+        }
+      });
+
+      // Update counters
+      document.getElementById('tableStateCounter').textContent = `Showing ${itemsCountTracker} catalog listings`;
+      
+      // Update Upgraded Match Badges display states
+      const indicatorBar = document.getElementById('matchIndicators');
+      if (userQuery !== "" && itemsCountTracker > 0) {
+        indicatorBar.classList.remove('hidden');
+        document.getElementById('titleMatchBadge').style.display = foundTitleMatch ? 'inline-block' : 'none';
+        document.getElementById('authorMatchBadge').style.display = foundAuthorMatch ? 'inline-block' : 'none';
+        document.getElementById('isbnMatchBadge').style.display = foundIsbnMatch ? 'inline-block' : 'none';
+      } else {
+        indicatorBar.classList.add('hidden');
+      }
+    }
+
+    /**
+     * Transitions targeted assets through double-check confirm flags to execute record deletion safely
+     */
+    function stageItemDeletion(btnInstanceContext) {
+      const targetRow = btnInstanceContext.closest('.catalog-row');
+      const metricCounter = document.getElementById('inventoryCount');
+
+      if (btnInstanceContext.textContent === "Delete") {
+        // Stage 1: Change to confirm state
+        btnInstanceContext.textContent = "Confirm?";
+        btnInstanceContext.className = "bg-rose-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer shadow-xs delete-trigger-btn";
+        
+        // Auto reset to default state after 3.5 seconds if action is abandoned
+        btnInstanceContext.dataset.timeoutId = setTimeout(() => {
+          btnInstanceContext.textContent = "Delete";
+          btnInstanceContext.className = "bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn";
+        }, 3500);
+
+      } else if (btnInstanceContext.textContent === "Confirm?") {
+        // Stage 2: Finalize deletion process execution
+        clearTimeout(parseInt(btnInstanceContext.dataset.timeoutId, 10));
+        
+        // Smooth fade out layout effect transition handling
+        targetRow.style.transition = "all 0.25s ease-out";
+        targetRow.style.opacity = "0";
+        targetRow.style.transform = "scale(0.95)";
+
+        setTimeout(() => {
+          targetRow.remove();
+          
+          // Sync metrics counter data flags
+          let itemsRemaining = document.querySelectorAll('#inventoryTable tbody .catalog-row').length;
+          metricCounter.textContent = itemsRemaining;
+          
+          // Recalculate context results total numbers
+          filterInventoryTable();
+        }, 250);
+      }
+    }
+  </script>
+</body>
+</html>
