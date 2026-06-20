@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Delete Book Records</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-6 font-sans">
+
+  <div class="max-w-6xl mx-auto">
+    
+    <div class="flex justify-between items-center mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900">Manage Catalog Inventory</h1>
+        <p class="text-xs text-slate-500 mt-1">Permanently remove book records or titles from the collection database.</p>
+      </div>
+      <div class="bg-slate-100 text-slate-700 border border-slate-200 font-semibold px-4 py-1.5 text-sm rounded-lg">
+        Total Inventory: <span id="inventoryCount">4</span>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row gap-3 items-center justify-between">
+      <input 
+        type="text" 
+        id="inventorySearch" 
+        onkeyup="filterInventoryTable()" 
+        placeholder="Search inventory items by title, author, or ISBN key..." 
+        class="w-full md:w-1/2 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+      >
+      <div class="text-xs text-slate-400 font-medium" id="tableStateCounter">Showing 4 catalog listings</div>
+    </div>
+
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <table class="w-full text-left text-sm" id="inventoryTable">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+            <th class="p-4 w-28">ISBN Code</th>
+            <th class="p-4">Book Identity Profile</th>
+            <th class="p-4">Genre</th>
+            <th class="p-4 text-center w-36">Stock Status</th>
+            <th class="p-4 text-center w-32">Destructive Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 text-slate-700">
+          
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0131103627</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">The C Programming Language</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Brian Kernighan</div>
+            </td>
+            <td class="p-4 text-slate-500">Programming</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">In Stock</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0321356680</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">Effective C++</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Scott Meyers</div>
+            </td>
+            <td class="p-4 text-slate-500">Programming</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">In Stock</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0132350884</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">Clean Code</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Robert Martin</div>
+            </td>
+            <td class="p-4 text-slate-500">Software Engineering</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">On Loan</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+          <tr class="hover:bg-slate-50 catalog-row">
+            <td class="p-4 font-mono text-xs text-slate-400 data-isbn">978-0262033848</td>
+            <td class="p-4">
+              <div class="font-semibold text-slate-900 lookup-title">Introduction to Algorithms</div>
+              <div class="text-xs text-slate-400 mt-0.5 lookup-author">Thomas Cormen</div>
+            </td>
+            <td class="p-4 text-slate-500">Computer Science</td>
+            <td class="p-4 text-center">
+              <span class="px-2 py-0.5 rounded text-xs font-medium bg-rose-50 text-rose-700 border border-rose-100">Out of Stock</span>
+            </td>
+            <td class="p-4 text-center">
+              <button onclick="stageItemDeletion(this)" class="bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-pointer border border-slate-200 hover:border-rose-200 shadow-xs delete-trigger-btn">Delete</button>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="delete-book.js"></script>
+</body>
+</html> 
