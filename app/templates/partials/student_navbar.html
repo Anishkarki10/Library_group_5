@@ -1,57 +1,57 @@
-<!-- STUDENT TOP NAVBAR -->
-<header class="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-50" style="background:#0f2044;border-color:rgba(255,255,255,0.12);">
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
-      <i class="fa-solid fa-book-open text-xl" style="color:#c9a84c;"></i>
-    </div>
-
-    <div>
-      <h1 class="text-xl md:text-2xl font-bold text-white">Library Management</h1>
-      <p class="text-xs" style="color:rgba(247,244,239,0.65);">Student Portal</p>
-    </div>
-  </div>
-
-  <div class="flex items-center gap-3">
-    <div class="hidden sm:flex items-center gap-2 text-white/80">
-      <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background:#c9a84c;color:#0f2044;">
-        {{ session.get("user_name", "S")[0] if session.get("user_name") else "S" }}
+<!-- TOP NAVBAR -->
+  <header class="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-50" style="background:#0f2044;border-color:rgba(255,255,255,0.12);">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+        <i class="fa-solid fa-book-open text-xl" style="color:#c9a84c;"></i>
       </div>
-      <span class="text-sm font-medium">{{ session.get("user_name", "Student") }}</span>
+
+      <div>
+        <h1 class="text-xl md:text-2xl font-bold text-white">Library Management</h1>
+        <p class="text-xs" style="color:rgba(247,244,239,0.65);">Student Portal</p>
+      </div>
     </div>
 
-    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition hover:opacity-90" style="color:#f7f4ef;background:rgba(255,255,255,0.08);">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      Logout
-    </a>
-  </div>
-</header>
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 text-white/80">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style="background:#c9a84c;color:#0f2044;">
+          {{ session.get("user_name", "S")[0] if session.get("user_name") else "S" }}
+        </div>
+        <span class="text-sm font-medium">{{ session.get("user_name", "Student") }}</span>
+      </div>
 
-<!-- STUDENT NAV TABS -->
-<nav class="bg-white border-b border-gray-200 px-6 sticky top-[73px] z-40">
-  <div class="flex gap-1 overflow-x-auto">
-    <button type="button" onclick="showPage('catalog')" id="nav-catalog" class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:#c9a84c;color:#0f2044;">
-      <i class="fa-solid fa-magnifying-glass"></i>
-      Physical Books
-    </button>
+      <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-2 px-4 py-2 text-sm rounded-lg transition hover:opacity-90" style="color:#f7f4ef;background:rgba(255,255,255,0.08);">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Logout
+      </a>
+    </div>
+  </header>
 
-    <button type="button" onclick="showPage('ebooks')" id="nav-ebooks" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
-      <i class="fa-solid fa-file-pdf"></i>
-      E-Books
-    </button>
+<!-- NAV TABS -->
+  <nav class="bg-white border-b border-gray-200 px-6 sticky top-[73px] z-40">
+    <div class="flex gap-1 overflow-x-auto">
+      <button type="button" onclick="showPage('catalog')" id="nav-catalog" class="nav-btn active flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:#c9a84c;color:#0f2044;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        Physical Books
+      </button>
 
-    <button type="button" onclick="showPage('dashboard')" id="nav-dashboard" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
-      <i class="fa-solid fa-gauge"></i>
-      My Dashboard
-    </button>
+      <button type="button" onclick="showPage('ebooks')" id="nav-ebooks" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
+        <i class="fa-solid fa-file-pdf"></i>
+        E-Books
+      </button>
 
-    <button type="button" onclick="showPage('password')" id="nav-password" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
-      <i class="fa-solid fa-lock"></i>
-      Change Password
-    </button>
+      <button type="button" onclick="showPage('dashboard')" id="nav-dashboard" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
+        <i class="fa-solid fa-gauge"></i>
+        My Dashboard
+      </button>
 
-    <button type="button" onclick="showPage('about')" id="nav-about" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
-      <i class="fa-solid fa-circle-info"></i>
-      About
-    </button>
-  </div>
-</nav>
+      <button type="button" onclick="showPage('password')" id="nav-password" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
+        <i class="fa-solid fa-lock"></i>
+        Change Password
+      </button>
+
+      <button type="button" onclick="showPage('about')" id="nav-about" class="nav-btn flex items-center gap-2 px-5 py-4 text-sm font-medium border-b-2 whitespace-nowrap" style="border-color:transparent;color:#6b6560;">
+        <i class="fa-solid fa-circle-info"></i>
+        About
+      </button>
+    </div>
+  </nav>
