@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Flask
+instance/
+.webassets-cache
+
+# Environment variables / secrets
+.env
+.env.*
+config_local.py
+
+# Database files
+*.db
+*.sqlite3
+*.sqlite
+
+# Mac
+.DS_Store
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# Logs
+*.log
+
+# Uploads / temporary files
+uploads/
+tmp/
+temp/
+
+# Node if any
+node_modules/app/templates/README.md
+app/templates/admin.css
+app/templates/admin.js
+app/templates/change_password.html
+app/templates/forget.html
+app/templates/student.css
+app/templates/student.html
+app/templates/student.js
