@@ -1,0 +1,1484 @@
+{% set layout_type = "student" %}
+{% extends "base.html" %}
+
+{% block title %}Student Library Dashboard{% endblock %}
+
+{% block content %}
+<!-- FLASH MESSAGES -->
+  <div class="px-6 pt-6">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="space-y-2">
+          {% for category, message in messages %}
+            <div class="
+              px-4 py-3 rounded-lg text-sm border
+              {% if category == 'success' %}
+                bg-green-50 text-green-700 border-green-200
+              {% elif category == 'danger' or category == 'error' %}
+                bg-red-50 text-red-700 border-red-200
+              {% elif category == 'warning' %}
+                bg-yellow-50 text-yellow-700 border-yellow-200
+              {% else %}
+                bg-blue-50 text-blue-700 border-blue-200
+              {% endif %}
+            ">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <main>
+
+    <!-- PHYSICAL BOOKS PAGE -->
+    <section id="page-catalog" class="page-section">
+
+      <!-- HERO -->
+      <div class="relative h-80 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1600&q=80"
+          alt="Library books"
+          class="w-full h-full object-cover object-center"
+        />
+        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.35), transparent);">
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">Library Resource Management</p>
+          <h2 class="text-5xl font-bold text-white mb-3">Explore Physical Books</h2>
+          <p class="text-lg max-w-xl" style="color:rgba(255,255,255,0.82);">Search, reserve, and view complete book details in a clean modal view.</p>
+        </div>
+      </div>
+
+      <div class="p-6">
+
+        <!-- SEARCH AND FILTERS -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border mb-6" style="border-color:#e8e3da;">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2" style="color:#c9a84c;"></i>
+              <input
+                type="text"
+                id="bookSearch"
+                onkeyup="filterBooks()"
+                placeholder="Search by title or author..."
+                class="w-full pl-10 pr-4 py-3 rounded-xl text-sm border outline-none"
+                style="background:#f7f4ef;border-color:#e8e3da;color:#1a1a2e;"
+              />
+            </div>
+
+            <div class="relative">
+              <i class="fa-solid fa-filter absolute left-3 top-1/2 -translate-y-1/2" style="color:#c9a84c;"></i>
+              <select
+                id="bookGenre"
+                onchange="filterBooks()"
+                class="w-full pl-10 pr-4 py-3 rounded-xl text-sm border outline-none"
+                style="background:#f7f4ef;border-color:#e8e3da;color:#1a1a2e;"
+              >
+                <option value="all">All Genres</option>
+                {% if books %}
+                  {% set book_genres = namespace(list=[]) %}
+                  {% for book in books %}
+                    {% set genre = book.genre if book.genre is defined else book["genre"] %}
+                    {% if genre not in book_genres.list %}
+                      {% set _ = book_genres.list.append(genre) %}
+                      <option value="{{ genre }}">{{ genre }}</option>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+
+            <div>
+              <select
+                id="bookAvailability"
+                onchange="filterBooks()"
+                class="w-full px-4 py-3 rounded-xl text-sm border outline-none"
+                style="background:#f7f4ef;border-color:#e8e3da;color:#1a1a2e;"
+              >
+                <option value="all">All Books</option>
+                <option value="available">Available Only</option>
+                <option value="unavailable">Checked Out</option>
+              </select>
+            </div>
+          </div>
+
+          <p class="mt-3 text-sm" style="color:#6b6560;">
+            Click a card to open the full book detail view.
+          </p>
+        </div>
+
+        <!-- BOOK GRID -->
+        <div id="bookGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {% if books %}
+            {% for book in books %}
+              {% set book_id = book.id if book.id is defined else book["id"] %}
+              {% set book_title = book.title if book.title is defined else book["title"] %}
+              {% set book_author = book.author if book.author is defined else book["author"] %}
+              {% set book_genre = book.genre if book.genre is defined else book["genre"] %}
+              {% set book_total = book.total if book.total is defined else book["total"] %}
+              {% set book_available = book.available_count if book.available_count is defined else book["available_count"] %}
+              {% set book_location = book.location if book.location is defined else book["location"] %}
+              {% set book_image = book.image if book.image is defined else book.get("image", None) %}
+              {% set book_isbn = book.isbn if book.isbn is defined else book.get("isbn", "N/A") %}
+              {% set book_publisher = book.publisher if book.publisher is defined else book.get("publisher", "N/A") %}
+              {% set book_year = book.year if book.year is defined else book.get("year", "N/A") %}
+              {% set book_edition = book.edition if book.edition is defined else book.get("edition", "N/A") %}
+              {% set book_pages = book.pages if book.pages is defined else book.get("pages", "N/A") %}
+              {% set book_description = book.description if book.description is defined else book.get("description", "No description available.") %}
+
+              <div
+                class="book-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col cursor-pointer"
+                data-title="{{ book_title|lower }}"
+                data-author="{{ book_author|lower }}"
+                data-genre="{{ book_genre }}"
+                data-available="{{ 'available' if book_available > 0 else 'unavailable' }}"
+                onclick="openBookDetail(this)"
+                data-id="{{ book_id }}"
+                data-book-title="{{ book_title|e }}"
+                data-book-author="{{ book_author|e }}"
+                data-book-genre="{{ book_genre|e }}"
+                data-total="{{ book_total }}"
+                data-available-count="{{ book_available }}"
+                data-location="{{ book_location|e }}"
+                data-isbn="{{ book_isbn|e }}"
+                data-publisher="{{ book_publisher|e }}"
+                data-year="{{ book_year }}"
+                data-edition="{{ book_edition|e }}"
+                data-pages="{{ book_pages }}"
+                data-description="{{ book_description|e }}"
+                data-image="{% if book_image %}{{ url_for('static', filename='uploads/books/' ~ book_image) }}{% endif %}"
+                style="background:#ffffff;border:1px solid #e8e3da;"
+              >
+
+                <!-- COVER -->
+                <div class="relative h-52 flex items-center justify-center overflow-hidden" style="background:#f0ebe2;">
+                  {% if book_image %}
+                    <img
+                      src="{{ url_for('static', filename='uploads/books/' ~ book_image) }}"
+                      alt="{{ book_title }}"
+                      class="w-full h-full object-cover"
+                    />
+                  {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center" style="background:#f0ebe2;color:#6b6560;">
+                      <i class="fa-solid fa-image text-3xl mb-2"></i>
+                      <span class="text-xs font-semibold">No Cover</span>
+                    </div>
+                  {% endif %}
+
+                  <div class="absolute top-3 right-3 w-3 h-3 rounded-full shadow {% if book_available > 0 %}bg-green-400{% else %}bg-red-400{% endif %}"></div>
+                </div>
+
+                <!-- DETAILS -->
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="font-semibold text-sm leading-tight mb-1 line-clamp-2" style="color:#0f2044;">
+                    {{ book_title }}
+                  </h3>
+
+                  <p class="text-xs mb-2" style="color:#6b6560;">
+                    {{ book_author }}
+                  </p>
+
+                  <span class="inline-block self-start px-2 py-0.5 rounded-full text-xs mb-3" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">
+                    {{ book_genre }}
+                  </span>
+
+                  <div class="mt-auto flex flex-col gap-2">
+                    {% if book_available > 0 %}
+                      <span class="text-xs font-medium text-emerald-600">
+                        {{ book_available }} of {{ book_total }} copies available
+                      </span>
+                    {% else %}
+                      <span class="text-xs font-medium text-red-500">
+                        Currently checked out
+                      </span>
+                    {% endif %}
+
+                    {% if book_available > 0 %}
+                      <button
+                        type="button"
+                        class="w-full py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                        style="background:#0f2044;color:#c9a84c;"
+                      >
+                        View Details
+                      </button>
+                    {% else %}
+                      <button
+                        type="button"
+                        class="w-full py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                        style="background:#e8e3da;color:#6b6560;"
+                      >
+                        View Details
+                      </button>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="col-span-full text-center py-16">
+              <i class="fa-solid fa-book-open text-5xl mb-4" style="color:#e8e3da;"></i>
+              <p class="font-semibold" style="color:#0f2044;">No books found</p>
+              <p class="text-sm mt-1" style="color:#6b6560;">Books added by admin will show here.</p>
+            </div>
+          {% endif %}
+        </div>
+
+        <div id="noBooksMessage" class="hidden text-center py-16">
+          <i class="fa-solid fa-book-open text-5xl mb-4" style="color:#e8e3da;"></i>
+          <p class="font-semibold" style="color:#0f2044;">No books match your search</p>
+          <p class="text-sm mt-1" style="color:#6b6560;">Try changing your search or filters.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- E-BOOKS PAGE -->
+    <section id="page-ebooks" class="page-section hidden">
+
+      <!-- HERO -->
+      <div class="relative h-72 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1585779034823-7e9ac8faec70?auto=format&fit=crop&w=1600&q=80"
+          alt="E-Books"
+          class="w-full h-full object-cover object-center"
+        />
+        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.35), transparent);">
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">Digital Library</p>
+          <h2 class="text-5xl font-bold text-white mb-2">E-Books</h2>
+          <p class="text-lg" style="color:rgba(255,255,255,0.82);">Browse, read, and download uploaded PDF e-books.</p>
+        </div>
+      </div>
+
+      <div class="p-6">
+
+        <!-- SEARCH AND FILTER -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border mb-6" style="border-color:#e8e3da;">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-2 relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2" style="color:#c9a84c;"></i>
+              <input
+                type="text"
+                id="ebookSearch"
+                onkeyup="filterEbooks()"
+                placeholder="Search e-books by title or author..."
+                class="w-full pl-10 pr-4 py-3 rounded-xl text-sm border outline-none"
+                style="background:#f7f4ef;border-color:#e8e3da;color:#1a1a2e;"
+              />
+            </div>
+
+            <div>
+              <select
+                id="ebookCategory"
+                onchange="filterEbooks()"
+                class="w-full px-4 py-3 rounded-xl text-sm border outline-none"
+                style="background:#f7f4ef;border-color:#e8e3da;color:#1a1a2e;"
+              >
+                <option value="all">All Categories</option>
+                {% if ebooks %}
+                  {% set ebook_categories = namespace(list=[]) %}
+                  {% for ebook in ebooks %}
+                    {% set ebook_category = ebook.category if ebook.category is defined else ebook["category"] %}
+                    {% if ebook_category not in ebook_categories.list %}
+                      {% set _ = ebook_categories.list.append(ebook_category) %}
+                      <option value="{{ ebook_category }}">{{ ebook_category }}</option>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+
+          <p class="mt-3 text-sm" style="color:#6b6560;">
+            Click an e-book card to view full details.
+          </p>
+        </div>
+
+        <!-- EBOOK GRID -->
+        <div id="ebookGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {% if ebooks %}
+            {% for ebook in ebooks %}
+              {% set ebook_id = ebook.id if ebook.id is defined else ebook["id"] %}
+              {% set ebook_title = ebook.title if ebook.title is defined else ebook["title"] %}
+              {% set ebook_author = ebook.author if ebook.author is defined else ebook["author"] %}
+              {% set ebook_category = ebook.category if ebook.category is defined else ebook["category"] %}
+              {% set ebook_pages = ebook.pages if ebook.pages is defined else ebook["pages"] %}
+              {% set ebook_size = ebook.file_size if ebook.file_size is defined else ebook["file_size"] %}
+              {% set ebook_description = ebook.description if ebook.description is defined else ebook["description"] %}
+              {% set ebook_pdf = ebook.pdf_file if ebook.pdf_file is defined else ebook["pdf_file"] %}
+              {% set ebook_cover = ebook.cover_image if ebook.cover_image is defined else ebook["cover_image"] %}
+              {% set ebook_pdf_url = url_for('static', filename='uploads/ebooks/' ~ ebook_pdf) %}
+
+              <div
+                class="ebook-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col cursor-pointer"
+                data-title="{{ ebook_title|lower }}"
+                data-author="{{ ebook_author|lower }}"
+                data-category="{{ ebook_category }}"
+                onclick="openEbookDetail(this)"
+                data-ebook-title="{{ ebook_title|e }}"
+                data-ebook-author="{{ ebook_author|e }}"
+                data-ebook-category="{{ ebook_category|e }}"
+                data-pages="{{ ebook_pages }}"
+                data-size="{{ ebook_size|e }}"
+                data-description="{{ ebook_description|e }}"
+                data-pdf-url="{{ ebook_pdf_url }}"
+                data-cover="{% if ebook_cover %}{{ url_for('static', filename='uploads/ebooks/covers/' ~ ebook_cover) }}{% endif %}"
+                style="background:#ffffff;border:1px solid #e8e3da;"
+              >
+
+                <!-- COVER -->
+                <div class="relative h-44 flex items-center justify-center overflow-hidden" style="background:#f0ebe2;">
+                  {% if ebook_cover %}
+                    <img
+                      src="{{ url_for('static', filename='uploads/ebooks/covers/' ~ ebook_cover) }}"
+                      alt="{{ ebook_title }}"
+                      class="w-full h-full object-cover"
+                    />
+                  {% else %}
+                    <div class="w-full h-full flex flex-col items-center justify-center" style="background:#f0ebe2;color:#6b6560;">
+                      <i class="fa-solid fa-image text-3xl mb-2"></i>
+                      <span class="text-xs font-semibold">No Cover</span>
+                    </div>
+                  {% endif %}
+
+                  <div class="absolute top-3 right-3 px-2 py-0.5 rounded text-xs font-bold" style="background:#c9a84c;color:#0f2044;">
+                    PDF
+                  </div>
+                </div>
+
+                <!-- DETAILS -->
+                <div class="p-4 flex flex-col flex-1">
+                  <h3 class="font-semibold text-sm leading-tight mb-1 line-clamp-2" style="color:#0f2044;">
+                    {{ ebook_title }}
+                  </h3>
+
+                  <p class="text-xs mb-1" style="color:#6b6560;">
+                    {{ ebook_author }}
+                  </p>
+
+                  <span class="inline-block self-start px-2 py-0.5 rounded-full text-xs mb-2" style="background:rgba(201,168,76,0.12);color:#8a6a1a;">
+                    {{ ebook_category }}
+                  </span>
+
+                  <p class="text-xs leading-relaxed mb-3 line-clamp-2" style="color:#6b6560;">
+                    {{ ebook_description }}
+                  </p>
+
+                  <div class="flex items-center gap-2 text-xs mb-3" style="color:#6b6560;">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>{{ ebook_pages }} pages</span>
+                    <span>·</span>
+                    <i class="fa-solid fa-download"></i>
+                    <span>{{ ebook_size }}</span>
+                  </div>
+
+                  <div class="mt-auto flex gap-2">
+                    <a
+                      href="{{ ebook_pdf_url }}"
+                      target="_blank"
+                      onclick="event.stopPropagation()"
+                      class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90"
+                      style="background:#0f2044;color:#c9a84c;"
+                    >
+                      <i class="fa-solid fa-eye"></i>
+                      Read
+                    </a>
+
+                    <a
+                      href="{{ ebook_pdf_url }}"
+                      download
+                      onclick="event.stopPropagation()"
+                      class="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all"
+                      style="background:#f0ebe2;color:#0f2044;border:1.5px solid #e8e3da;"
+                    >
+                      <i class="fa-solid fa-download"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="col-span-full text-center py-16">
+              <i class="fa-solid fa-file-pdf text-5xl mb-4" style="color:#e8e3da;"></i>
+              <p class="font-semibold" style="color:#0f2044;">No e-books uploaded yet</p>
+              <p class="text-sm mt-1" style="color:#6b6560;">Uploaded PDFs from admin dashboard will show here.</p>
+            </div>
+          {% endif %}
+        </div>
+
+        <div id="noEbooksMessage" class="hidden text-center py-16">
+          <i class="fa-solid fa-file-pdf text-5xl mb-4" style="color:#e8e3da;"></i>
+          <p class="font-semibold" style="color:#0f2044;">No e-books match your search</p>
+          <p class="text-sm mt-1" style="color:#6b6560;">Try changing your search or category.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- STUDENT DASHBOARD PAGE -->
+    <section id="page-dashboard" class="page-section hidden">
+      <div class="relative h-72 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1699443817739-cf2f7cbcd18d?auto=format&fit=crop&w=1600&q=80" alt="Library shelves" class="w-full h-full object-cover object-center" />
+        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.35), transparent);">
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">Student Dashboard</p>
+          <h2 class="text-5xl font-bold text-white mb-2">Welcome Back!</h2>
+          <p class="text-lg" style="color:rgba(255,255,255,0.82);">Your library activity at a glance.</p>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+          <div class="bg-white rounded-xl border shadow-sm p-5 flex items-center gap-4" style="border-color:#e8e3da;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:rgba(201,168,76,0.14);">
+              <i class="fa-solid fa-book-open text-xl" style="color:#0f2044;"></i>
+            </div>
+            <div>
+              <p class="text-sm" style="color:#6b6560;">Active Reservations</p>
+              <p class="text-2xl font-bold" style="color:#0f2044;">{{ reservations|length if reservations else 0 }}</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border shadow-sm p-5 flex items-center gap-4" style="border-color:#e8e3da;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-green-50">
+              <i class="fa-solid fa-clock-rotate-left text-xl text-green-600"></i>
+            </div>
+            <div>
+              <p class="text-sm" style="color:#6b6560;">Reading History</p>
+              <p class="text-2xl font-bold" style="color:#0f2044;">{{ reading_history|length if reading_history else 0 }}</p>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-xl border shadow-sm p-5 flex items-center gap-4" style="border-color:#e8e3da;">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-red-50">
+              <i class="fa-solid fa-bell text-xl text-red-500"></i>
+            </div>
+            <div>
+              <p class="text-sm" style="color:#6b6560;">Cancelled</p>
+              <p class="text-2xl font-bold text-red-600">{{ cancelled_reservations|length if cancelled_reservations else 0 }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border shadow-sm p-6" style="border-color:#e8e3da;">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-xl font-bold" style="color:#0f2044;">Current Reservations</h3>
+              <p class="text-sm mt-1" style="color:#6b6560;">You can request cancellation anytime. After admin marks a book as picked up, you can request a 15-day extension.</p>
+            </div>
+          </div>
+
+          {% if reservations %}
+            <div class="space-y-3">
+              {% for item in reservations %}
+                {% set reservation_id = item.id if item.id is defined else item["id"] %}
+                {% set item_title = item.title if item.title is defined else item.get("title", "Book") %}
+                {% set item_author = item.author if item.author is defined else item.get("author", "") %}
+                {% set item_status = item.status if item.status is defined else item.get("status", "") %}
+                {% set item_due_date = item.due_date if item.due_date is defined else item.get("due_date", "") %}
+                {% set item_image = item.image if item.image is defined else item.get("image", None) %}
+
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-4 rounded-xl" style="background:#f7f4ef;border:1px solid #e8e3da;">
+                  <div class="flex items-start gap-4">
+                    <div class="w-16 h-22 rounded-xl overflow-hidden shrink-0 flex items-center justify-center" style="background:#0f2044;">
+                      {% if item_image %}
+                        <img src="{{ url_for('static', filename='uploads/books/' ~ item_image) }}" alt="{{ item_title }}" class="w-full h-full object-cover" />
+                      {% else %}
+                        <i class="fa-solid fa-book-open text-2xl" style="color:#c9a84c;"></i>
+                      {% endif %}
+                    </div>
+
+                    <div>
+                      <p class="font-semibold" style="color:#0f2044;">{{ item_title }}</p>
+                      <p class="text-xs" style="color:#6b6560;">{{ item_author }}</p>
+
+                    {% if item_status == "reserved" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold" style="background:rgba(201,168,76,0.14);color:#8a6a1a;">
+                        Reserved - Waiting for pickup
+                      </span>
+                    {% elif item_status == "borrowed" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                        Borrowed
+                      </span>
+                    {% elif item_status == "renew_requested" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700">
+                        Renew request pending
+                      </span>
+                    {% elif item_status == "cancel_requested" %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700">
+                        Cancel request pending
+                      </span>
+                    {% else %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold" style="background:#e8e3da;color:#6b6560;">
+                        {{ item_status }}
+                      </span>
+                    {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div class="text-left sm:text-right min-w-[120px]">
+                      <p class="text-xs" style="color:#6b6560;">Due Date</p>
+                      <p class="text-sm font-semibold" style="color:#0f2044;">{{ item_due_date if item_due_date else "Not picked up yet" }}</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2 justify-start sm:justify-end">
+                      {% if item_status == "borrowed" %}
+                        <form
+                          action="{{ url_for('auth.request_renew_book', reservation_id=reservation_id) }}"
+                          method="POST"
+                          class="inline-block"
+                          onsubmit="return confirm('Request 15 more days for this book?');"
+                        >
+                          <button
+                            type="submit"
+                            class="px-3 py-2 rounded-lg text-xs font-semibold transition hover:opacity-90"
+                            style="background:#0f2044;color:#c9a84c;"
+                          >
+                            <i class="fa-solid fa-clock mr-1"></i>
+                            Request 15 Days
+                          </button>
+                        </form>
+                      {% elif item_status == "renew_requested" %}
+                        <span class="px-3 py-2 rounded-lg text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">
+                          Waiting Admin Approval
+                        </span>
+                      {% elif item_status == "reserved" %}
+                        <span class="px-3 py-2 rounded-lg text-xs font-semibold" style="background:#f0ebe2;color:#0f2044;border:1px solid #e8e3da;">
+                          Pick up first to renew
+                        </span>
+                      {% endif %}
+
+                      {% if item_status in ["reserved", "borrowed"] %}
+                        <form
+                          action="{{ url_for('auth.request_cancel_reservation', reservation_id=reservation_id) }}"
+                          method="POST"
+                          class="inline-block"
+                          onsubmit="return confirm('Send cancel request to admin?');"
+                        >
+                          <button
+                            type="submit"
+                            class="px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-600 border border-red-200 transition hover:bg-red-100"
+                          >
+                            <i class="fa-solid fa-xmark mr-1"></i>
+                            Request Cancel
+                          </button>
+                        </form>
+                      {% elif item_status == "cancel_requested" %}
+                        <span class="px-3 py-2 rounded-lg text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                          Waiting Cancel Approval
+                        </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-sm" style="color:#6b6560;">No active reservations.</p>
+          {% endif %}
+        </div>
+
+        <!-- READING HISTORY -->
+        <div class="bg-white rounded-xl border shadow-sm p-6 mt-6" style="border-color:#e8e3da;">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
+            <div>
+              <h3 class="text-xl font-bold" style="color:#0f2044;">Reading History</h3>
+              <p class="text-sm mt-1" style="color:#6b6560;">Books you have returned will appear here with their cover images.</p>
+            </div>
+          </div>
+
+          {% if reading_history %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {% for item in reading_history %}
+                {% set history_title = item.title if item.title is defined else item.get("title", "Book") %}
+                {% set history_author = item.author if item.author is defined else item.get("author", "") %}
+                {% set history_genre = item.genre if item.genre is defined else item.get("genre", "") %}
+                {% set history_image = item.image if item.image is defined else item.get("image", None) %}
+                {% set history_returned = item.returned_at if item.returned_at is defined else item.get("returned_at", "") %}
+                {% set history_due = item.due_date if item.due_date is defined else item.get("due_date", "") %}
+
+                <div class="flex gap-4 p-4 rounded-xl border hover:shadow-md transition" style="background:#f7f4ef;border-color:#e8e3da;">
+                  <div class="w-16 h-22 rounded-xl overflow-hidden shrink-0 flex items-center justify-center" style="background:#0f2044;">
+                    {% if history_image %}
+                      <img src="{{ url_for('static', filename='uploads/books/' ~ history_image) }}" alt="{{ history_title }}" class="w-full h-full object-cover" />
+                    {% else %}
+                      <i class="fa-solid fa-book-open text-2xl" style="color:#c9a84c;"></i>
+                    {% endif %}
+                  </div>
+
+                  <div class="min-w-0">
+                    <p class="font-semibold line-clamp-2" style="color:#0f2044;">{{ history_title }}</p>
+                    <p class="text-xs mt-1" style="color:#6b6560;">{{ history_author }}</p>
+
+                    {% if history_genre %}
+                      <span class="inline-block mt-2 px-2 py-1 rounded-full text-xs font-semibold" style="background:rgba(201,168,76,0.14);color:#8a6a1a;">
+                        {{ history_genre }}
+                      </span>
+                    {% endif %}
+
+                    <div class="mt-3 text-xs" style="color:#6b6560;">
+                      <p>
+                        <span class="font-semibold" style="color:#0f2044;">Due:</span>
+                        {{ history_due if history_due else "N/A" }}
+                      </p>
+                      <p>
+                        <span class="font-semibold" style="color:#0f2044;">Returned:</span>
+                        {{ history_returned if history_returned else "Returned" }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center py-10 rounded-xl" style="background:#f7f4ef;border:1px solid #e8e3da;">
+              <i class="fa-solid fa-clock-rotate-left text-4xl mb-3" style="color:#c9a84c;"></i>
+              <p class="font-semibold" style="color:#0f2044;">No reading history yet</p>
+              <p class="text-sm mt-1" style="color:#6b6560;">Returned books will show here with their photo.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- CHANGE PASSWORD PAGE -->
+    <section id="page-password" class="page-section hidden">
+      <div class="relative h-64 overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1604866830893-c13cafa515d5?auto=format&fit=crop&w=1600&q=80" alt="Library" class="w-full h-full object-cover object-center" />
+        <div class="absolute inset-0 flex flex-col justify-end px-10 pb-10" style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.35), transparent);">
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">Account Settings</p>
+          <h2 class="text-5xl font-bold text-white mb-2">Change Password</h2>
+          <p class="text-lg" style="color:rgba(255,255,255,0.82);">Keep your account secure.</p>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <div class="max-w-lg bg-white rounded-xl border shadow-sm p-6" style="border-color:#e8e3da;">
+          <form action="{{ url_for('auth.change_password') }}" method="POST" class="space-y-5">
+            <div>
+              <label class="block text-sm font-medium mb-2" style="color:#0f2044;">Current Password</label>
+              <input type="password" name="current_password" required class="w-full px-4 py-3 border rounded-xl outline-none" style="background:#f7f4ef;border-color:#e8e3da;" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2" style="color:#0f2044;">New Password</label>
+              <input type="password" name="new_password" required class="w-full px-4 py-3 border rounded-xl outline-none" style="background:#f7f4ef;border-color:#e8e3da;" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2" style="color:#0f2044;">Confirm Password</label>
+              <input type="password" name="confirm_password" required class="w-full px-4 py-3 border rounded-xl outline-none" style="background:#f7f4ef;border-color:#e8e3da;" />
+            </div>
+
+            <button type="submit" class="px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition" style="background:#0f2044;color:#c9a84c;">
+              Update Password
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT PAGE -->
+    <section id="page-about" class="page-section hidden">
+
+      <!-- HERO SECTION -->
+      <div class="relative h-80 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1600&q=80"
+          alt="Library interior"
+          class="w-full h-full object-cover object-center"
+        />
+
+        <div
+          class="absolute inset-0 flex flex-col justify-end px-10 pb-10"
+          style="background:linear-gradient(to top, rgba(15,32,68,0.92), rgba(15,32,68,0.45), transparent);"
+        >
+          <p class="text-xs uppercase tracking-widest mb-2" style="color:#c9a84c;">
+            About Library Management
+          </p>
+
+          <h2 class="text-5xl font-bold text-white mb-3">
+            Your Gateway to Knowledge
+          </h2>
+
+          <p class="text-lg max-w-2xl" style="color:rgba(255,255,255,0.82);">
+            A modern library system built to help students discover books, reserve resources, read e-books, and manage their learning journey easily.
+          </p>
+        </div>
+      </div>
+
+      <div class="p-8 max-w-7xl mx-auto">
+
+        <!-- INTRO SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center mb-14">
+
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Who We Are
+            </p>
+
+            <h3 class="text-4xl font-bold mb-5" style="color:#0f2044;">
+              A Smarter Way to Manage Library Resources
+            </h3>
+
+            <p class="leading-relaxed mb-4" style="color:#6b6560;">
+              Library Management is designed to make library access simple for students and easy for administrators. Students can search physical books, check availability, reserve books, view reading history, and access uploaded PDF e-books from one clean portal.
+            </p>
+
+            <p class="leading-relaxed mb-6" style="color:#6b6560;">
+              Our goal is to combine the value of traditional libraries with the convenience of modern digital learning.
+            </p>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-4 rounded-xl" style="background:#ffffff;border:1px solid #e8e3da;">
+                <p class="text-2xl font-bold" style="color:#0f2044;">
+                  {{ books|length if books else 0 }}+
+                </p>
+                <p class="text-sm" style="color:#6b6560;">Physical Books</p>
+              </div>
+
+              <div class="p-4 rounded-xl" style="background:#ffffff;border:1px solid #e8e3da;">
+                <p class="text-2xl font-bold" style="color:#0f2044;">
+                  {{ ebooks|length if ebooks else 0 }}+
+                </p>
+                <p class="text-sm" style="color:#6b6560;">E-Books</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative">
+            <div class="rounded-3xl overflow-hidden shadow-xl">
+              <img
+                src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1200&q=80"
+                alt="Students reading"
+                class="w-full h-[420px] object-cover"
+              />
+            </div>
+
+            <div
+              class="absolute -bottom-6 -left-6 bg-white rounded-2xl p-5 shadow-xl border hidden md:block"
+              style="border-color:#e8e3da;"
+            >
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background:#0f2044;">
+                  <i class="fa-solid fa-book-open text-xl" style="color:#c9a84c;"></i>
+                </div>
+
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Digital + Physical</p>
+                  <p class="text-sm" style="color:#6b6560;">One complete learning system</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- FEATURES SECTION -->
+        <div class="mb-14">
+          <div class="text-center mb-8">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              What Students Can Do
+            </p>
+
+            <h3 class="text-3xl font-bold" style="color:#0f2044;">
+              Built for Better Learning
+            </h3>
+
+            <p class="mt-2 max-w-2xl mx-auto" style="color:#6b6560;">
+              Everything is organized so students can find resources faster and admins can manage the library more easily.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div class="bg-white rounded-2xl border shadow-sm p-6 hover:shadow-lg transition" style="border-color:#e8e3da;">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style="background:#0f2044;">
+                <i class="fa-solid fa-magnifying-glass text-xl" style="color:#c9a84c;"></i>
+              </div>
+
+              <h4 class="text-lg font-bold mb-2" style="color:#0f2044;">
+                Search Books
+              </h4>
+
+              <p class="text-sm leading-relaxed" style="color:#6b6560;">
+                Students can search books by title, author, genre, and availability before visiting the library.
+              </p>
+            </div>
+
+            <div class="bg-white rounded-2xl border shadow-sm p-6 hover:shadow-lg transition" style="border-color:#e8e3da;">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style="background:#0f2044;">
+                <i class="fa-solid fa-bookmark text-xl" style="color:#c9a84c;"></i>
+              </div>
+
+              <h4 class="text-lg font-bold mb-2" style="color:#0f2044;">
+                Reserve Books
+              </h4>
+
+              <p class="text-sm leading-relaxed" style="color:#6b6560;">
+                Students can reserve available books and track their active reservations from their dashboard.
+              </p>
+            </div>
+
+            <div class="bg-white rounded-2xl border shadow-sm p-6 hover:shadow-lg transition" style="border-color:#e8e3da;">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-5" style="background:#0f2044;">
+                <i class="fa-solid fa-file-pdf text-xl" style="color:#c9a84c;"></i>
+              </div>
+
+              <h4 class="text-lg font-bold mb-2" style="color:#0f2044;">
+                Read E-Books
+              </h4>
+
+              <p class="text-sm leading-relaxed" style="color:#6b6560;">
+                Students can read and download uploaded PDF e-books anytime from the digital library section.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- WHY THIS SYSTEM SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+
+          <div class="bg-white rounded-3xl border shadow-sm p-8" style="border-color:#e8e3da;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Why It Matters
+            </p>
+
+            <h3 class="text-3xl font-bold mb-5" style="color:#0f2044;">
+              Simple for Students, Powerful for Admins
+            </h3>
+
+            <div class="space-y-5">
+
+              <div class="flex gap-4">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:rgba(201,168,76,0.14);">
+                  <i class="fa-solid fa-check" style="color:#0f2044;"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-bold" style="color:#0f2044;">Easy Access</h4>
+                  <p class="text-sm" style="color:#6b6560;">
+                    Students do not need to manually ask for every book. They can check availability instantly.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:rgba(201,168,76,0.14);">
+                  <i class="fa-solid fa-clock" style="color:#0f2044;"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-bold" style="color:#0f2044;">Time Saving</h4>
+                  <p class="text-sm" style="color:#6b6560;">
+                    Admins can manage books, reservations, e-books, users, returns, and renew requests faster.
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex gap-4">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:rgba(201,168,76,0.14);">
+                  <i class="fa-solid fa-chart-line" style="color:#0f2044;"></i>
+                </div>
+
+                <div>
+                  <h4 class="font-bold" style="color:#0f2044;">Better Tracking</h4>
+                  <p class="text-sm" style="color:#6b6560;">
+                    The system keeps records of reservations, returns, cancellations, reading history, and digital resources.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="rounded-3xl border shadow-sm p-8" style="background:#0f2044;border-color:#0f2044;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Library Services
+            </p>
+
+            <h3 class="text-3xl font-bold text-white mb-6">
+              Available Services
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-book text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">Book Reservation</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  Reserve available books online.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-rotate text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">Renew Request</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  Request extra time for borrowed books.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-clock-rotate-left text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">Reading History</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  See returned and previously read books.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(255,255,255,0.08);">
+                <i class="fa-solid fa-file-pdf text-xl mb-3" style="color:#c9a84c;"></i>
+                <p class="font-semibold text-white">E-Book Access</p>
+                <p class="text-xs mt-1" style="color:rgba(255,255,255,0.65);">
+                  Read and download digital materials.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CONTACT AND HOURS -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          <div class="lg:col-span-2 bg-white rounded-3xl border shadow-sm p-8" style="border-color:#e8e3da;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Contact Information
+            </p>
+
+            <h3 class="text-3xl font-bold mb-6" style="color:#0f2044;">
+              Get in Touch
+            </h3>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-location-dot" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Address</p>
+                  <p class="text-sm" style="color:#6b6560;">Main Campus Library Building</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-phone" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Phone</p>
+                  <p class="text-sm" style="color:#6b6560;">+977-01-5555555</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-envelope" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Email</p>
+                  <p class="text-sm" style="color:#6b6560;">library@college.edu.np</p>
+                </div>
+              </div>
+
+              <div class="flex gap-4 p-4 rounded-2xl" style="background:#f7f4ef;">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center shrink-0" style="background:#0f2044;">
+                  <i class="fa-solid fa-globe" style="color:#c9a84c;"></i>
+                </div>
+                <div>
+                  <p class="font-bold" style="color:#0f2044;">Website</p>
+                  <p class="text-sm" style="color:#6b6560;">www.librarymanagement.edu.np</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="rounded-3xl border shadow-sm p-8" style="background:#ffffff;border-color:#e8e3da;">
+            <p class="text-sm font-semibold uppercase tracking-widest mb-2" style="color:#c9a84c;">
+              Opening Hours
+            </p>
+
+            <h3 class="text-2xl font-bold mb-5" style="color:#0f2044;">
+              Library Time
+            </h3>
+
+            <div class="space-y-4">
+              <div class="flex justify-between border-b pb-3" style="border-color:#e8e3da;">
+                <span class="text-sm" style="color:#6b6560;">Sunday - Friday</span>
+                <span class="text-sm font-bold" style="color:#0f2044;">7 AM - 6 PM</span>
+              </div>
+
+              <div class="flex justify-between border-b pb-3" style="border-color:#e8e3da;">
+                <span class="text-sm" style="color:#6b6560;">Saturday</span>
+                <span class="text-sm font-bold text-red-600">Closed</span>
+              </div>
+
+              <div class="p-4 rounded-2xl" style="background:rgba(201,168,76,0.12);">
+                <p class="text-sm font-bold" style="color:#0f2044;">Digital Library</p>
+                <p class="text-sm" style="color:#6b6560;">E-books available 24/7</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- PHYSICAL BOOK DETAIL MODAL -->
+  <div id="bookDetailModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 modal-backdrop p-4">
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto">
+
+      <!-- MODAL HEADER -->
+      <div class="relative p-7" style="background:linear-gradient(135deg,#0f2044,#1a3a6e);">
+        <button onclick="closeBookDetail()" class="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/10 transition">
+          <i class="fa-solid fa-xmark text-white text-xl"></i>
+        </button>
+
+        <div class="flex items-center gap-5">
+          <div id="modalBookCover" class="w-24 h-32 rounded-xl border border-white/20 flex items-center justify-center shrink-0 overflow-hidden" style="background:rgba(255,255,255,0.08);">
+            <i class="fa-solid fa-book-open text-4xl" style="color:#c9a84c;"></i>
+          </div>
+
+          <div class="pr-10">
+            <p id="modalBookGenre" class="text-xs uppercase tracking-widest font-bold mb-2" style="color:#c9a84c;">Genre</p>
+            <h2 id="modalBookTitle" class="text-2xl md:text-3xl font-bold text-white leading-tight">Book Title</h2>
+            <p id="modalBookAuthor" class="mt-2" style="color:rgba(255,255,255,0.75);">by Author</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL BODY -->
+      <div class="p-6">
+
+        <!-- AVAILABILITY -->
+        <div id="modalAvailabilityBox" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 p-4 rounded-xl">
+          <div class="flex items-center gap-2">
+            <div id="modalAvailabilityDot" class="w-2.5 h-2.5 rounded-full"></div>
+            <span id="modalAvailabilityText" class="text-sm font-semibold"></span>
+          </div>
+
+          <form id="modalReserveForm" method="POST">
+            <button
+              id="modalReserveButton"
+              type="submit"
+              class="px-5 py-2 rounded-xl text-sm font-semibold transition-all"
+            >
+              Reserve Now
+            </button>
+          </form>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="mb-5">
+          <h3 class="text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6560;">About This Book</h3>
+          <p id="modalBookDescription" class="text-sm leading-relaxed" style="color:#1a1a2e;"></p>
+        </div>
+
+        <!-- DETAILS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-location-dot" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Shelf Number</p>
+              <p id="modalBookLocation" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-building" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Publisher</p>
+              <p id="modalBookPublisher" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-clock" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Year Published</p>
+              <p id="modalBookYear" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-bookmark" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Edition</p>
+              <p id="modalBookEdition" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-book-open" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Pages</p>
+              <p id="modalBookPages" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-users" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Total Copies</p>
+              <p id="modalBookTotal" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="sm:col-span-2 flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-barcode" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">ISBN</p>
+              <p id="modalBookIsbn" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E-BOOK DETAIL MODAL -->
+  <div id="ebookDetailModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 modal-backdrop p-4">
+    <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto">
+
+      <!-- MODAL HEADER -->
+      <div class="relative p-7" style="background:linear-gradient(135deg,#0f2044,#1a3a6e);">
+        <button onclick="closeEbookDetail()" class="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center hover:bg-white/10 transition">
+          <i class="fa-solid fa-xmark text-white text-xl"></i>
+        </button>
+
+        <div class="flex items-center gap-5">
+          <div id="modalEbookCover" class="w-24 h-32 rounded-xl border border-white/20 flex items-center justify-center shrink-0 overflow-hidden" style="background:rgba(255,255,255,0.08);">
+            <i class="fa-solid fa-file-pdf text-4xl" style="color:#c9a84c;"></i>
+          </div>
+
+          <div class="pr-10">
+            <p id="modalEbookCategory" class="text-xs uppercase tracking-widest font-bold mb-2" style="color:#c9a84c;">Category</p>
+            <h2 id="modalEbookTitle" class="text-2xl md:text-3xl font-bold text-white leading-tight">E-Book Title</h2>
+            <p id="modalEbookAuthor" class="mt-2" style="color:rgba(255,255,255,0.75);">by Author</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL BODY -->
+      <div class="p-6">
+
+        <!-- PDF BANNER -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 p-4 rounded-xl" style="background:rgba(5,150,105,0.08);">
+          <div class="flex items-center gap-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500"></div>
+            <span class="text-sm font-semibold text-emerald-600">PDF e-book available</span>
+          </div>
+
+          <div class="flex gap-2">
+            <a id="modalEbookRead" href="#" target="_blank" class="px-5 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-90" style="background:#0f2044;color:#c9a84c;">
+              <i class="fa-solid fa-eye mr-1"></i>
+              Read Now
+            </a>
+
+            <a id="modalEbookDownload" href="#" download class="px-5 py-2 rounded-xl text-sm font-semibold transition-all" style="background:#f0ebe2;color:#0f2044;border:1.5px solid #e8e3da;">
+              <i class="fa-solid fa-download mr-1"></i>
+              Download
+            </a>
+          </div>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="mb-5">
+          <h3 class="text-xs font-semibold uppercase tracking-wider mb-2" style="color:#6b6560;">About This E-Book</h3>
+          <p id="modalEbookDescription" class="text-sm leading-relaxed" style="color:#1a1a2e;"></p>
+        </div>
+
+        <!-- DETAILS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-layer-group" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Category</p>
+              <p id="modalEbookCategoryDetail" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-file-pdf" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Format</p>
+              <p class="font-bold" style="color:#0f2044;">PDF</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-book-open" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">Pages</p>
+              <p id="modalEbookPages" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 p-4 rounded-xl" style="background:#f7f4ef;">
+            <i class="fa-solid fa-download" style="color:#c9a84c;"></i>
+            <div>
+              <p class="text-xs font-semibold uppercase" style="color:#6b6560;">File Size</p>
+              <p id="modalEbookSize" class="font-bold" style="color:#0f2044;"></p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showPage(page) {
+      if (window.location.hash !== "#" + page) {
+        history.replaceState(null, "", "#" + page);
+      }
+
+      const sections = document.querySelectorAll(".page-section");
+      const navButtons = document.querySelectorAll(".nav-btn");
+
+      sections.forEach(section => section.classList.add("hidden"));
+
+      navButtons.forEach(button => {
+        button.classList.remove("active");
+        button.style.borderColor = "transparent";
+        button.style.color = "#6b6560";
+      });
+
+      const activeSection = document.getElementById("page-" + page);
+      if (activeSection) activeSection.classList.remove("hidden");
+
+      const activeButton = document.getElementById("nav-" + page);
+      if (activeButton) {
+        activeButton.classList.add("active");
+        activeButton.style.borderColor = "#c9a84c";
+        activeButton.style.color = "#0f2044";
+      }
+    }
+
+    function filterBooks() {
+      const search = document.getElementById("bookSearch").value.toLowerCase();
+      const genre = document.getElementById("bookGenre").value;
+      const availability = document.getElementById("bookAvailability").value;
+      const cards = document.querySelectorAll(".book-card");
+      const noMessage = document.getElementById("noBooksMessage");
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const title = card.dataset.title || "";
+        const author = card.dataset.author || "";
+        const cardGenre = card.dataset.genre || "";
+        const cardAvailability = card.dataset.available || "";
+
+        const matchSearch = title.includes(search) || author.includes(search);
+        const matchGenre = genre === "all" || cardGenre === genre;
+        const matchAvailability = availability === "all" || cardAvailability === availability;
+
+        if (matchSearch && matchGenre && matchAvailability) {
+          card.classList.remove("hidden");
+          visibleCount++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      if (noMessage) {
+        if (visibleCount === 0 && cards.length > 0) {
+          noMessage.classList.remove("hidden");
+        } else {
+          noMessage.classList.add("hidden");
+        }
+      }
+    }
+
+    function filterEbooks() {
+      const search = document.getElementById("ebookSearch").value.toLowerCase();
+      const category = document.getElementById("ebookCategory").value;
+      const cards = document.querySelectorAll(".ebook-card");
+      const noMessage = document.getElementById("noEbooksMessage");
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const title = card.dataset.title || "";
+        const author = card.dataset.author || "";
+        const cardCategory = card.dataset.category || "";
+
+        const matchSearch = title.includes(search) || author.includes(search);
+        const matchCategory = category === "all" || cardCategory === category;
+
+        if (matchSearch && matchCategory) {
+          card.classList.remove("hidden");
+          visibleCount++;
+        } else {
+          card.classList.add("hidden");
+        }
+      });
+
+      if (noMessage) {
+        if (visibleCount === 0 && cards.length > 0) {
+          noMessage.classList.remove("hidden");
+        } else {
+          noMessage.classList.add("hidden");
+        }
+      }
+    }
+
+    function openBookDetail(card) {
+      const bookId = card.dataset.id;
+      const title = card.dataset.bookTitle || "";
+      const author = card.dataset.bookAuthor || "";
+      const genre = card.dataset.bookGenre || "";
+      const total = parseInt(card.dataset.total || "0");
+      const available = parseInt(card.dataset.availableCount || "0");
+      const location = card.dataset.location || "";
+      const isbn = card.dataset.isbn || "N/A";
+      const publisher = card.dataset.publisher || "N/A";
+      const year = card.dataset.year || "N/A";
+      const edition = card.dataset.edition || "N/A";
+      const pages = card.dataset.pages || "N/A";
+      const description = card.dataset.description || "No description available.";
+      const image = card.dataset.image || "";
+
+      document.getElementById("modalBookGenre").textContent = genre;
+      document.getElementById("modalBookTitle").textContent = title;
+      document.getElementById("modalBookAuthor").textContent = "by " + author;
+      document.getElementById("modalBookDescription").textContent = description;
+      document.getElementById("modalBookLocation").textContent = location;
+      document.getElementById("modalBookPublisher").textContent = publisher;
+      document.getElementById("modalBookYear").textContent = year;
+      document.getElementById("modalBookEdition").textContent = edition;
+      document.getElementById("modalBookPages").textContent = pages + " pages";
+      document.getElementById("modalBookTotal").textContent = total + " copies";
+      document.getElementById("modalBookIsbn").textContent = isbn;
+
+      const cover = document.getElementById("modalBookCover");
+      if (image) {
+        cover.innerHTML = '<img src="' + image + '" class="w-full h-full object-cover" alt="' + title + '">';
+      } else {
+        cover.innerHTML = '<i class="fa-solid fa-book-open text-4xl" style="color:#c9a84c;"></i>';
+      }
+
+      const box = document.getElementById("modalAvailabilityBox");
+      const dot = document.getElementById("modalAvailabilityDot");
+      const text = document.getElementById("modalAvailabilityText");
+      const button = document.getElementById("modalReserveButton");
+      const form = document.getElementById("modalReserveForm");
+
+      form.action = "/reserve-book/" + bookId;
+
+      if (available > 0) {
+        box.style.background = "rgba(5,150,105,0.08)";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+        text.textContent = available + " of " + total + " copies available";
+        text.style.color = "#059669";
+        button.textContent = "Reserve Now";
+        button.disabled = false;
+        button.style.background = "#0f2044";
+        button.style.color = "#c9a84c";
+        button.style.cursor = "pointer";
+      } else {
+        box.style.background = "rgba(220,38,38,0.08)";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-red-500";
+        text.textContent = "Currently Checked Out";
+        text.style.color = "#dc2626";
+        button.textContent = "Join Waitlist";
+        button.disabled = true;
+        button.style.background = "#e8e3da";
+        button.style.color = "#6b6560";
+        button.style.cursor = "not-allowed";
+      }
+
+      const modal = document.getElementById("bookDetailModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeBookDetail() {
+      const modal = document.getElementById("bookDetailModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function openEbookDetail(card) {
+      const title = card.dataset.ebookTitle || "";
+      const author = card.dataset.ebookAuthor || "";
+      const category = card.dataset.ebookCategory || "";
+      const pages = card.dataset.pages || "0";
+      const size = card.dataset.size || "";
+      const description = card.dataset.description || "No description available.";
+      const pdfUrl = card.dataset.pdfUrl || "#";
+      const coverImage = card.dataset.cover || "";
+
+      document.getElementById("modalEbookCategory").textContent = category;
+      document.getElementById("modalEbookTitle").textContent = title;
+      document.getElementById("modalEbookAuthor").textContent = "by " + author;
+      document.getElementById("modalEbookDescription").textContent = description;
+      document.getElementById("modalEbookCategoryDetail").textContent = category;
+      document.getElementById("modalEbookPages").textContent = pages + " pages";
+      document.getElementById("modalEbookSize").textContent = size;
+      document.getElementById("modalEbookRead").href = pdfUrl;
+      document.getElementById("modalEbookDownload").href = pdfUrl;
+
+      const cover = document.getElementById("modalEbookCover");
+      if (coverImage) {
+        cover.innerHTML = '<img src="' + coverImage + '" class="w-full h-full object-cover" alt="' + title + '">';
+      } else {
+        cover.innerHTML = '<i class="fa-solid fa-file-pdf text-4xl" style="color:#c9a84c;"></i>';
+      }
+
+      const modal = document.getElementById("ebookDetailModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeEbookDetail() {
+      const modal = document.getElementById("ebookDetailModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    window.addEventListener("click", function (e) {
+      const bookModal = document.getElementById("bookDetailModal");
+      const ebookModal = document.getElementById("ebookDetailModal");
+
+      if (e.target === bookModal) {
+        closeBookDetail();
+      }
+
+      if (e.target === ebookModal) {
+        closeEbookDetail();
+      }
+    });
+
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        closeBookDetail();
+        closeEbookDetail();
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", function () {
+      if (window.location.hash === "#ebooks") {
+        showPage("ebooks");
+      } else if (window.location.hash === "#dashboard") {
+        showPage("dashboard");
+      } else if (window.location.hash === "#password") {
+        showPage("password");
+      } else if (window.location.hash === "#about") {
+        showPage("about");
+      } else {
+        showPage("catalog");
+      }
+    });
+  </script>
+{% endblock %}
